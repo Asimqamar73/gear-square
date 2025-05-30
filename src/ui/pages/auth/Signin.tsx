@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Lock, UserRound } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Signin = () => {
@@ -16,6 +15,14 @@ const Signin = () => {
     }));
   };
 
+  useEffect(() => {
+    //@ts-ignore
+    if (localStorage.getItem("gear-square-user")) {
+      console.log("hello locaal staoge item available");
+      navigate("/product");
+    }
+  }, []);
+
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
     console.log(data);
@@ -23,12 +30,12 @@ const Signin = () => {
     const resp = await window.electron.login(data);
     console.log(resp);
     if (resp.success) {
+      localStorage.setItem("gear-square-user", JSON.stringify(resp.result));
       navigate("/product");
     } else {
-      
       setResponse(resp.message);
       setTimeout(() => {
-         setResponse("");
+        setResponse("");
       }, 3000);
     }
   };
@@ -69,13 +76,13 @@ const Signin = () => {
               required
             />
           </div>
-            <button
-              type="submit"
-              className="bg-[#173468] w-full p-2 text-lg text-gray-200 font-semibold rounded-lg"
-            >
-              Sign in
-            </button>
-             <p className="text-red-500">{response}</p>
+          <button
+            type="submit"
+            className="bg-[#173468] w-full p-2 text-lg text-gray-200 font-semibold rounded-lg"
+          >
+            Sign in
+          </button>
+          <p className="text-red-500">{response}</p>
         </form>
       </div>
     </div>

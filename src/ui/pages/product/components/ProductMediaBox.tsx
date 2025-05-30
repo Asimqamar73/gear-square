@@ -3,7 +3,7 @@ import { Images } from "lucide-react";
 //
 const ProductMediaBox = ({ onMutate, image }: any) => {
   return (
-    <div className="p-4 bg-white rounded-2xl flex flex-col gap-2 border  border-gray-400 shadow">
+    <div className="p-4 bg-white rounded-2xl flex flex-col gap-2 border  border-gray-300 shadow">
       <h2 className="text-xl mt-2">Product media</h2>
       <p className="text-sm text-gray-500">Product photo</p>
       <label
@@ -18,7 +18,7 @@ const ProductMediaBox = ({ onMutate, image }: any) => {
         ) : (
           <>
             <Images size={72} strokeWidth={1} />
-            <p>Click me</p>
+            <p className="text-green-700">Browser here</p>
           </>
         )}
       </label>

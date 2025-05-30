@@ -75,7 +75,7 @@ const AddProduct = () => {
         </div>
         <form onSubmit={handleSubmit} className="grid grid-cols-5 gap-4">
           <div className="col-span-3 flex flex-col gap-4">
-            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-400 shadow">
+            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
               <h2 className="text-xl mt-2">General information</h2>
               <div className="flex flex-col gap-1">
                 <label htmlFor="name" className="text-sm text-gray-500">
@@ -106,7 +106,7 @@ const AddProduct = () => {
                 ></textarea>
               </div>
             </div>
-            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-400 shadow-sm">
+            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
               <h2 className="text-xl mt-2">Pricing</h2>
               <div className="flex flex-col gap-1">
                 <label htmlFor="price" className="text-sm text-gray-500">
@@ -124,7 +124,7 @@ const AddProduct = () => {
               </div>
             </div>
 
-            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-400 shadow-sm">
+            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
               <h2 className="text-xl mt-2">Inventory</h2>
               <div className="flex flex-wrap gap-2">
                 <div className="flex flex-col gap-1 grow">

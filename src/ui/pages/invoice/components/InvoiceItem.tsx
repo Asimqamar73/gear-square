@@ -8,10 +8,10 @@ const InvoiceItem = ({
   handleQuantityChange,
   items,
   addNewItem,
-  deleteItem
+  deleteItem,
 }: any) => {
   return (
-    <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-400 shadow">
+    <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
       <h2 className="text-xl mt-2">Items</h2>
       {items.map((item: any, idx: number) => (
         <div className="flex items-end gap-4" key={idx}>
@@ -29,7 +29,11 @@ const InvoiceItem = ({
                 {"Please select one item"}
               </option>
               {products?.map((product: any) => (
-                <option value={product.id} key={product.id} selected={product.id===item?.product?.id}>
+                <option
+                  value={product.id}
+                  key={product.id}
+                  selected={product.id === item?.product?.id}
+                >
                   {product.name}
                 </option>
               ))}
@@ -52,10 +56,11 @@ const InvoiceItem = ({
               placeholder="102"
             />
           </div>
-          <div className="flex flex-col gap-1 grow">
+          <div className="flex flex-col justify-center gap-1 grow relative">
             <label htmlFor="name" className="text-sm text-gray-500">
               Quantity
             </label>
+
             <input
               type="text"
               name="quantity"
@@ -69,6 +74,9 @@ const InvoiceItem = ({
               required
               placeholder="5"
             />
+             {item?.product && (
+                <p className="text-xs text-green-700 font-semibold absolute -bottom-4 right-0">Available stock {item?.product?.quantity}</p>
+              )}
           </div>
           <div className="flex flex-col gap-1 grow">
             <label htmlFor="name" className="text-sm text-gray-500">
@@ -89,14 +97,22 @@ const InvoiceItem = ({
             />
           </div>
           {items.length > 1 && (
-            <Button variant="outline" className="bg-red-400 text-white h-11 w-11" onClick={()=>deleteItem(idx)}>
+            <Button
+              variant="outline"
+              className="bg-red-400 text-white h-11 w-11"
+              onClick={() => deleteItem(idx)}
+            >
               <Trash />
             </Button>
           )}
         </div>
       ))}
-      <Button variant={"outline"} className="w-fit" onClick={addNewItem}>
-        Add
+      <Button
+        variant={"outline"}
+        className="w-fit bg-[#173468] text-white cursor-pointer"
+        onClick={addNewItem}
+      >
+        Add item
       </Button>
     </div>
   );
