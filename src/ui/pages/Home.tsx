@@ -11,7 +11,6 @@ function Home() {
   const getLisitng = async () => {
     //@ts-ignore
     const result = await window.electron.getUsers();
-    console.log(result);
   };
   return (
     <div>

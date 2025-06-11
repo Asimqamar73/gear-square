@@ -1,13 +1,13 @@
 import {
+  Box,
   ChevronRight,
-  ChevronUp,
+  LayoutDashboard,
   ListCheck,
-  ListTodo,
   LogOut,
   PackageOpen,
-  Tag,
-  User,
   User2,
+  UserPlus,
+  Users2,
 } from "lucide-react";
 
 import {
@@ -32,9 +32,14 @@ import {
 // Menu items.
 const items = [
   {
-    title: "Products",
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    title: "Inventory",
     url: "/product",
-    icon: Tag,
+    icon: Box,
   },
   {
     title: "Add product",
@@ -47,9 +52,14 @@ const items = [
     icon: ListCheck,
   },
   {
-    title: "Generate invoice",
-    url: "/generate-invoice",
-    icon: ListTodo,
+    title: "Customers",
+    url: "/customers",
+    icon: Users2,
+  },
+  {
+    title: "Add customer",
+    url: "/add-customer",
+    icon: UserPlus,
   },
 ];
 
@@ -123,15 +133,25 @@ export function AppSidebar() {
                   <ChevronRight className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="left" className="w-full bg-gray-100">
+              <DropdownMenuContent side="left" className="w-full bg-gray-100 border-gray-400">
+                <DropdownMenuItem>
+                  <div className="p-1 border rounded-lg bg-gray-200">
+                    <User2 className="size-6 text-gray-600" />
+                  </div>
+                  <div>
+                    <p className="capitalize text-gray-700">{data.username}</p>
+                    <p className="text-gray-500">{data.email}</p>
+                  </div>
+                </DropdownMenuItem>
+                <hr />
                 <DropdownMenuItem
-                className="cursor-pointer"
+                  className="cursor-pointer hover:bg-gray-300 my-0.5"
                   onClick={() => {
                     localStorage.removeItem("gear-square-user");
                     navigate("/");
                   }}
                 >
-                 <LogOut /> <span>Log out</span>
+                  <LogOut /> <span>Log out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

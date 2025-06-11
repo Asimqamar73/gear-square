@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import Table from "./components/Table";
 import useDebounce from "react-debounced";
-import { Search } from "lucide-react";
+import SearchBar from "../../../components/SearchBar";
+import RestockSheet from "../../../components/CustomSheet";
+import CustomSheet from "../../../components/CustomSheet";
+import { Separator } from "../../../components/ui/separator";
+import { toast } from "sonner";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -11,7 +15,7 @@ const Products = () => {
   const debounce = useDebounce(2000);
   const [searchVal, setSearchVal] = useState("");
 
-  const handleChange = (e: any) => {
+  const handleSearch = (e: any) => {
     const inputValue = e.target.value;
     setSearchVal(inputValue);
     setSearchLoading(true);
@@ -41,32 +45,119 @@ const Products = () => {
     }
   };
 
+  const [newQuantity, setNewQuantity] = useState<number | string>(1);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleUpdateStock = async () => {
+    try {
+      //@ts-ignore
+      const response = await window.electron.updateProductStock({
+        quantity: Number(newQuantity) + selectedProduct?.quantity,
+        id: selectedProduct?.id,
+      });
+      fetchAllProducts();
+      setIsSheetOpen(false)
+      toast("Stock updated",{position:"top-center",className:"bg-red-300"})
+      setNewQuantity(1);
+
+    } catch (error) {
+      console.log();
+    }
+  };
+
   if (loading) <h1>loading</h1>;
   return (
     <div className="bg-gray-100 min-h-screen w-full">
       <div className="px-8 py-16">
         <div className="flex justify-between items-start">
-          <h1 className="text-3xl font-medium mb-8 text-gray-700">Products</h1>
-          <div className="relative">
-            <Search className="size-5 text-gray-500 absolute top-1.5 left-1" />
-            {searchLoading && (
-              <svg
-                className="mr-3 size-4 animate-spin text-gray-500 rounded-4xl border-r-2 absolute right-0 top-2 "
-                viewBox="0 0 16 16"
-              ></svg>
-            )}
-
+          <h1 className="text-3xl font-medium mb-8 text-gray-700">Inventory</h1>
+          <SearchBar
+            handleSearch={handleSearch}
+            searchVal={searchVal}
+            searchLoading={searchLoading}
+            placeholder="Search products"
+          />
+        </div>
+        <Table
+          data={products}
+          handleSheetToggle={(prdduct: any) => {
+            setSelectedProduct(prdduct);
+            setIsSheetOpen(true);
+          }}
+          updateStockHandler={(product: any) => setSelectedProduct(product)}
+        />
+        <CustomSheet
+          title="Restock product"
+          isOpen={isSheetOpen}
+          handleSheetToggle={() => setIsSheetOpen(false)}
+          handleSubmit={handleUpdateStock}
+        >
+          <div className="grid flex-1 auto-rows-min gap-2 px-4">
+          <div className="grid gap-1">
+            <label htmlFor="name">Photo</label>
+            <div className="flex justify-center">
+              <img src={`file://${selectedProduct?.image}`} alt="Product image" className="max-h-48" />
+            </div>
+          </div>
+          <div className="grid gap-1">
+            <label htmlFor="name">Name</label>
             <input
-              type="text"
-              className="w-fit rounded-3xl border outline-0 p-1 indent-6"
-              value={searchVal}
-              placeholder="Search product"
-              
-              onChange={handleChange}
+              id="name"
+              readOnly
+              value={selectedProduct?.name}
+              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+              disabled
+            />
+          </div>
+
+          <div className="grid gap-1">
+            <label htmlFor="quantity">Quantity</label>
+            <input
+              id="quantity"
+              readOnly
+              value={selectedProduct?.quantity}
+              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+              disabled
+            />
+          </div>
+          <div className="flex gap-2">
+            <div className="grid gap-1">
+              <label htmlFor="quantity">SKU</label>
+              <input
+                id="quantity"
+                readOnly
+                value={selectedProduct?.sku}
+                className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+                disabled
+              />
+            </div>
+
+            <div className="grid gap-1">
+              <label htmlFor="quantity">Barcode</label>
+              <input
+                id="quantity"
+                readOnly
+                value={selectedProduct?.barcode}
+                className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+                disabled
+              />
+            </div>
+          </div>
+          <Separator orientation="horizontal" className="my-4 bg-gray-500" />
+          <div className="grid gap-1">
+            <label htmlFor="quantity">New stock quantity</label>
+            <input
+              id="new-quantity"
+              type="number"
+              min={1}
+              value={newQuantity}
+              className="p-1.5 indent-2 text-sm border rounded-md"
+              onChange={(e) => setNewQuantity(e.target.value)}
             />
           </div>
         </div>
-        <Table data={products} />
+        </CustomSheet>
       </div>
     </div>
   );

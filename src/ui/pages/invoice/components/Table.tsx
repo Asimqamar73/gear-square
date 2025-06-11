@@ -10,8 +10,23 @@ import {
 } from "../../../../components/ui/table";
 import { useNavigate } from "react-router-dom";
 import { dateFormatter } from "../../../utils/DateFormatter";
+import { Badge } from "../../../../components/ui/badge";
 
 const Table = ({ data }: any) => {
+  const paymentStatuses: any = {
+    0: {
+      value: "Unpaid",
+      color: "bg-red-200",
+    },
+    1: {
+      value: "Partial",
+      color: "bg-amber-200",
+    },
+    2: {
+      value: "Paid",
+      color: "bg-green-200",
+    },
+  };
   const navigate = useNavigate();
   return (
     <T>
@@ -25,19 +40,23 @@ const Table = ({ data }: any) => {
           <TableHead>Vehicle no#</TableHead>
           <TableHead>Note</TableHead>
           <TableHead>Date</TableHead>
+          <TableHead>Payment status</TableHead>
 
           <TableHead>Action</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {data.map((datum: any, idx: number) => (
-          <TableRow>
+          <TableRow key={idx}>
             <TableCell className="font-medium">{idx + 1}</TableCell>
             <TableCell className="font-medium">{datum.name}</TableCell>
             <TableCell>{datum.phone_number}</TableCell>
             <TableCell>{datum.vehicle_number}</TableCell>
             <TableCell>{datum.note}</TableCell>
             <TableCell>{dateFormatter(datum.created_at)}</TableCell>
+            <TableCell>
+              <Badge variant={"outline"} className={`${paymentStatuses[datum.bill_status].color} border-gray-400`}>{paymentStatuses[datum.bill_status].value}</Badge>
+            </TableCell>
             <TableCell className="text-right">
               <div className="cursor-pointer" onClick={() => navigate(`/invoice/${datum.id}`)}>
                 <Eye className="text-gray-600" />

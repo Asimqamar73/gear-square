@@ -1,23 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProductMediaBox from "./components/ProductMediaBox";
-import RestockSheet from "../../../components/CustomSheet";
+import { useParams } from "react-router-dom";
+import { Button } from "../../../components/ui/button";
 
-const AddProduct = () => {
+const EditProduct = () => {
+  const params = useParams();
   const productInitialState = {
     productImage: null,
     name: "",
     description: "",
-    costPrice: "",
-    retailPrice: "",
+    cost_price: "",
+    retail_price: "",
     sku: "",
     barcode: "",
     quantity: "",
+    image: "",
   };
   const [product, setProduct] = useState(productInitialState);
   //@ts-ignore
   const data = JSON.parse(localStorage.getItem("gear-square-user"));
 
   const [message, setMessage] = useState("");
+  useEffect(() => {
+    fetchProductDetails();
+  }, []);
+
+  const fetchProductDetails = async () => {
+    try {
+      //@ts-ignore
+      const response = await window.electron.getProductById(params.productId);
+      console.log(response);
+      setProduct(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const onMutate = (event: any) => {
     if (event.target.files) {
@@ -35,20 +52,21 @@ const AddProduct = () => {
   };
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
     console.log(product);
+    e.preventDefault();
     try {
       //@ts-ignore
-      const resp = await window.electron.addProduct({
+      const resp = await window.electron.updateProductDetails({
         ...product,
-        createdBy: data.id,
         updatedBy: data.id,
-        productImage: {
-          //@ts-ignore
-          buffer: await product.productImage.arrayBuffer(),
-          //@ts-ignore
-          imageName: product.productImage.name,
-        },
+        productImage: product.productImage
+          ? {
+              //@ts-ignore
+              buffer: await product.productImage.arrayBuffer(),
+              //@ts-ignore
+              imageName: product.productImage.name,
+            }
+          : null,
       });
       if (resp.success) {
         setMessage("Product added successfully");
@@ -58,15 +76,15 @@ const AddProduct = () => {
         setMessage("");
       }, 4000);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
   };
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
         <div className="flex flex-col gap-2 mb-8 text-gray-700">
-          <h1 className="text-3xl font-medium">Add new product</h1>
-          <p>Please provide all below information about the product to add in the list.</p>
+          <h1 className="text-3xl font-medium">Edit product</h1>
+          <p>Update product details</p>
           {message ? (
             <p className="text-green-500 font-bold p-2 rounded-lg border w-68 bg-green-200">
               {message}
@@ -117,12 +135,12 @@ const AddProduct = () => {
                   </label>
                   <input
                     type="number"
-                    name="costPrice"
-                    id="costPrice"
+                    name="cost_price"
+                    id="cost_price"
                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
                     onChange={onMutate}
                     required
-                    value={product.costPrice}
+                    value={product.cost_price}
                     placeholder="115"
                   />
                 </div>
@@ -132,12 +150,12 @@ const AddProduct = () => {
                   </label>
                   <input
                     type="number"
-                    name="retailPrice"
-                    id="retailPrice"
+                    name="retail_price"
+                    id="retail_price"
                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
                     onChange={onMutate}
                     required
-                    value={product.retailPrice}
+                    value={product.retail_price}
                     placeholder="135"
                   />
                 </div>
@@ -194,12 +212,15 @@ const AddProduct = () => {
                 </div>
               </div>
             </div>
-            <button type="submit" className="bg-[#173468] p-2 rounded-sm text-white font-bold">
-              Add
-            </button>
+            {/* <button type="submit" className=" p-2 rounded-sm text-white font-bold">
+              Update
+            </button> */}
+            <Button type="submit" className="bg-[#173468] text-white" variant={"outline"}>
+              Update
+            </Button>
           </div>
           <div className="col-span-2">
-            <ProductMediaBox onMutate={onMutate} image={product.productImage} />
+            <ProductMediaBox onMutate={onMutate} image={product?.image} newImage={product.productImage} />
           </div>
         </form>
       </div>
@@ -207,4 +228,4 @@ const AddProduct = () => {
   );
 };
 
-export default AddProduct;
+export default EditProduct;

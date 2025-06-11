@@ -1,25 +1,30 @@
+import { Combobox } from "../../../../components/ComboBox";
 import { Button } from "../../../../components/ui/button";
 import { Trash } from "lucide-react";
 
 const InvoiceItem = ({
   products,
-  handleProductChange,
   handleSubtotal,
   handleQuantityChange,
+  handleProductChange,
   items,
   addNewItem,
   deleteItem,
+  comboboxValue,
 }: any) => {
   return (
     <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
       <h2 className="text-xl mt-2">Items</h2>
       {items.map((item: any, idx: number) => (
         <div className="flex items-end gap-4" key={idx}>
-          <div className="flex flex-col gap-1 grow">
+          <div className="flex flex-col gap-1 w-full">
             <label htmlFor="name" className="text-sm text-gray-500">
               Name
             </label>
-            <select
+            <Combobox data={products} emptyMessage="No product found...." placeholder="Search product...." value={comboboxValue} handleProductChange={handleProductChange} item={item} itemIdx={idx}/>
+
+            
+            {/* <select
               name="products"
               id="products"
               className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
@@ -37,11 +42,11 @@ const InvoiceItem = ({
                   {product.name}
                 </option>
               ))}
-            </select>
+            </select> */}
           </div>
           <div className="flex flex-col gap-1 grow">
             <label htmlFor="name" className="text-sm text-gray-500">
-              Base price
+              Unit price
             </label>
             <input
               type="text"
@@ -49,8 +54,7 @@ const InvoiceItem = ({
               id="basePrice"
               className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 disabled:bg-gray-100"
               //   onChange={onMutate}
-              value={item.product?.base_price || 0}
-              defaultValue={0}
+              value={item.product?.retail_price || 0}
               required
               disabled
               placeholder="102"
@@ -65,7 +69,6 @@ const InvoiceItem = ({
               type="text"
               name="quantity"
               id="quantity"
-              defaultValue={1}
               className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 placeholder:text-gray-400"
               //   onChange={onMutate}
               value={item.quantity}
@@ -74,9 +77,11 @@ const InvoiceItem = ({
               required
               placeholder="5"
             />
-             {item?.product && (
-                <p className="text-xs text-green-700 font-semibold absolute -bottom-4 right-0">Available stock {item?.product?.quantity}</p>
-              )}
+            {item?.product && (
+              <p className="text-xs text-green-700 font-semibold absolute -bottom-4 right-0">
+                Available stock {item?.product?.quantity}
+              </p>
+            )}
           </div>
           <div className="flex flex-col gap-1 grow">
             <label htmlFor="name" className="text-sm text-gray-500">
@@ -93,9 +98,43 @@ const InvoiceItem = ({
               required
               disabled
               placeholder="LXI-990"
-              defaultValue={0}
             />
           </div>
+          <div className="flex flex-col gap-1 grow">
+            <label htmlFor="name" className="text-sm text-gray-500">
+              Profit (per unit)
+            </label>
+            <input
+              type="number"
+              name="profit"
+              id="profit"
+              className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 disabled:bg-gray-100"
+              //   onChange={onMutate}
+              // value={selectedProduct?.barcode}
+              value={item.product?.retail_price  - item.product?.cost_price}
+              required
+              disabled
+              placeholder="30 aed"
+            />
+          </div>
+             <div className="flex flex-col gap-1 grow">
+            <label htmlFor="name" className="text-sm text-gray-500">
+              Profit (per unit x quantity)
+            </label>
+            <input
+              type="number"
+              name="profit"
+              id="profit"
+              className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 disabled:bg-gray-100"
+              //   onChange={onMutate}
+              // value={selectedProduct?.barcode}
+              value={(item.product?.retail_price  - item.product?.cost_price) * item.quantity}
+              required
+              disabled
+              placeholder="30 aed"
+            />
+          </div>
+       
           {items.length > 1 && (
             <Button
               variant="outline"

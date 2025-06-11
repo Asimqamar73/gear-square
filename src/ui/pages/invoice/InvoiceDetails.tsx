@@ -1,8 +1,13 @@
-import { CalendarDays, CarFront, Clock10, Phone, User } from "lucide-react";
+import { CalendarDays, Car, Clock10, Phone, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import ServiceItemTable from "./components/ServiceItemTable";
-import { dateFormatter } from "../../utils/DateFormatter";
+import { dateFormatter, to12HourFormat } from "../../utils/DateFormatter";
+import { Badge } from "../../../components/ui/badge";
+import PageHeader from "../../../components/PageHeader";
+import { Button } from "../../../components/ui/button";
+import CustomSheet from "../../../components/CustomSheet";
+import { Separator } from "../../../components/ui/separator";
 
 interface IInoviceDetails {
   service: IService | undefined;
@@ -25,13 +30,33 @@ interface IServiceItems {
   subtotal: number;
 }
 interface IServiceBill {
+  id:number,
   discount: number;
   subtotal: number;
   total: number;
+  amount_paid: number;
+  amount_due: number;
+  bill_status: number;
 }
 const InvoiceDetails = () => {
   const params = useParams();
+  const paymentStatuses: any = {
+    0: {
+      value: "Unpaid",
+      color: "bg-red-200",
+    },
+    1: {
+      value: "Partial",
+      color: "bg-amber-200",
+    },
+    2: {
+      value: "Paid",
+      color: "bg-green-200",
+    },
+  };
   const [details, setDetails] = useState<IInoviceDetails>();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [paymentAmount,setPaymentAmount] = useState<number | string>(0)
 
   useEffect(() => {
     fetchDetails(params.invoiceId);
@@ -41,84 +66,259 @@ const InvoiceDetails = () => {
     try {
       //@ts-ignore
       const resp = await window.electron.getInvoiceDetails(id);
-      console.log(resp);
       setDetails(resp);
     } catch (error) {
       console.log(error);
     }
   };
+  const handleSheetToggle = () => {
+    setIsSheetOpen(!isSheetOpen);
+  };
+  const handleUpdateInvoice =async () => {
+    //@ts-ignore
+    const newTotalPaid = Number(paymentAmount) + details?.serviceBill?.amount_paid
+    try {
+      //@ts-ignore
+      const resp = await window.electron.updateServiceDuePayment({
+        billStatus: newTotalPaid===details?.serviceBill?.total ? 2 : 1,
+        amountPaid: newTotalPaid,
+        id : details?.serviceBill?.id
+      })
+      console.log(resp)
+      fetchDetails(params.invoiceId);
+      setIsSheetOpen(false)
+    } catch (error) {
+      
+    }
+    console.log(newTotalPaid)
+  };
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
         <div className="flex flex-col gap-2 mb-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-medium text-gray-700 mb-8">Invoice details</h1>
-          </div>
-          <div className="flex gap-4">
+          <PageHeader title="Invoice details">
+            <Button variant={"outline"} onClick={handleSheetToggle}>
+              Update invoice
+            </Button>
+          </PageHeader>
+          <div className="col-span-5 flex gap-4">
             <div className="grow p-4 bg-gray-200 rounded-2xl flex flex-col gap-4 border border-gray-300 shadow">
               <h2 className="text-xl mt-2">General information</h2>
               <div className="flex justify-between">
                 <div className="flex flex-col gap-2 ">
                   <h2 className="font-semibold">Billed to</h2>
-                  <p className="flex gap-2 font-bold text-gray-600 text-lg">
+                  {/* <p className="flex gap-2 font-bold text-gray-600 text-lg">
                     {" "}
                     <User strokeWidth={1.5} /> {details?.service?.name}{" "}
-                  </p>
-                  <p className="flex gap-2 font-bold text-gray-600 text-lg text-right">
-                    <Phone strokeWidth={1.5} />
-                    {details?.service?.phone_number}
-                  </p>
-                  <p className="flex gap-2 font-bold text-gray-600 text-lg">
-                    <CarFront strokeWidth={1.5} /> {details?.service?.vehicle_number}
-                  </p>
+                  </p> */}
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                      <User2 className="text-gray-500" strokeWidth={1.5} />{" "}
+                    </div>
+                    <p className="font-semibold text-gray-600 ">{details?.service?.name}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                      <Phone className="text-gray-500" strokeWidth={1.5} />
+                    </div>
+                    <p className="font-semibold text-gray-600"> {details?.service?.phone_number}</p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                      <Car className="text-gray-500" strokeWidth={1.5} />
+                    </div>
+                    <p className="font-semibold text-gray-600">
+                      {" "}
+                      {details?.service?.vehicle_number}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2">
                   <h2 className="font-semibold">Invoice</h2>
                   <p>Invoice no# INV00{details?.service?.id}</p>
-                  {details?.service?.created_at && (
-                    <p className="flex gap-2 font-bold text-gray-600 text-lg">
-                      <CalendarDays strokeWidth={1.5} />{" "}
-                      {dateFormatter(details?.service.created_at)}
-                    </p>
-                  )}
 
-                  <p className="flex gap-2 font-bold text-gray-600 text-lg">
-                    <Clock10 strokeWidth={1.5} /> {details?.service?.created_at.split(" ")[1]}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                      <CalendarDays className="text-gray-500" strokeWidth={1.5} />{" "}
+                    </div>
+                    <p className="font-semibold text-gray-600">
+                      {details?.service?.created_at && dateFormatter(details?.service?.created_at)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                      <Clock10 className="text-gray-500" strokeWidth={1.5} />{" "}
+                    </div>
+                    <p className="font-semibold text-gray-600">
+                      {details?.service?.created_at.split(" ")[1] &&
+                        to12HourFormat(details?.service?.created_at.split(" ")[1])}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
             <div className=" grow p-4 bg-gray-200 rounded-2xl flex flex-col gap-2 border border-gray-300 shadow">
-              <h2 className="text-xl mt-2">Bill Information</h2>
-              <p className=" flex gap-2 items-center">
-                Subtotal{" "}
-                <span className="font-semibold text-gray-600 text-lg">
-                  {details?.serviceBill?.subtotal} aed
-                </span>
-              </p>
-              <p className=" flex gap-2 items-center">
-                Discount{" "}
-                <span className="font-semibold text-gray-600 text-lg">
-                  {details?.serviceBill?.discount}%
-                </span>
-              </p>
-              <p className=" flex gap-2 items-center">
-                Grand total{" "}
-                <span className="font-semibold text-gray-600 text-2xl">
-                  {details?.serviceBill?.total} aed
-                </span>
-              </p>
+              <div className="flex flex-col gap-4 w-fit">
+                <h2 className="text-xl mt-2">Bill Information</h2>
+                <div className="flex flex-col gap-1.5">
+                  <p className=" flex gap-2 items-center">
+                    Subtotal{" "}
+                    <span className="font-semibold text-gray-600">
+                      AED {details?.serviceBill?.subtotal?.toFixed(2)}
+                    </span>
+                  </p>
+                  <p className=" flex gap-2 items-center">
+                    Discount{" "}
+                    <span className="font-semibold text-gray-600">
+                      {details?.serviceBill?.discount}%
+                    </span>
+                  </p>
+                  <p className=" flex gap-2 items-center">
+                    Grand total{" "}
+                    <span className="font-semibold text-gray-600">
+                      AED {details?.serviceBill?.total?.toFixed(2)}
+                    </span>
+                  </p>
+                  <hr className="my-1.5" />
+                  <p className=" flex gap-2 items-center">
+                    Amount paid{" "}
+                    <span className="font-semibold text-gray-600">
+                      AED {details?.serviceBill?.amount_paid?.toFixed(2)}
+                    </span>
+                  </p>
+                  <p className=" flex gap-2 items-center">
+                    Due amount{" "}
+                    <span className="font-semibold text-gray-600">
+                      AED {details?.serviceBill?.amount_due}
+                    </span>
+                  </p>
+                  <p className=" flex gap-2 items-center">
+                    Paymant status{" "}
+                    {details?.serviceBill && (
+                      <Badge
+                        variant={"outline"}
+                        className={`${
+                          paymentStatuses[details?.serviceBill?.bill_status]?.color
+                        } border-gray-400 text-gray-700`}
+                      >
+                        {paymentStatuses[details?.serviceBill?.bill_status]?.value}
+                      </Badge>
+                    )}
+                    {/* <span
+                        className={`${
+                          paymentStatuses[details?.serviceBill?.bill_status]?.color
+                        } px-2 py-0.5 rounded-2xl text-gray-700`}
+                      >
+                      </span> */}
+                  </p>
+                </div>
+              </div>
             </div>
             {/* <h2 className="font-bold text-2xl text-gray-500">{`Total bill ${totalBill} aed.`}</h2> */}
           </div>
-          <div className="mt-8">
-            <h2 className="font-semibold text-lg">Items detail</h2>
-            <ServiceItemTable data={details?.serviceItems} />
-          </div>
+        </div>
+        <div className="mt-8">
+          <h2 className="font-semibold text-lg">Items detail</h2>
+          <ServiceItemTable data={details?.serviceItems} />
         </div>
       </div>
+      <CustomSheet
+        title="Update invoice"
+        isOpen={isSheetOpen}
+        handleSheetToggle={() => setIsSheetOpen(false)}
+        handleSubmit={handleUpdateInvoice}
+      >
+        <div className="grid flex-1 auto-rows-min gap-2 px-4">
+          <div className="grid gap-1">
+            <label htmlFor="subtotal">Subtotal</label>
+            <input
+              id="subtotal"
+              readOnly
+              value={details?.serviceBill?.subtotal}
+              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+              disabled
+            />
+          </div>
+
+          <div className="grid gap-1">
+            <label htmlFor="discount">Discount</label>
+            <input
+              id="discount"
+              readOnly
+              value={details?.serviceBill?.discount}
+              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+              disabled
+            />
+          </div>
+          <div className="grid gap-1">
+            <label htmlFor="quantity">Grand total</label>
+            <input
+              id="quantity"
+              readOnly
+              value={details?.serviceBill?.subtotal}
+              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+              disabled
+            />
+          </div>
+          <hr className="my-4" />
+          <div className="grid gap-1">
+            <label htmlFor="quantity">Paid amount</label>
+            <input
+              id="quantity"
+              readOnly
+              value={details?.serviceBill?.amount_paid}
+              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+              disabled
+            />
+          </div>
+           <div className="grid gap-1">
+            <label htmlFor="quantity">Due balance</label>
+            <input
+              id="quantity"
+              readOnly
+              value={details?.serviceBill?.amount_due}
+              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
+              disabled
+            />
+          </div>
+          <Separator orientation="horizontal" className="my-4 bg-gray-500" />
+          <div className="grid gap-1">
+            <label htmlFor="quantity">Payment amount</label>
+            <input
+              id="new-quantity"
+              type="number"
+              min={1}
+              value={paymentAmount}
+              className="p-1.5 indent-2 text-sm border rounded-md"
+              onChange={(e) => setPaymentAmount(e.target.value)}
+            />
+          </div>
+        </div>
+      </CustomSheet>
     </div>
   );
 };
 
 export default InvoiceDetails;
+
+// const CustomerDetail = ({
+//   text,
+//   subtext,
+//   children,
+// }: {
+//   text?: string;
+//   subtext?: string;
+//   children: any;
+// }) => {
+//   return (
+//     <div className="flex items-center gap-2">
+//       <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">{children}</div>
+//       <div>
+//         <p>{text}</p>
+//         {subtext && <p className="text-gray-500 text-sm">{subtext}</p>}
+//       </div>
+//     </div>
+//   );
+// };

@@ -4,13 +4,12 @@
   "icon": "./ghost-custom.png",
   "extraResources": [
     "dist-electron/electron/preload.cjs",
-    {
+  {
       "from": "dist-electron/assets/db/gear-square.db",
       "to": "db/gear-square.db"
     }
   ],
   "mac": {
-    "icon": "assets/mac-icon.icns",
     "target": "dmg"
   },
   "linux": {
@@ -19,5 +18,6 @@
   },
   "win": {
     "target": ["portable", "msi"]
-  }
+  },
+  "asarUnpack": ["dist/assets/db/gear-square.db"]
 }

@@ -9,16 +9,17 @@ import {
 } from "../../../../components/ui/table";
 
 const ServiceItemTable = ({ data }: any) => {
+  console.log(data)
   return (
     <T>
       <TableCaption>List of invoice items</TableCaption>
       <TableHeader>
         <TableRow>
           {/* <TableHead className="w-[100px]">Image</TableHead> */}
-          <TableHead className="w-[100px]">Sr#</TableHead>
-          <TableHead className="w-[100px]">Image</TableHead>
-          <TableHead className="w-[100px]">Name</TableHead>
-          <TableHead className="w-[100px]">Base price</TableHead>
+          <TableHead>Sr#</TableHead>
+          <TableHead>Image</TableHead>
+          <TableHead>Name</TableHead>
+          <TableHead>Unit price</TableHead>
           <TableHead>Quantity</TableHead>
           <TableHead>Subtotal</TableHead>
         </TableRow>
@@ -26,10 +27,10 @@ const ServiceItemTable = ({ data }: any) => {
       <TableBody>
         {data?.map((datum: any, idx: number) => (
           <TableRow>
-            <TableCell className="font-medium">{idx + 1}</TableCell>
-            <TableCell className="font-medium"><img src={`file://${datum.image}`} className="w-16 h-16 rounded-lg" alt="item image" /></TableCell>
+            <TableCell>{idx + 1}</TableCell>
+            <TableCell><img src={`file://${datum.image}`} className="w-16 h-16 rounded-lg" alt="item image" /></TableCell>
             <TableCell className="font-medium">{datum.name}</TableCell>
-            <TableCell>{datum.base_price}</TableCell>
+            <TableCell>{datum.retail_price}</TableCell>
             <TableCell>{datum.quantity}</TableCell>
             <TableCell>{datum.subtotal}</TableCell>
           </TableRow>

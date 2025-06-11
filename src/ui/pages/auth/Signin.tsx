@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const Signin = () => {
   const [data, setData] = useState({
     username: "",
     password: "",
   });
-  const [response, setResponse] = useState("");
   const navigate = useNavigate();
   const onMutate = (e: any) => {
     setData((prev) => ({
@@ -18,25 +18,21 @@ const Signin = () => {
   useEffect(() => {
     //@ts-ignore
     if (localStorage.getItem("gear-square-user")) {
-      console.log("hello locaal staoge item available");
       navigate("/product");
     }
   }, []);
 
   const handleFormSubmit = async (e: any) => {
     e.preventDefault();
-    console.log(data);
     //@ts-ignore
     const resp = await window.electron.login(data);
-    console.log(resp);
     if (resp.success) {
       localStorage.setItem("gear-square-user", JSON.stringify(resp.result));
       navigate("/product");
     } else {
-      setResponse(resp.message);
-      setTimeout(() => {
-        setResponse("");
-      }, 3000);
+      toast("Invalid credential", {
+        position: "top-center",
+      });
     }
   };
   return (
@@ -82,7 +78,6 @@ const Signin = () => {
           >
             Sign in
           </button>
-          <p className="text-red-500">{response}</p>
         </form>
       </div>
     </div>

@@ -3,6 +3,7 @@ import InvoiceHeadInfo from "./components/InvoiceHeadInfo";
 import InvoiceItem from "./components/InvoiceItem";
 import { Button } from "../../../components/ui/button";
 import AlertBox from "../../../components/AlertBox";
+import PageHeader from "../../../components/PageHeader";
 
 interface IItems {
   product: any;
@@ -23,6 +24,7 @@ export const GenerateInvoive = () => {
   };
   const [products, setProducts] = useState([]);
   const [totalBill, setTotalBill] = useState(0);
+  const [comboBoxValue,setComboBoxValue] = useState();
   const [discountPercentge, setDiscountPrecentage] = useState(0);
   const [serviceDetails, setServiceDetails] = useState(initialServiceDetailsState);
 
@@ -54,7 +56,7 @@ export const GenerateInvoive = () => {
       ...updatedItem[idx],
       product: prod,
 
-      subtotal: prod?.base_price * items[idx].quantity,
+      subtotal: prod?.retail_price * items[idx].quantity,
     };
     const total = updatedItem.reduce((prev, curr) => {
       return prev + curr.subtotal;
@@ -72,7 +74,7 @@ export const GenerateInvoive = () => {
     const updatedItem = [...items];
     updatedItem[idx] = {
       ...updatedItem[idx],
-      subtotal: items[idx].quantity * items[idx]?.product?.base_price,
+      subtotal: items[idx].quantity * items[idx]?.product?.retail_price,
     };
     const total = updatedItem.reduce((prev, curr) => {
       return prev + curr.subtotal;
@@ -129,25 +131,26 @@ export const GenerateInvoive = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
         <div className="flex flex-col gap-2 mb-8">
-          <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-medium text-gray-700">Generate invoice</h1>
-            {items.length && items[0].product && (
-              <Button
-                variant="outline"
-                className="bg-[#173468] text-white font-bold"
-                // onClick={handleInvoiceGeneration}
-                onClick={() => setOpen(true)}
-              >
+         <PageHeader title="Invoice details">
+          
+             {items.length && items[0].product && (
+               <Button
+               variant="outline"
+               className="bg-[#173468] text-white font-bold"
+               // onClick={handleInvoiceGeneration}
+               onClick={() => setOpen(true)}
+               >
                 Generate
               </Button>
             )}
-          </div>
+          
           <AlertBox
             open={open}
             setOpen={setOpen}
             handleInvoiceGeneration={handleInvoiceGeneration}
-          />
-        </div>
+            />
+            
+         </PageHeader>
         <div className="flex flex-col gap-4">
           <div className="flex gap-4">
             <div className="grow">
@@ -251,9 +254,12 @@ export const GenerateInvoive = () => {
             items={items}
             addNewItem={addNewItem}
             deleteItem={deleteItem}
+            comboboxValue={comboBoxValue}
+            comboboxSetValue={setComboBoxValue}
           />
         </div>
       </div>
+    </div>
     </div>
   );
 };
