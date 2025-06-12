@@ -1,7 +1,6 @@
 {
   "appId": "com.n-ziermann.electron-app",
   "files": ["dist-electron", "dist-react"],
-  "icon": "./ghost-custom.png",
   "extraResources": [
     "dist-electron/electron/preload.cjs",
     {
@@ -14,10 +13,12 @@
     "target": "dmg"
   },
   "linux": {
+    "icon": "./ghost-custom.png",
     "target": "AppImage",
     "category": "Utility"
   },
   "win": {
+    "icon": "./ghost-custom.png",
     "target": ["portable", "msi"]
   }
 }

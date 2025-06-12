@@ -45,7 +45,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
         <PageHeader title="Dashboard" />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <CardV2 cardDescription="Today profit" cardTitle={`AED ${profit ? profit : 0}`} />
           <CardV2 cardDescription="Today services" cardTitle={`${dailyServicesCount}`} />
           <CardV2 cardDescription="Today due amount" cardTitle={`AED ${dueAmount ? dueAmount : 0}`} />

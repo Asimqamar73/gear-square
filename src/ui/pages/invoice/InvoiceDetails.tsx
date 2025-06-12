@@ -1,6 +1,6 @@
 import { CalendarDays, Car, Clock10, Phone, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ServiceItemTable from "./components/ServiceItemTable";
 import { dateFormatter, to12HourFormat } from "../../utils/DateFormatter";
 import { Badge } from "../../../components/ui/badge";
@@ -8,6 +8,7 @@ import PageHeader from "../../../components/PageHeader";
 import { Button } from "../../../components/ui/button";
 import CustomSheet from "../../../components/CustomSheet";
 import { Separator } from "../../../components/ui/separator";
+import { Card } from "../../../components/ui/card";
 
 interface IInoviceDetails {
   service: IService | undefined;
@@ -21,6 +22,7 @@ interface IService {
   phone_number: string;
   vehicle_number: string;
   created_at: string;
+  customer_id: number;
 }
 interface IServiceItems {
   id: number;
@@ -30,7 +32,7 @@ interface IServiceItems {
   subtotal: number;
 }
 interface IServiceBill {
-  id:number,
+  id: number;
   discount: number;
   subtotal: number;
   total: number;
@@ -40,6 +42,7 @@ interface IServiceBill {
 }
 const InvoiceDetails = () => {
   const params = useParams();
+  const navigate = useNavigate();
   const paymentStatuses: any = {
     0: {
       value: "Unpaid",
@@ -56,7 +59,8 @@ const InvoiceDetails = () => {
   };
   const [details, setDetails] = useState<IInoviceDetails>();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
-  const [paymentAmount,setPaymentAmount] = useState<number | string>(0)
+  const [paymentAmount, setPaymentAmount] = useState<number | string>(0);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     fetchDetails(params.invoiceId);
@@ -66,6 +70,7 @@ const InvoiceDetails = () => {
     try {
       //@ts-ignore
       const resp = await window.electron.getInvoiceDetails(id);
+      console.log(resp);
       setDetails(resp);
     } catch (error) {
       console.log(error);
@@ -74,30 +79,39 @@ const InvoiceDetails = () => {
   const handleSheetToggle = () => {
     setIsSheetOpen(!isSheetOpen);
   };
-  const handleUpdateInvoice =async () => {
+  const handleUpdateInvoice = async () => {
+    if (Number(paymentAmount) <= 0) {
+      setErrorMessage("Payment amount must be greater then 0");
+      setTimeout(() => {
+        setErrorMessage("");
+      }, 4000);
+      return;
+    }
     //@ts-ignore
-    const newTotalPaid = Number(paymentAmount) + details?.serviceBill?.amount_paid
+    const newTotalPaid = Number(paymentAmount) + details?.serviceBill?.amount_paid;
     try {
       //@ts-ignore
       const resp = await window.electron.updateServiceDuePayment({
-        billStatus: newTotalPaid===details?.serviceBill?.total ? 2 : 1,
+        billStatus: newTotalPaid === details?.serviceBill?.total ? 2 : 1,
         amountPaid: newTotalPaid,
-        id : details?.serviceBill?.id
-      })
-      console.log(resp)
+        id: details?.serviceBill?.id,
+      });
+      console.log(resp);
       fetchDetails(params.invoiceId);
-      setIsSheetOpen(false)
-    } catch (error) {
-      
-    }
-    console.log(newTotalPaid)
+      setIsSheetOpen(false);
+    } catch (error) {}
+    console.log(newTotalPaid);
   };
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
         <div className="flex flex-col gap-2 mb-8">
           <PageHeader title="Invoice details">
-            <Button variant={"outline"} onClick={handleSheetToggle}>
+            <Button
+              className="bg-[#173468] text-white"
+              variant={"outline"}
+              onClick={handleSheetToggle}
+            >
               Update invoice
             </Button>
           </PageHeader>
@@ -111,11 +125,14 @@ const InvoiceDetails = () => {
                     {" "}
                     <User strokeWidth={1.5} /> {details?.service?.name}{" "}
                   </p> */}
-                  <div className="flex items-center gap-2">
+                  <div
+                    className="flex items-center gap-2 cursor-pointer text-blue-800"
+                    onClick={() => navigate(`/customer-details/${details?.service?.customer_id}`)}
+                  >
                     <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
                       <User2 className="text-gray-500" strokeWidth={1.5} />{" "}
                     </div>
-                    <p className="font-semibold text-gray-600 ">{details?.service?.name}</p>
+                    <p className="font-semibold text-gray-600">{details?.service?.name}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
@@ -136,7 +153,7 @@ const InvoiceDetails = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <h2 className="font-semibold">Invoice</h2>
-                  <p>Invoice no# INV00{details?.service?.id}</p>
+                  <p className="font-semibold text-gray-600">Invoice no# {details?.service?.id}</p>
 
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
@@ -231,60 +248,64 @@ const InvoiceDetails = () => {
         handleSubmit={handleUpdateInvoice}
       >
         <div className="grid flex-1 auto-rows-min gap-2 px-4">
-          <div className="grid gap-1">
-            <label htmlFor="subtotal">Subtotal</label>
-            <input
-              id="subtotal"
-              readOnly
-              value={details?.serviceBill?.subtotal}
-              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-              disabled
-            />
-          </div>
+          <Card className=" px-4 bg-gray-200 border-gray-400 gap-2">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="subtotal">Subtotal</label>
+              <input
+                id="subtotal"
+                readOnly
+                value={details?.serviceBill?.subtotal}
+                className="p-1.5 indent-2 text-sm border rounded-md border-gray-500"
+                disabled
+              />
+            </div>
 
-          <div className="grid gap-1">
-            <label htmlFor="discount">Discount</label>
-            <input
-              id="discount"
-              readOnly
-              value={details?.serviceBill?.discount}
-              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-              disabled
-            />
-          </div>
-          <div className="grid gap-1">
-            <label htmlFor="quantity">Grand total</label>
-            <input
-              id="quantity"
-              readOnly
-              value={details?.serviceBill?.subtotal}
-              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-              disabled
-            />
-          </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="discount">Discount</label>
+              <input
+                id="discount"
+                readOnly
+                value={details?.serviceBill?.discount}
+                className="p-1.5 indent-2 text-sm border rounded-md border-gray-500"
+                disabled
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="quantity">Grand total</label>
+              <input
+                id="quantity"
+                readOnly
+                value={details?.serviceBill?.subtotal}
+                className="p-1.5 indent-2 text-sm border rounded-md border-gray-500"
+                disabled
+              />
+            </div>
+          </Card>
           <hr className="my-4" />
-          <div className="grid gap-1">
-            <label htmlFor="quantity">Paid amount</label>
-            <input
-              id="quantity"
-              readOnly
-              value={details?.serviceBill?.amount_paid}
-              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-              disabled
-            />
-          </div>
-           <div className="grid gap-1">
-            <label htmlFor="quantity">Due balance</label>
-            <input
-              id="quantity"
-              readOnly
-              value={details?.serviceBill?.amount_due}
-              className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-              disabled
-            />
-          </div>
+          <Card className=" px-4 bg-gray-200 border-gray-400 gap-2">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="quantity">Paid amount</label>
+              <input
+                id="quantity"
+                readOnly
+                value={details?.serviceBill?.amount_paid}
+                className="p-1.5 indent-2 text-sm border rounded-md border-gray-500"
+                disabled
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="quantity">Due balance</label>
+              <input
+                id="quantity"
+                readOnly
+                value={details?.serviceBill?.amount_due}
+                className="p-1.5 indent-2 text-sm border rounded-md border-gray-500"
+                disabled
+              />
+            </div>
+          </Card>
           <Separator orientation="horizontal" className="my-4 bg-gray-500" />
-          <div className="grid gap-1">
+          <div className="flex flex-col gap-2">
             <label htmlFor="quantity">Payment amount</label>
             <input
               id="new-quantity"
@@ -295,6 +316,7 @@ const InvoiceDetails = () => {
               onChange={(e) => setPaymentAmount(e.target.value)}
             />
           </div>
+          {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
         </div>
       </CustomSheet>
     </div>

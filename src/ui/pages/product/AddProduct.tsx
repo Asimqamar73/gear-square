@@ -1,6 +1,5 @@
 import { useState } from "react";
 import ProductMediaBox from "./components/ProductMediaBox";
-import RestockSheet from "../../../components/CustomSheet";
 
 const AddProduct = () => {
   const productInitialState = {
@@ -199,7 +198,7 @@ const AddProduct = () => {
             </button>
           </div>
           <div className="col-span-2">
-            <ProductMediaBox onMutate={onMutate} image={product.productImage} />
+            <ProductMediaBox onMutate={onMutate} image={product.productImage} newImage={product.productImage}/>
           </div>
         </form>
       </div>

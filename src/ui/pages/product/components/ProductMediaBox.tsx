@@ -2,7 +2,6 @@ import { Images } from "lucide-react";
 
 //
 const ProductMediaBox = ({ onMutate, image, newImage }: any) => {
-  console.log(image);
   return (
     <div className="p-4 bg-white rounded-2xl flex flex-col gap-2 border  border-gray-300 shadow">
       <h2 className="text-xl mt-2">Product media</h2>

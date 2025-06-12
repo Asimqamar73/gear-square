@@ -55,12 +55,13 @@ app.on("ready", () => {
       webSecurity: false,
     },
   });
-  // create_users_table();
-  // create_customers_table();
-  // create_products_table();
-  // create_service_table();
-  // create_service_items_table();
-  // create_service_bill_table();
+  create_users_table();
+  create_customers_table();
+  create_products_table();
+  create_service_table();
+  create_service_items_table();
+  create_service_bill_table();
+  createDeductProductQuantityTrigger();
 
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123/");

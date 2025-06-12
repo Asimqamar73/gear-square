@@ -3,19 +3,45 @@ import db from "../db.js";
 export const create_users_table = () => {
   db.run(
     `
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT,
-    email TEXT,
-    password TEXT
-
-  )
-`,
-    (err:any) => {
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE,
+      email TEXT UNIQUE,
+      password TEXT
+    )
+    `,
+    (err: any) => {
       if (err) {
         return console.error(err.message);
       }
       console.log("Users table created or already exists.");
+      
+      // Check if admin user already exists
+      db.get(
+        "SELECT id FROM users WHERE username = ? OR email = ?",
+        ["admin", "admin@gearsquare.com"],
+        (err: any, row: any) => {
+          if (err) {
+            return console.error("Error checking for admin user:", err.message);
+          }
+          
+          // If no admin user found, create one
+          if (!row) {
+            db.run(
+              "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+              ["admin", "admin@gearsquare.com", "admin"],
+              (err: any) => {
+                if (err) {
+                  return console.error("Error creating admin user:", err.message);
+                }
+                console.log("Default admin user created successfully.");
+              }
+            );
+          } else {
+            console.log("Admin user already exists.");
+          }
+        }
+      );
     }
   );
 };

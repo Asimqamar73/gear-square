@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../../../components/ui/tooltip";
 import { dateFormatter } from "../../../utils/DateFormatter";
+import { Badge } from "../../../../components/ui/badge";
 
 const CustomerVehicleTable = ({ data }: any) => {
   const paymentStatuses: any = {
@@ -59,9 +60,12 @@ const CustomerVehicleTable = ({ data }: any) => {
             <TableCell>{datum.model}</TableCell>
             <TableCell>{datum.year}</TableCell>
             <TableCell>{datum.note}</TableCell>
-            <TableCell >
+            {/* <TableCell >
               {" "}
               <span className={`${paymentStatuses[datum.bill_status].color} px-3 py-1.5 rounded-xl text-gray-700`}>{paymentStatuses[datum.bill_status].value}</span>
+            </TableCell> */}
+             <TableCell>
+              <Badge variant={"outline"} className={`${paymentStatuses[datum.bill_status].color} border-gray-400`}>{paymentStatuses[datum.bill_status].value}</Badge>
             </TableCell>
             <TableCell>{dateFormatter(datum.created_at)}</TableCell>
             <TableCell>
