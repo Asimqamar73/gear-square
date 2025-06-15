@@ -70,12 +70,15 @@ export function AppSidebar() {
   const data = JSON.parse(localStorage.getItem("gear-square-user"));
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="bg-gray-200">
-        <SidebarMenu className="mt-2">
-          <SidebarMenuItem>
+      <SidebarHeader className="bg-gray-200 m-0 p-0">
+        <SidebarMenu className="mt-2 mx-0">
+          <SidebarMenuItem className="m-0">
             <SidebarMenuButton asChild>
               <div>
-                <span className="px-[1px] border rounded-md font-semibold bg-orange-500">GS</span>
+                <div className="bg-amber-950 p-0.5 rounded-md">
+                  <span className="pr-[1px] font-extrabold text-white">G</span>
+                  <span className="font-extrabold text-red-600">S</span>
+                </div>
                 <p className="font-bold text-2xl py-2 tracking-wide text-gray-600">
                   Ge<span className="text-orange-400">a</span>r Square
                 </p>

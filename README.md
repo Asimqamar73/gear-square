@@ -52,3 +52,5 @@ export default tseslint.config({
   },
 })
 ```
+
+To build appliction for window make sure it's done by administartor.
