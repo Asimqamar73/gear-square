@@ -16,7 +16,7 @@ const Table = ({ data }: any) => {
   const navigate = useNavigate();
   return (
     <T>
-      <TableCaption>List of all customers.</TableCaption>
+      <TableCaption>{data.length ? "List of all customers.": "No customer found."}</TableCaption>
       <TableHeader>
         <TableRow>
           {/* <TableHead className="w-[100px]">Image</TableHead> */}
