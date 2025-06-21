@@ -11,7 +11,7 @@
     }
   ],
   "mac": {
-    "icon": "assets/mac-icon.icns",
+    "icon": "./mac-icon.icns",
     "target": "dmg"
   },
   "linux": {

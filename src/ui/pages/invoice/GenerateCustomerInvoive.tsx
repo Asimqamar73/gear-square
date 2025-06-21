@@ -191,7 +191,9 @@ export const GenerateCustomerInvoive = () => {
             <AlertBox
               open={open}
               setOpen={setOpen}
-              handleInvoiceGeneration={handleInvoiceGeneration}
+              continueProcessHandler={handleInvoiceGeneration}
+              text="Are you sure you want to generate invoice?"
+              subtext="Invoice will be stored in the database."
             />
           </PageHeader>
           <div className="flex flex-col gap-4">

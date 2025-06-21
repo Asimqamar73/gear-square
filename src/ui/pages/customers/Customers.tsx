@@ -2,12 +2,17 @@ import { useEffect, useState } from "react";
 import PageHeader from "../../../components/PageHeader";
 import Table from "./components/Table";
 import { MoveRight, Search } from "lucide-react";
+import AlertBox from "../../../components/AlertBox";
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
   const [searchVal, setSearchVal] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
   const [isSearchDone, setIsSearchDone] = useState(false);
+  const [open, setOpen] = useState<{ status: boolean; userId: number | null }>({
+    status: false,
+    userId: null,
+  });
 
   useEffect(() => {
     fetchAllCustomers();
@@ -38,6 +43,18 @@ const Customers = () => {
     } catch (error) {
       console.log(error);
       setIsSearchDone(true);
+    }
+  };
+
+  const deleteCustomer = async () => {
+    console.log("heere")
+    try {
+      //@ts-ignore
+      const response = await window.electron.deleteCustomerById(open.userId);
+      console.log(response);
+      fetchAllCustomers();
+    } catch (error) {
+      console.log(error);
     }
   };
   return (
@@ -86,7 +103,18 @@ const Customers = () => {
             )}
           </div>
         </PageHeader>
-        <Table data={customers} />
+
+        <AlertBox
+          open={open.status}
+          setOpen={setOpen}
+          continueProcessHandler={deleteCustomer}
+          text="Are you sure you want to delete this customer?"
+          subtext="Customer will be delete permanently, It can't be reversed and all the services associated with this customer will be lost too."
+        />
+        <Table
+          data={customers}
+          confirmDeleteDialogBox={(id: number) => setOpen({ status: true, userId: id })}
+        />
       </div>
     </div>
   );

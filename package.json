@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "author": {
-    "name": "AsimBinQamar"
+    "name": "Asim Bin Qamar"
   },
   "description": "Gear square - A workshop management app",
   "type": "module",
@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron ",
     "dev:react": "vite",
-    "dev:electron": "npm run transpile:electron && cross-env NODE_ENV=development electron .",
+    "dev:electron": "npm run transpile:electron; cross-env NODE_ENV=development electron .",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -28,6 +28,7 @@
     "@radix-ui/react-separator": "^1.1.7",
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-tooltip": "^1.2.7",
+    "@react-pdf/renderer": "^4.3.0",
     "@tailwindcss/postcss": "^4.1.7",
     "@tailwindcss/vite": "^4.1.7",
     "class-variance-authority": "^0.7.1",

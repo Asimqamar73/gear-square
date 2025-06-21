@@ -115,6 +115,12 @@ electron.contextBridge.exposeInMainWorld("electron", {
   getCustomerById: async (id: number) => {
     return await electron.ipcRenderer.invoke("db:get-customers-by-id", id);
   },
+  updateCustomerDetailsById: async (id: number) => {
+    return await electron.ipcRenderer.invoke("db:update-customers-details-by-id", id);
+  },
+   deleteCustomerById: async (id: number) => {
+    return await electron.ipcRenderer.invoke("db:delete-customers-by-id", id);
+  },
 
   // Dashboard
   getDailyProfit: async () => {

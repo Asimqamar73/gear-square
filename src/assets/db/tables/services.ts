@@ -125,9 +125,7 @@ export async function getServiceDetails(id: number) {
   try {
     const rows = await new Promise((resolve, reject) => {
       db.get(
-        `SELECT * FROM services 
-        JOIN service_bill 
-        ON services.id=service_bill.service_id
+        `SELECT services.*, customers.name,customers.phone_number FROM services 
         JOIN customers ON customers.id=services.customer_id
         where services.id = ?`,
         [id],

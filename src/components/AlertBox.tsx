@@ -12,22 +12,27 @@ import {
 const AlertBox = ({
   open,
   setOpen,
-  handleInvoiceGeneration,
+  continueProcessHandler,
+  text,
+  subtext
 }: {
   open: any;
   setOpen: any;
-  handleInvoiceGeneration: any;
+  continueProcessHandler: any;
+  text:string,
+  subtext:string
+  
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent className="bg-gray-200">
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to generate invoice?</AlertDialogTitle>
-          <AlertDialogDescription>Invoice will be stored in the database.</AlertDialogDescription>
+          <AlertDialogTitle>{text}</AlertDialogTitle>
+          <AlertDialogDescription>{subtext}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleInvoiceGeneration} className="bg-[#173468] text-white cursor-pointer">Continue</AlertDialogAction>
+          <AlertDialogAction onClick={continueProcessHandler} className="bg-[#173468] text-white cursor-pointer">Continue</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

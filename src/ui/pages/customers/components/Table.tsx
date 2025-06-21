@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react";
+import { Edit, Eye, Trash2 } from "lucide-react";
 import {
   Table as T,
   TableBody,
@@ -12,11 +12,11 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../../../components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../../../../components/ui/tooltip";
 
-const Table = ({ data }: any) => {
+const Table = ({ data, confirmDeleteDialogBox }: any) => {
   const navigate = useNavigate();
   return (
     <T>
-      <TableCaption>{data.length ? "List of all customers.": "No customer found."}</TableCaption>
+      <TableCaption>{data.length ? "List of all customers." : "No customer found."}</TableCaption>
       <TableHeader>
         <TableRow>
           {/* <TableHead className="w-[100px]">Image</TableHead> */}
@@ -51,6 +51,36 @@ const Table = ({ data }: any) => {
                     <p>View details</p>
                   </TooltipContent>
                 </Tooltip>
+                 <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className="bg-gray-200"
+                      size={"icon"}
+                      onClick={() => navigate(`/edit-customer/${datum.id}`)}
+                    >
+                      <Edit />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-gray-300">
+                    <p>Edit</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className="bg-gray-200 text-red-500"
+                      size={"icon"}
+                      onClick={()=>confirmDeleteDialogBox(datum.id)}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-gray-300">
+                    <p>Delete</p>
+                  </TooltipContent>
+                </Tooltip>
                 {/* <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant={"outline"} className="bg-gray-200" size={"icon"}>
@@ -61,7 +91,6 @@ const Table = ({ data }: any) => {
                     <p>History</p>
                   </TooltipContent>
                 </Tooltip> */}
-                
               </div>
               {/* <div className="cursor-pointer" onClick={() => navigate(`/invoice/${datum.id}`)}>
                 <Eye className="text-gray-600" />

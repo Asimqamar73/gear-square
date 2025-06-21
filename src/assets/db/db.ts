@@ -66,6 +66,8 @@ import { createDeductProductQuantityTrigger } from "./triggers/triggers.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const _dirname = path.dirname(__filename);
+console.log(__filename)
+console.log(_dirname)
 
 // Function to get the correct database path
 function getDatabasePath() {

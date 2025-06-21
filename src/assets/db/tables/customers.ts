@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS customers (
 );
 
 `,
-    (err:any) => {
+    (err: any) => {
       if (err) {
         return console.error(err.message);
       }
@@ -49,7 +49,7 @@ export function addCustomerToDB({
       query,
       [name, phoneNumber, email, address, createdBy, updatedBy],
       function (err: any, row: any) {
-        console.log(row)
+        console.log(row);
         if (err) return rej(err);
         //@ts-ignore
         res(this.lastID);
@@ -61,29 +61,82 @@ export function addCustomerToDB({
 export function getAllCustomers() {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM customers ORDER BY created_at DESC", [], (err: any, rows: any) => {
-      console.log(rows)
+      console.log(rows);
       if (err) return reject(err);
       resolve(rows);
     });
   });
 }
 
-export function searchCustomerByPhoneNumber(phoneNumber:number) {
+export function searchCustomerByPhoneNumber(phoneNumber: number) {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM customers WHERE phone_number = ?", [phoneNumber], (err: any, row: any) => {
-      console.log(row)
+    db.all(
+      "SELECT * FROM customers WHERE phone_number = ?",
+      [phoneNumber],
+      (err: any, row: any) => {
+        console.log(row);
+        if (err) return reject(err);
+        resolve(row);
+      }
+    );
+  });
+}
+
+export function getCustomerById(id: number) {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM customers WHERE id = ? ", [id], (err: any, row: any) => {
+      console.log("getCustomerById row", row);
       if (err) return reject(err);
       resolve(row);
     });
   });
 }
 
-export function getCustomerById(id:number) {
+export function deleteCustomerById(id: number) {
   return new Promise((resolve, reject) => {
-    db.get("SELECT * FROM customers WHERE id = ? ", [id], (err: any, row: any) => {
-      console.log("getCustomerById row", row)
+    db.get("DELETE FROM customers WHERE id = ? ", [id], (err: any, row: any) => {
+      console.log("getCustomerById row", row);
       if (err) return reject(err);
       resolve(row);
+    });
+  });
+}
+
+export function updateCustomerDetailsById({
+  name,
+  email,
+  phone_number,
+  address,
+  updated_by,
+  id,
+}: {
+  name: string;
+  email: string;
+  phone_number: number;
+  address: string;
+  updated_by: number;
+  id: number;
+}) {
+  return new Promise((resolve, reject) => {
+    const query = `
+      UPDATE customers
+      SET
+        name = ?,
+        email = ?,
+        phone_number = ?,
+        address = ?,
+        updated_by = ?
+      WHERE id = ?;
+    `;
+    db.run(query, [name, email, phone_number, address, updated_by, id], function (err: any) {
+      if (err) {
+        console.error("Error updating customer details:", err.message);
+        return reject(err);
+      }
+      //@ts-ignore
+      console.log(`Rows updated: ${this.changes}`);
+      //@ts-ignore
+      resolve(this.changes);
     });
   });
 }

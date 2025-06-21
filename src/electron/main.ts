@@ -3,9 +3,11 @@ import { dailyDueAmount, dailyProfit, todayServicesCount } from "../assets/db/ta
 import {
   addCustomerToDB,
   create_customers_table,
+  deleteCustomerById,
   getAllCustomers,
   getCustomerById,
   searchCustomerByPhoneNumber,
+  updateCustomerDetailsById,
 } from "../assets/db/tables/customers.js";
 import {
   create_products_table,
@@ -623,6 +625,28 @@ ipcMain.handle("db:get-customers-by-id", async (event, id) => {
     return { success: false, error: error.message };
   }
 });
+
+ipcMain.handle("db:delete-customers-by-id", async (event, id) => {
+  try {
+    const response = await deleteCustomerById(id);
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+ipcMain.handle(
+  "db:update-customers-details-by-id",
+  async (event, { name, email, phone_number, address,updated_by, id }) => {
+    try {
+      const response = await updateCustomerDetailsById({ name, email, phone_number, address,updated_by, id });
+      return { success: true, response };
+    } catch (error) {
+      //@ts-ignore
+      return { success: false, error: error.message };
+    }
+  }
+);
 
 ipcMain.handle("db:get-daily-profit", async (event, id) => {
   try {

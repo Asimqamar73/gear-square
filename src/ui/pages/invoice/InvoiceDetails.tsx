@@ -1,4 +1,4 @@
-import { CalendarDays, Car, Clock10, Phone, User2 } from "lucide-react";
+import { CalendarDays, Car, Clock10, Download, Phone, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ServiceItemTable from "./components/ServiceItemTable";
@@ -9,6 +9,8 @@ import { Button } from "../../../components/ui/button";
 import CustomSheet from "../../../components/CustomSheet";
 import { Separator } from "../../../components/ui/separator";
 import { Card } from "../../../components/ui/card";
+import MyDocument from "../../../components/PDF";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 interface IInoviceDetails {
   service: IService | undefined;
@@ -18,6 +20,7 @@ interface IInoviceDetails {
 
 interface IService {
   id: number;
+  service_id: number;
   name: string;
   phone_number: string;
   vehicle_number: string;
@@ -107,13 +110,33 @@ const InvoiceDetails = () => {
       <div className="py-16 px-8">
         <div className="flex flex-col gap-2 mb-8">
           <PageHeader title="Invoice details">
-            <Button
-              className="bg-[#173468] text-white"
-              variant={"outline"}
-              onClick={handleSheetToggle}
-            >
-              Update invoice
-            </Button>
+            <div className="flex gap-1">
+              <PDFDownloadLink
+                document={<MyDocument details={details} />}
+                fileName={`${details?.service?.name}-${details?.service?.vehicle_number}.pdf`}
+              >
+                {({ blob, url, loading, error }) =>
+                  loading ? (
+                    "Loading document..."
+                  ) : (
+                    <Button
+                      className="bg-[#173468] text-white cursor-pointer"
+                      variant={"outline"}
+                      size={"icon"}
+                    >
+                      <Download />
+                    </Button>
+                  )
+                }
+              </PDFDownloadLink>
+              <Button
+                className="bg-[#173468] text-white"
+                variant={"outline"}
+                onClick={handleSheetToggle}
+              >
+                Update invoice
+              </Button>
+            </div>
           </PageHeader>
           <div className="col-span-5 flex gap-4">
             <div className="grow p-4 bg-gray-200 rounded-2xl flex flex-col gap-4 border border-gray-300 shadow">
@@ -153,7 +176,9 @@ const InvoiceDetails = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <h2 className="font-semibold">Invoice</h2>
-                  <p className="font-semibold text-gray-600">Invoice no# {details?.service?.id}</p>
+                  <p className="font-semibold text-gray-600">
+                    Invoice no# {details?.service?.service_id}
+                  </p>
 
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">

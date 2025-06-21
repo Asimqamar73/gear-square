@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import PageHeader from "../../../components/PageHeader";
 import CardV2 from "./components/CardV2";
+import MyDocument from "../../../components/PDF";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 const Dashboard = () => {
   const [profit, setProfit] = useState(0);
@@ -50,7 +52,7 @@ const Dashboard = () => {
           <CardV2 cardDescription="Today services" cardTitle={`${dailyServicesCount}`} />
           <CardV2 cardDescription="Today due amount" cardTitle={`AED ${dueAmount ? dueAmount : 0}`} />
         </div>
-      </div>
+      </div>  
     </div>
   );
 };
