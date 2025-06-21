@@ -99,7 +99,6 @@ const AddCustomer = () => {
                   id="email"
                   className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
                   onChange={onMutate}
-                  required
                   value={detail.email}
                   placeholder="john.doe@example.com"
                 />
@@ -114,7 +113,6 @@ const AddCustomer = () => {
                   className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
                   rows={5}
                   onChange={onMutate}
-                  required
                   value={detail.address}
                   placeholder="11, Manama Street, Dubai"
                 ></textarea>

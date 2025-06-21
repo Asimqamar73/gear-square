@@ -32,8 +32,8 @@ const Table = ({ data, confirmDeleteDialogBox }: any) => {
           <TableRow key={idx}>
             <TableCell className="font-medium">{datum.name}</TableCell>
             <TableCell>{datum.phone_number}</TableCell>
-            <TableCell>{datum.email}</TableCell>
-            <TableCell>{datum.address}</TableCell>
+            <TableCell>{datum.email ? datum.email : "-"}</TableCell>
+            <TableCell>{datum.address ? datum.address : "-"}</TableCell>
             <TableCell>
               <div className="flex gap-2">
                 <Tooltip>

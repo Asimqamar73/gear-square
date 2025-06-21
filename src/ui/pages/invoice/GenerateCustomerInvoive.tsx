@@ -213,9 +213,11 @@ export const GenerateCustomerInvoive = () => {
                   <CustomerDetail text={customerInfo?.phone_number}>
                     <Phone className="text-gray-500 size-6" />
                   </CustomerDetail>
-                  <CustomerDetail text={customerInfo?.address}>
-                    <MapPin className="text-gray-500 size-6" />
-                  </CustomerDetail>
+                  {customerInfo?.address && (
+                    <CustomerDetail text={customerInfo?.address}>
+                      <MapPin className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
                 </div>
               </div>
             </div>

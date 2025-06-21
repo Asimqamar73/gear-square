@@ -60,7 +60,7 @@ const EditCustomer = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
-        <PageHeader title="Add customer" />
+        <PageHeader title="Edit customer details" />
         <form onSubmit={handleSubmit} className="grid grid-cols-5 gap-4">
           <div className="col-span-1"></div>
           <div className="col-span-3 flex flex-col gap-4">

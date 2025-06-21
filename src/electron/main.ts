@@ -1,5 +1,5 @@
 import { createDeductProductQuantityTrigger } from "../assets/db/triggers/triggers.js";
-import { dailyDueAmount, dailyProfit, todayServicesCount } from "../assets/db/tables/dashboard.js";
+import { dailyDueAmount, dailyProfit, last7DaysDueAmount, last7DaysProfit, last7DaysServicesCount, todayServicesCount } from "../assets/db/tables/dashboard.js";
 import {
   addCustomerToDB,
   create_customers_table,
@@ -658,7 +658,17 @@ ipcMain.handle("db:get-daily-profit", async (event, id) => {
   }
 });
 
-ipcMain.handle("db:get-daily-services-count", async (event, id) => {
+ipcMain.handle("db:get-7-days-profit", async (event, id) => {
+  try {
+    const response = await last7DaysProfit();
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-daily-services-count", async (event, args) => {
   try {
     const totalServicesCount = await todayServicesCount();
     return { success: true, totalServicesCount };
@@ -668,7 +678,17 @@ ipcMain.handle("db:get-daily-services-count", async (event, id) => {
   }
 });
 
-ipcMain.handle("db:get-daily-due-amount", async (event, id) => {
+ipcMain.handle("db:get-last-7-days-services-count", async (event, args) => {
+  try {
+    const totalServicesCount = await last7DaysServicesCount();
+    return { success: true, totalServicesCount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-daily-due-amount", async (event, args) => {
   try {
     const totalDueAmount: any = await dailyDueAmount();
     return { success: true, totalDueAmount: totalDueAmount.total_due_amount };
@@ -677,3 +697,17 @@ ipcMain.handle("db:get-daily-due-amount", async (event, id) => {
     return { success: false, error: error.message };
   }
 });
+
+
+ipcMain.handle("db:get-last-7-days-due-amount", async (event, args) => {
+  try {
+    const totalDueAmount: any = await last7DaysDueAmount();
+    return { success: true, totalDueAmount: totalDueAmount.total_due_amount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+
+

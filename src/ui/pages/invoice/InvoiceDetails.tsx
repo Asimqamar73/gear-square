@@ -134,7 +134,7 @@ const InvoiceDetails = () => {
                 variant={"outline"}
                 onClick={handleSheetToggle}
               >
-                Update invoice
+                Update payment
               </Button>
             </div>
           </PageHeader>
@@ -177,7 +177,7 @@ const InvoiceDetails = () => {
                 <div className="flex flex-col gap-2">
                   <h2 className="font-semibold">Invoice</h2>
                   <p className="font-semibold text-gray-600">
-                    Invoice no# {details?.service?.service_id}
+                    Invoice no# {details?.service?.id}
                   </p>
 
                   <div className="flex items-center gap-2">

@@ -89,14 +89,16 @@ const MyDocument = ({ details }: { details: any }) => (
             marginVertical: 4,
           }}
         >
-          <Text style={{ fontSize: 8 }}>Vehicle number: {details?.service?.vehicle_number}</Text>
-          <Text style={{ fontSize: 8 }}>Make: {details?.service?.make}</Text>
-          <Text style={{ fontSize: 8 }}>Model: {details?.service?.model}</Text>
-          <Text style={{ fontSize: 8 }}>Date: {dateFormatter(details?.service?.created_at)}</Text>
+          <Text style={{ fontSize: 8 }}>Vehicle number: <Text style={{fontWeight:700}}>{details?.service?.vehicle_number}</Text></Text>
+          <Text style={{ fontSize: 8 }}>
+            Make: <Text style={{fontWeight:700}}>{details?.service?.make}</Text>
+          </Text>
+          <Text style={{ fontSize: 8 }}>Model: <Text style={{fontWeight:700}}>{details?.service?.model}</Text></Text>
+          <Text style={{ fontSize: 8 }}>Date: <Text style={{fontWeight:700}}>{dateFormatter(details?.service?.created_at)}</Text></Text>
         </View>
         <View style={{ display: "flex", marginTop: 8, gap: 4 }}>
           <Text style={{ fontSize: 8 }}>
-            Invoice no. <Text style={{ fontWeight: 700 }}>{details?.service?.service_id}</Text>
+            Invoice no. <Text style={{ fontWeight: 700 }}>{details?.service?.id}</Text>
           </Text>
           <Text style={{ fontSize: 8 }}>
             Mr./Mrs./Miss: <Text style={{ fontWeight: 700 }}>{details?.service?.name}</Text>

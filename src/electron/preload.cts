@@ -126,11 +126,22 @@ electron.contextBridge.exposeInMainWorld("electron", {
   getDailyProfit: async () => {
     return await electron.ipcRenderer.invoke("db:get-daily-profit");
   },
+   last7DaysProfit: async () => {
+    return await electron.ipcRenderer.invoke("db:get-7-days-profit");
+  },
 
   getDailyServicesCount: async () => {
     return await electron.ipcRenderer.invoke("db:get-daily-services-count");
   },
+
+   last7DaysServicesCount: async () => {
+    return await electron.ipcRenderer.invoke("db:get-last-7-days-services-count");
+  },
    getDailyDueAmount: async () => {
     return await electron.ipcRenderer.invoke("db:get-daily-due-amount");
+  },
+
+   getLast7DaysDueAmount: async () => {
+    return await electron.ipcRenderer.invoke("db:get-last-7-days-due-amount");
   },
 });
