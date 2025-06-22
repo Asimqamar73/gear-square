@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PageHeader from "../../../components/PageHeader";
 import { toast } from "sonner";
-import { useNavigate, useParams } from "react-router-dom";
+import {  useParams } from "react-router-dom";
 
 const EditCustomer = () => {
   // const navigate = useNavigate();

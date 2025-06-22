@@ -1,4 +1,4 @@
-import { CalendarDays, Car, Clock10, Download, Phone, Printer, User2 } from "lucide-react";
+import { CalendarDays, Car, Clock10, Download, Phone, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ServiceItemTable from "./components/ServiceItemTable";
@@ -10,7 +10,7 @@ import CustomSheet from "../../../components/CustomSheet";
 import { Separator } from "../../../components/ui/separator";
 import { Card } from "../../../components/ui/card";
 import MyDocument from "../../../components/PDF";
-import { BlobProvider, PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink } from "@react-pdf/renderer";
 
 interface IInoviceDetails {
   service: IService | undefined;
@@ -43,7 +43,7 @@ interface IServiceBill {
   amount_due: number;
   bill_status: number;
 }
-const InvoiceDetails = () => {
+const EditInovice = () => {
   const params = useParams();
   const navigate = useNavigate();
   const paymentStatuses: any = {
@@ -73,6 +73,7 @@ const InvoiceDetails = () => {
     try {
       //@ts-ignore
       const resp = await window.electron.getInvoiceDetails(id);
+      console.log(resp);
       setDetails(resp);
     } catch (error) {
       console.log(error);
@@ -98,6 +99,7 @@ const InvoiceDetails = () => {
         amountPaid: newTotalPaid,
         id: details?.serviceBill?.id,
       });
+      console.log(resp);
       fetchDetails(params.invoiceId);
       setIsSheetOpen(false);
     } catch (error) {}
@@ -113,10 +115,10 @@ const InvoiceDetails = () => {
                 document={<MyDocument details={details} />}
                 fileName={`${details?.service?.name}-${details?.service?.vehicle_number}.pdf`}
               >
+                
                 {(
                   //@ts-ignore
-                  { blob, url, loading, error }: any
-                ) =>
+                  { blob, url, loading, error }:any) =>
                   loading ? (
                     "Loading document..."
                   ) : (
@@ -130,20 +132,6 @@ const InvoiceDetails = () => {
                   )
                 }
               </PDFDownloadLink>
-              <BlobProvider document={<MyDocument details={details} />}>
-                {({ url }) => (
-                  //@ts-ignore
-                  <a href={url} target="_blank" >
-                     <Button
-                      className="bg-[#173468] text-white cursor-pointer"
-                      variant={"outline"}
-                      size={"icon"}
-                    >
-                      <Printer />
-                    </Button>
-                  </a>
-                )}
-              </BlobProvider>
               <Button
                 className="bg-[#173468] text-white"
                 variant={"outline"}
@@ -191,7 +179,9 @@ const InvoiceDetails = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <h2 className="font-semibold">Invoice</h2>
-                  <p className="font-semibold text-gray-600">Invoice no# {details?.service?.id}</p>
+                  <p className="font-semibold text-gray-600">
+                    Invoice no# {details?.service?.id}
+                  </p>
 
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
@@ -361,7 +351,7 @@ const InvoiceDetails = () => {
   );
 };
 
-export default InvoiceDetails;
+export default EditInovice;
 
 // const CustomerDetail = ({
 //   text,

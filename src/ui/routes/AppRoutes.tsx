@@ -15,6 +15,7 @@ import { GenerateCustomerInvoive } from "../pages/invoice/GenerateCustomerInvoiv
 import CusomerDetails from "../pages/customers/CusomerDetails";
 import EditProduct from "../pages/product/EditProduct";
 import EditCustomer from "../pages/customers/EditCustomer";
+import { EditCustomerInvoive } from "../pages/invoice/EditCustomerInvoive";
 
 function AppRoutes() {
   return (
@@ -86,6 +87,14 @@ function AppRoutes() {
             element={
               <PrivateRoute>
                 <InvoiceDetails />
+              </PrivateRoute>
+            }
+          />
+            <Route
+            path="/edit-invoice/:customerId"
+            element={
+              <PrivateRoute>
+                <EditCustomerInvoive />
               </PrivateRoute>
             }
           />

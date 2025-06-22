@@ -1,5 +1,5 @@
 import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
-import { dateFormatter, to12HourFormat } from "../ui/utils/DateFormatter";
+import { dateFormatter } from "../ui/utils/DateFormatter";
 
 Font.register({
   family: "Oswald",

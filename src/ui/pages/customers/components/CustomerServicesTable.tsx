@@ -1,4 +1,4 @@
-import { Eye } from "lucide-react";
+import { Edit2, Eye } from "lucide-react";
 import {
   Table as T,
   TableBody,
@@ -14,7 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../../../../components/
 import { dateFormatter } from "../../../utils/DateFormatter";
 import { Badge } from "../../../../components/ui/badge";
 
-const CustomerVehicleTable = ({ data }: any) => {
+const CustomerServicesTable = ({ data }: any) => {
   const paymentStatuses: any = {
     0: {
       value: "Unpaid",
@@ -64,8 +64,13 @@ const CustomerVehicleTable = ({ data }: any) => {
               {" "}
               <span className={`${paymentStatuses[datum.bill_status].color} px-3 py-1.5 rounded-xl text-gray-700`}>{paymentStatuses[datum.bill_status].value}</span>
             </TableCell> */}
-             <TableCell>
-              <Badge variant={"outline"} className={`${paymentStatuses[datum.bill_status].color} border-gray-400`}>{paymentStatuses[datum.bill_status].value}</Badge>
+            <TableCell>
+              <Badge
+                variant={"outline"}
+                className={`${paymentStatuses[datum.bill_status].color} border-gray-400`}
+              >
+                {paymentStatuses[datum.bill_status].value}
+              </Badge>
             </TableCell>
             <TableCell>{dateFormatter(datum.created_at)}</TableCell>
             <TableCell>
@@ -85,16 +90,21 @@ const CustomerVehicleTable = ({ data }: any) => {
                     <p>View details</p>
                   </TooltipContent>
                 </Tooltip>
-                {/* <Tooltip>
+                <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant={"outline"} className="bg-gray-200" size={"icon"}>
-                      <History />
+                    <Button
+                      variant={"outline"}
+                      className="bg-gray-200"
+                      size={"icon"}
+                      onClick={() => navigate(`/edit-invoice/${datum.customer_id}`)}
+                    >
+                      <Edit2 />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent className="bg-gray-300">
-                    <p>History</p>
+                    <p>Edit</p>
                   </TooltipContent>
-                </Tooltip> */}
+                </Tooltip>
               </div>
               {/* <div className="cursor-pointer" onClick={() => navigate(`/invoice/${datum.id}`)}>
                 <Eye className="text-gray-600" />
@@ -107,4 +117,4 @@ const CustomerVehicleTable = ({ data }: any) => {
   );
 };
 
-export default CustomerVehicleTable;
+export default CustomerServicesTable;

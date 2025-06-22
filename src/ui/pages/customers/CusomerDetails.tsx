@@ -2,8 +2,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../../../components/PageHeader";
 import { useEffect, useState } from "react";
 import { MapPin, Phone, User2 } from "lucide-react";
-import CustomerVehicleTable from "./components/CustomerVehicleTable";
 import { Button } from "../../../components/ui/button";
+import CustomerServicesTable from "./components/CustomerServicesTable";
 
 interface ICustomerInfo {
   id: number;
@@ -43,7 +43,7 @@ const CusomerDetails = () => {
       //@ts-ignore
       const { response } = await window.electron.getServicesById(customerId);
       //@ts-ignore
-      console.log(response)
+      console.log(response);
       setServicesInfo(response);
     } catch (error) {
       console.log(error);
@@ -53,14 +53,14 @@ const CusomerDetails = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
         <PageHeader title="Customer infomation">
-           <Button
-               variant="outline"
-               className="bg-[#173468] text-white font-bold"
-               // onClick={handleInvoiceGeneration}
-               onClick={()=>navigate(`/generate-invoice/${customerInfo?.id}`)}
-               >
-                New invoice
-              </Button>
+          <Button
+            variant="outline"
+            className="bg-[#173468] text-white font-bold"
+            // onClick={handleInvoiceGeneration}
+            onClick={() => navigate(`/generate-invoice/${customerInfo?.id}`)}
+          >
+            New invoice
+          </Button>
         </PageHeader>
         <div className="w-fit">
           <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border border-gray-300 shadow">
@@ -71,13 +71,15 @@ const CusomerDetails = () => {
             <CustomerDetail text={customerInfo?.phone_number}>
               <Phone className="text-gray-500 size-6" />
             </CustomerDetail>
-            <CustomerDetail text={customerInfo?.address}>
-              <MapPin className="text-gray-500 size-6" />
-            </CustomerDetail>
+            {customerInfo?.address && (
+              <CustomerDetail text={customerInfo?.address}>
+                <MapPin className="text-gray-500 size-6" />
+              </CustomerDetail>
+            )}
           </div>
         </div>
         <h2 className="my-4 text-2xl">Invoices</h2>
-        <CustomerVehicleTable data={servicesInfo} />
+        <CustomerServicesTable data={servicesInfo} />
       </div>
     </div>
   );

@@ -147,7 +147,9 @@ export const GenerateInvoive = () => {
           <AlertBox
             open={open}
             setOpen={setOpen}
-            handleInvoiceGeneration={handleInvoiceGeneration}
+            continueProcessHandler={handleInvoiceGeneration}
+            text=""
+            subtext=""
             />
             
          </PageHeader>

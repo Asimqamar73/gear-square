@@ -505,7 +505,7 @@ app.on("ready", () => {
         const itemsResponse = await addServiceItems(args.items, service_id);
         const serviceBillResponse = await addServiceBill(args.bill, service_id);
 
-        return { success: true, itemsResponse, serviceBillResponse };
+        return { success: true,service_id, itemsResponse, serviceBillResponse };
       }
 
       return { success: true };

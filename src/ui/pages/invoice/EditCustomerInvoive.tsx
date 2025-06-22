@@ -4,9 +4,8 @@ import InvoiceItem from "./components/InvoiceItem";
 import { Button } from "../../../components/ui/button";
 import AlertBox from "../../../components/AlertBox";
 import PageHeader from "../../../components/PageHeader";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { MapPin, Phone, User2 } from "lucide-react";
-import { toast } from "sonner";
 
 interface IItems {
   product: any;
@@ -25,8 +24,7 @@ interface ICustomerInfo {
   updated_by: number;
 }
 
-export const GenerateCustomerInvoive = () => {
-  const navigate = useNavigate();
+export const EditCustomerInvoive = () => {
   const paymentStatuses = [
     { title: "Unpaid", value: 0 },
     { title: "Partial", value: 1 },
@@ -135,44 +133,33 @@ export const GenerateCustomerInvoive = () => {
     setItems([...filteredItems]);
   };
 
-  const handleInvoiceGeneration =async () => {
-    try {
-      // @ts-ignore
-      const response = await window.electron.generateInvoice({
-        items,
-        vehicleDetails: {
-          ...vehicleDetails,
-          //@ts-ignore
-          createdBy: JSON.parse(localStorage.getItem("gear-square-user")).id,
-          //@ts-ignore
-          updatedBy: JSON.parse(localStorage.getItem("gear-square-user")).id,
-          customerId: customerInfo?.id,
-        },
-        bill: {
-          total: (totalBill - (discountPercentge / 100) * totalBill).toFixed(1),
-          subtotal: totalBill,
-          discount: discountPercentge,
-          billStatus: paymentStatus,
-          amountPaid,
-        },
-      });
+  const handleInvoiceGeneration = () => {
+    // @ts-ignore
+    window.electron.generateInvoice({
+      items,
+      vehicleDetails: {
+        ...vehicleDetails,
+        //@ts-ignore
+        createdBy: JSON.parse(localStorage.getItem("gear-square-user")).id,
+        //@ts-ignore
+        updatedBy: JSON.parse(localStorage.getItem("gear-square-user")).id,
+        customerId: customerInfo?.id,
+      },
+      bill: {
+        total: (totalBill - (discountPercentge / 100) * totalBill).toFixed(1),
+        subtotal: totalBill,
+        discount: discountPercentge,
+        billStatus: paymentStatus,
+        amountPaid,
+      },
+    });
 
-      setItems([initialItemState]);
-      setDiscountPrecentage(0);
-      setAmountPaid(0);
-      setPaymentStatus(0);
-      setVehicleDetails(vehicleInfoInitialState);
-      setTotalBill(0);
-console.log(response)
-      if (response.success) {
-        toast("Invoice generated successfully.", {
-          position: "top-center",
-        });
-        navigate(`/invoice/${response.service_id}`);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+    setItems([initialItemState]);
+    setDiscountPrecentage(0);
+    setAmountPaid(0);
+    setPaymentStatus(0);
+    setVehicleDetails(vehicleInfoInitialState);
+    setTotalBill(0);
   };
 
   const handleVehicleDetailsChange = (e: any) => {
