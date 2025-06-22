@@ -42,12 +42,12 @@ const AddProduct = () => {
         ...product,
         createdBy: data.id,
         updatedBy: data.id,
-        productImage: {
+        productImage: product.productImage ?  {
           //@ts-ignore
           buffer: await product.productImage.arrayBuffer(),
           //@ts-ignore
           imageName: product.productImage.name,
-        },
+        } : null,
       });
       if (resp.success) {
         setMessage("Product added successfully");
@@ -102,7 +102,6 @@ const AddProduct = () => {
                   className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
                   rows={5}
                   onChange={onMutate}
-                  required
                   value={product.description}
                 ></textarea>
               </div>
