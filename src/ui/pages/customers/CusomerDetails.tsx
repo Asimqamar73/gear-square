@@ -1,15 +1,18 @@
 import { useNavigate, useParams } from "react-router-dom";
 import PageHeader from "../../../components/PageHeader";
 import { useEffect, useState } from "react";
-import { MapPin, Phone, User2 } from "lucide-react";
+import { Building2, MapPin, Phone, User2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import CustomerServicesTable from "./components/CustomerServicesTable";
+import { toast } from "sonner";
 
 interface ICustomerInfo {
   id: number;
   name: string;
   address: string;
   email: string;
+  company_name:string;
+  company_phone_number:string;
   phone_number: string;
   created_at: string;
   created_by: number;
@@ -34,7 +37,9 @@ const CusomerDetails = () => {
       //@ts-ignore
       setCustomerInfo(response);
     } catch (error) {
-      console.log(error);
+       toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -43,10 +48,11 @@ const CusomerDetails = () => {
       //@ts-ignore
       const { response } = await window.electron.getServicesById(customerId);
       //@ts-ignore
-      console.log(response);
       setServicesInfo(response);
     } catch (error) {
-      console.log(error);
+       toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   return (
@@ -65,17 +71,32 @@ const CusomerDetails = () => {
         <div className="w-fit">
           <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border border-gray-300 shadow">
             <h2 className="text-xl mt-2">Customer Details</h2>
-            <CustomerDetail text={customerInfo?.name} subtext={customerInfo?.email}>
-              <User2 className="text-gray-500 size-6" />
-            </CustomerDetail>
-            <CustomerDetail text={customerInfo?.phone_number}>
-              <Phone className="text-gray-500 size-6" />
-            </CustomerDetail>
-            {customerInfo?.address && (
-              <CustomerDetail text={customerInfo?.address}>
-                <MapPin className="text-gray-500 size-6" />
-              </CustomerDetail>
-            )}
+            {customerInfo?.name && (
+                    <CustomerDetail text={customerInfo?.name} subtext={customerInfo?.email}>
+                      <User2 className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+                  {customerInfo?.company_name && (
+                    <CustomerDetail text={customerInfo?.company_name}>
+                      <Building2 className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+                  {customerInfo?.phone_number && (
+                    <CustomerDetail text={customerInfo?.phone_number}>
+                      <Phone className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+                   {customerInfo?.company_phone_number && (
+                    <CustomerDetail text={customerInfo?.company_phone_number}>
+                      <Phone className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+
+                  {customerInfo?.address && (
+                    <CustomerDetail text={customerInfo?.address}>
+                      <MapPin className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
           </div>
         </div>
         <h2 className="my-4 text-2xl">Invoices</h2>

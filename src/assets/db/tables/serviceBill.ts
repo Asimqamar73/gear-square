@@ -12,7 +12,7 @@ export const create_service_bill_table = () => {
     amount_paid DECIMAL(10, 2),
     amount_due DECIMAL(10, 2) GENERATED ALWAYS AS (total - amount_paid) STORED,
     bill_status INTEGER,
-    FOREIGN KEY(service_id) REFERENCES services(id)
+    FOREIGN KEY(service_id) REFERENCES services(id) ON DELETE CASCADE
   )
 `,
     (err: any) => {
@@ -37,9 +37,8 @@ export function addServiceBill(data: any, service_id: number) {
     db.run(
       query,
       [service_id, data.subtotal, data.total, data.discount, data.amountPaid, data.billStatus],
-      function (err: any, row: any) {
+      function (err: any) {
         if (err) return rej(err);
-        console.log(row);
         //@ts-ignore
         res(this.lastID);
       }

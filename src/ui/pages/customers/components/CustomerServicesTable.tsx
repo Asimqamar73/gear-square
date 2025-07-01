@@ -28,6 +28,10 @@ const CustomerServicesTable = ({ data }: any) => {
       value: "Paid",
       color: "bg-green-200",
     },
+    3: {
+      value: "Overpaid",
+      color: "bg-green-400",
+    },
   };
   const navigate = useNavigate();
   return (
@@ -96,7 +100,7 @@ const CustomerServicesTable = ({ data }: any) => {
                       variant={"outline"}
                       className="bg-gray-200"
                       size={"icon"}
-                      onClick={() => navigate(`/edit-invoice/${datum.customer_id}`)}
+                      onClick={() => navigate(`/edit-invoice/${datum.id}`)}
                     >
                       <Edit2 />
                     </Button>

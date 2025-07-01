@@ -10,7 +10,7 @@ export const create_products_table = () => {
       cost_price DECIMAL(10, 2),
       retail_price DECIMAL(10, 2),
       sku TEXT UNIQUE,
-      barcode TEXT UNIQUE,
+      part_number TEXT UNIQUE,
       quantity INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now','localtime')),
       created_by INTEGER,
@@ -31,7 +31,7 @@ export function insertProductToDatabase({
   costPrice,
   retailPrice,
   sku,
-  barcode,
+  partNumber,
   quantity,
   filePath,
   createdBy,
@@ -42,14 +42,14 @@ export function insertProductToDatabase({
   costPrice: number;
   retailPrice: number;
   sku: number;
-  barcode: number;
+  partNumber: string;
   quantity: number;
   filePath: string;
   createdBy: number;
   updatedBy: number;
 }) {
   return new Promise((res, rej) => {
-    const query = `INSERT INTO products (name, description, cost_price,retail_price, sku, barcode, quantity, image,created_by,updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
+    const query = `INSERT INTO products (name, description, cost_price,retail_price, sku, part_number, quantity, image, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
     //@ts-ignore\
     db.run(
       query,
@@ -59,15 +59,13 @@ export function insertProductToDatabase({
         costPrice,
         retailPrice,
         sku,
-        barcode,
+        partNumber,
         quantity,
         filePath,
         createdBy,
         updatedBy,
       ],
       function (err: any, row: any) {
-        console.log("err", err);
-        console.log("err", row);
         if (err) return rej(err);
         res(row);
       }
@@ -81,7 +79,7 @@ export function updateProductDetails({
   cost_price,
   retail_price,
   sku,
-  barcode,
+  part_number,
   quantity,
   filePath,
   updatedBy,
@@ -91,7 +89,7 @@ export function updateProductDetails({
   cost_price: number;
   retail_price: number;
   sku: number;
-  barcode: number;
+  part_number: string;
   quantity: number;
   filePath: string;
   updatedBy: number;
@@ -104,7 +102,7 @@ export function updateProductDetails({
         description = ?,
         cost_price = ?,
         retail_price = ?,
-        barcode = ?,
+        part_number = ?,
         quantity = ?,
         image = ?,
         updated_by = ?
@@ -112,7 +110,17 @@ export function updateProductDetails({
     `;
     db.run(
       query,
-      [name, description, cost_price, retail_price, barcode, quantity, filePath, updatedBy, sku],
+      [
+        name,
+        description,
+        cost_price,
+        retail_price,
+        part_number,
+        quantity,
+        filePath,
+        updatedBy,
+        sku,
+      ],
       function (err: any) {
         if (err) {
           console.error("Error updating product:", err.message);

@@ -11,6 +11,7 @@ import { Separator } from "../../../components/ui/separator";
 import { Card } from "../../../components/ui/card";
 import MyDocument from "../../../components/PDF";
 import { PDFDownloadLink } from "@react-pdf/renderer";
+import { toast } from "sonner";
 
 interface IInoviceDetails {
   service: IService | undefined;
@@ -73,10 +74,11 @@ const EditInovice = () => {
     try {
       //@ts-ignore
       const resp = await window.electron.getInvoiceDetails(id);
-      console.log(resp);
       setDetails(resp);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   const handleSheetToggle = () => {
@@ -99,11 +101,12 @@ const EditInovice = () => {
         amountPaid: newTotalPaid,
         id: details?.serviceBill?.id,
       });
-      console.log(resp);
       fetchDetails(params.invoiceId);
       setIsSheetOpen(false);
     } catch (error) {}
-    console.log(newTotalPaid);
+    toast.error("Something went wrong. Please restart the application", {
+      position: "top-center",
+    });
   };
   return (
     <div className="min-h-screen bg-gray-100">
@@ -115,10 +118,10 @@ const EditInovice = () => {
                 document={<MyDocument details={details} />}
                 fileName={`${details?.service?.name}-${details?.service?.vehicle_number}.pdf`}
               >
-                
                 {(
                   //@ts-ignore
-                  { blob, url, loading, error }:any) =>
+                  { blob, url, loading, error }: any
+                ) =>
                   loading ? (
                     "Loading document..."
                   ) : (
@@ -179,9 +182,7 @@ const EditInovice = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <h2 className="font-semibold">Invoice</h2>
-                  <p className="font-semibold text-gray-600">
-                    Invoice no# {details?.service?.id}
-                  </p>
+                  <p className="font-semibold text-gray-600">Invoice no# {details?.service?.id}</p>
 
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">

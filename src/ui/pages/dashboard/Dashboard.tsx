@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import PageHeader from "../../../components/PageHeader";
 import CardV2 from "./components/CardV2";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const [profit, setProfit] = useState(0);
@@ -26,7 +27,9 @@ const Dashboard = () => {
       const { response } = await window.electron.getDailyProfit();
       setProfit(response.total_profit);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   const fetchLast7DaysProfit = async () => {
@@ -35,7 +38,9 @@ const Dashboard = () => {
       const { response } = await window.electron.last7DaysProfit();
       setLast7Daysprofit(response.total_profit);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -45,7 +50,9 @@ const Dashboard = () => {
       const { totalServicesCount } = await window.electron.getDailyServicesCount();
       setDailyServicesCount(totalServicesCount.services_count);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   const fetchLast7DaysServicesCount = async () => {
@@ -54,7 +61,9 @@ const Dashboard = () => {
       const { totalServicesCount } = await window.electron.last7DaysServicesCount();
       setLast7DaysServicesCount(totalServicesCount.services_count);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   const fetchDailyDueAmount = async () => {
@@ -64,7 +73,9 @@ const Dashboard = () => {
       setDueAmount(totalDueAmount);
       // setDueAmount(totalServicesCount.services_count);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -75,7 +86,9 @@ const Dashboard = () => {
       setLast7DaysdueAmount(totalDueAmount);
       // setDueAmount(totalServicesCount.services_count);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   return (

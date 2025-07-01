@@ -21,9 +21,16 @@ const InvoiceItem = ({
             <label htmlFor="name" className="text-sm text-gray-500">
               Name
             </label>
-            <Combobox data={products} emptyMessage="No product found...." placeholder="Search product...." value={comboboxValue} handleProductChange={handleProductChange} item={item} itemIdx={idx}/>
+            <Combobox
+              data={products}
+              emptyMessage="No product found...."
+              placeholder="Search product...."
+              value={comboboxValue}
+              handleProductChange={handleProductChange}
+              item={item}
+              itemIdx={idx}
+            />
 
-            
             {/* <select
               name="products"
               id="products"
@@ -77,11 +84,7 @@ const InvoiceItem = ({
               required
               placeholder="5"
             />
-            {item?.product && (
-              <p className="text-xs text-green-700 font-semibold absolute -bottom-4 right-0">
-                Available stock {item?.product?.quantity}
-              </p>
-            )}
+       
           </div>
           <div className="flex flex-col gap-1 grow">
             <label htmlFor="name" className="text-sm text-gray-500">
@@ -111,13 +114,13 @@ const InvoiceItem = ({
               className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 disabled:bg-gray-100"
               //   onChange={onMutate}
               // value={selectedProduct?.barcode}
-              value={item.product?.retail_price  - item.product?.cost_price}
+              value={item.product?.retail_price - item.product?.cost_price}
               required
               disabled
               placeholder="30 aed"
             />
           </div>
-             <div className="flex flex-col gap-1 grow">
+          <div className="flex flex-col gap-1 grow">
             <label htmlFor="name" className="text-sm text-gray-500">
               Profit (per unit x quantity)
             </label>
@@ -128,13 +131,13 @@ const InvoiceItem = ({
               className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 disabled:bg-gray-100"
               //   onChange={onMutate}
               // value={selectedProduct?.barcode}
-              value={(item.product?.retail_price  - item.product?.cost_price) * item.quantity}
+              value={(item.product?.retail_price - item.product?.cost_price) * item.quantity}
               required
               disabled
               placeholder="30 aed"
             />
           </div>
-       
+
           {items.length > 1 && (
             <Button
               variant="outline"

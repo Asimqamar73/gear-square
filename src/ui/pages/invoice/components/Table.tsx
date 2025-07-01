@@ -26,6 +26,10 @@ const Table = ({ data }: any) => {
       value: "Paid",
       color: "bg-green-200",
     },
+    3: {
+      value: "Overpaid",
+      color: "bg-green-400",
+    },
   };
   const navigate = useNavigate();
   return (
@@ -37,8 +41,10 @@ const Table = ({ data }: any) => {
           <TableHead className="w-[100px]">Invoice no#</TableHead>
           <TableHead className="w-[100px]">Name</TableHead>
           <TableHead className="w-[100px]">Phone</TableHead>
+          <TableHead className="w-[100px]">Company</TableHead>
+          <TableHead className="w-[100px]">Company phone</TableHead>
           <TableHead>Vehicle no#</TableHead>
-          <TableHead>Note</TableHead>
+          <TableHead>Chassis no#</TableHead>
           <TableHead>Date</TableHead>
           <TableHead>Payment status</TableHead>
 
@@ -51,11 +57,18 @@ const Table = ({ data }: any) => {
             <TableCell className="font-medium">{idx + 1}</TableCell>
             <TableCell className="font-medium">{datum.name}</TableCell>
             <TableCell>{datum.phone_number}</TableCell>
+            <TableCell className="font-medium">{datum.company_name}</TableCell>
+            <TableCell>{datum.company_phone_number}</TableCell>
             <TableCell>{datum.vehicle_number}</TableCell>
-            <TableCell>{datum.note}</TableCell>
+            <TableCell>{datum.chassis_number}</TableCell>
             <TableCell>{dateFormatter(datum.created_at)}</TableCell>
             <TableCell>
-              <Badge variant={"outline"} className={`${paymentStatuses[datum.bill_status].color} border-gray-400`}>{paymentStatuses[datum.bill_status].value}</Badge>
+              <Badge
+                variant={"outline"}
+                className={`${paymentStatuses[datum.bill_status].color} border-gray-400`}
+              >
+                {paymentStatuses[datum.bill_status].value}
+              </Badge>
             </TableCell>
             <TableCell className="text-right">
               <div className="cursor-pointer" onClick={() => navigate(`/invoice/${datum.id}`)}>

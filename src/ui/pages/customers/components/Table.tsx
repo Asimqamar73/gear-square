@@ -23,6 +23,9 @@ const Table = ({ data, confirmDeleteDialogBox }: any) => {
           <TableHead>Name</TableHead>
           <TableHead>Phone</TableHead>
           <TableHead>Email</TableHead>
+          <TableHead>Company</TableHead>
+          <TableHead>Company phone</TableHead>
+
           <TableHead>Address</TableHead>
           <TableHead>Action</TableHead>
         </TableRow>
@@ -33,6 +36,8 @@ const Table = ({ data, confirmDeleteDialogBox }: any) => {
             <TableCell className="font-medium">{datum.name}</TableCell>
             <TableCell>{datum.phone_number}</TableCell>
             <TableCell>{datum.email ? datum.email : "-"}</TableCell>
+            <TableCell>{datum.company_name ? datum.company_name : "-"}</TableCell>
+            <TableCell>{datum.company_phone_number ? datum.company_phone_number : "-"}</TableCell>
             <TableCell>{datum.address ? datum.address : "-"}</TableCell>
             <TableCell>
               <div className="flex gap-2">

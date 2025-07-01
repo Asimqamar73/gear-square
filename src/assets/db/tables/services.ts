@@ -8,6 +8,7 @@ export const create_service_table = () => {
     vehicle_number TEXT,      
     make TEXT,                       
     model TEXT,          
+    chassis_number TEXT,          
     year INTEGER, 
     note TEXT,
     customer_id INTEGER,
@@ -17,7 +18,8 @@ export const create_service_table = () => {
     updated_by INTEGER,
     FOREIGN KEY(created_by) REFERENCES users(id),
     FOREIGN KEY(updated_by) REFERENCES users(id),
-    FOREIGN KEY(customer_id) REFERENCES customers(id)
+    FOREIGN KEY(customer_id) REFERENCES customers(id) ON DELETE CASCADE
+
   )
 `,
     (err: any) => {
@@ -31,24 +33,23 @@ export const create_service_table = () => {
 
 export function addService(data: any) {
   return new Promise((res, rej) => {
-    console.log(data);
-    const query = `INSERT INTO services (vehicle_number, make, model, year, note, created_by, updated_by, customer_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO services (vehicle_number, make, model, chassis_number, year, note, created_by, updated_by, customer_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`;
     //@ts-ignore\
     db.run(
       query,
       [
-        data.vehicle_number,
+        data.vehicleNumber,
         data.make,
         data.model,
+        data.chassisNumber,
         data.year,
         data.note,
         data.createdBy,
         data.updatedBy,
         data.customerId,
       ],
-      function (err: any, row: any) {
-        console.log(row);
-        console.log(err);
+      function (err: any) {
+
         if (err) return rej(err);
         //@ts-ignore
         res(this.lastID);
@@ -62,7 +63,14 @@ export async function getAllInvoices() {
     const rows = await new Promise((resolve, reject) => {
       db.all(
         `SELECT 
-        services.*, customers.name, customers.phone_number, service_bill.amount_paid,service_bill.amount_due,service_bill.bill_status
+        services.*, 
+        customers.name, 
+        customers.phone_number,
+        customers.company_name,
+        customers.company_phone_number,
+        service_bill.amount_paid,
+        service_bill.amount_due,
+        service_bill.bill_status
         FROM services 
         JOIN customers ON customers.id=services.customer_id 
         JOIN service_bill ON service_bill.service_id=services.id 
@@ -81,7 +89,7 @@ export async function getAllInvoices() {
 }
 
 export async function getServicesById(customerId: number) {
-  console.log(customerId);
+
   try {
     const rows = await new Promise((resolve, reject) => {
       db.all(
@@ -90,7 +98,6 @@ export async function getServicesById(customerId: number) {
         where services.customer_id = ?`,
         [customerId],
         (err: any, rows: any) => {
-          console.log(rows, "rows");
           if (err) return reject(err);
           resolve(rows);
         }
@@ -111,10 +118,11 @@ export function searchInvoice(search: string) {
         FROM services 
         JOIN customers ON customers.id=services.customer_id 
         JOIN service_bill ON service_bill.service_id=services.id 
-        WHERE services.vehicle_number LIKE ?
+        WHERE services.vehicle_number LIKE ? 
+        OR services.chassis_number LIKE ?
         ORDER BY services.id DESC`;
     const wildcardSearch = `%${search}%`; // Wrap search string with wildcards
-    db.all(query, [wildcardSearch], (err: any, rows: any) => {
+    db.all(query, [wildcardSearch, wildcardSearch], (err: any, rows: any) => {
       if (err) return reject(err);
       resolve(rows);
     });
@@ -125,12 +133,11 @@ export async function getServiceDetails(id: number) {
   try {
     const rows = await new Promise((resolve, reject) => {
       db.get(
-        `SELECT services.*, customers.name,customers.phone_number FROM services 
+        `SELECT services.*, customers.name,customers.phone_number,customers.company_name,customers.company_phone_number FROM services 
         JOIN customers ON customers.id=services.customer_id
         where services.id = ?`,
         [id],
         (err: any, row: any) => {
-          console.log("rows", row);
           if (err) return reject(err);
           resolve(row);
         }

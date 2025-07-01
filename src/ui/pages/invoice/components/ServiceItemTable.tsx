@@ -9,7 +9,6 @@ import {
 } from "../../../../components/ui/table";
 
 const ServiceItemTable = ({ data }: any) => {
-  console.log(data)
   return (
     <T>
       <TableCaption>List of invoice items</TableCaption>

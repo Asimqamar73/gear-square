@@ -1,4 +1,13 @@
-import { CalendarDays, Car, Clock10, Download, Phone, Printer, User2 } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  Car,
+  Clock10,
+  Download,
+  Phone,
+  Printer,
+  User2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ServiceItemTable from "./components/ServiceItemTable";
@@ -11,6 +20,7 @@ import { Separator } from "../../../components/ui/separator";
 import { Card } from "../../../components/ui/card";
 import MyDocument from "../../../components/PDF";
 import { BlobProvider, PDFDownloadLink } from "@react-pdf/renderer";
+import { toast } from "sonner";
 
 interface IInoviceDetails {
   service: IService | undefined;
@@ -22,7 +32,10 @@ interface IService {
   id: number;
   service_id: number;
   name: string;
+  company_name: string;
   phone_number: string;
+  chassis_number: string;
+  company_phone_number: string;
   vehicle_number: string;
   created_at: string;
   customer_id: number;
@@ -59,6 +72,10 @@ const InvoiceDetails = () => {
       value: "Paid",
       color: "bg-green-200",
     },
+    3: {
+      value: "Overpaid",
+      color: "bg-green-400",
+    },
   };
   const [details, setDetails] = useState<IInoviceDetails>();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -75,20 +92,15 @@ const InvoiceDetails = () => {
       const resp = await window.electron.getInvoiceDetails(id);
       setDetails(resp);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   const handleSheetToggle = () => {
     setIsSheetOpen(!isSheetOpen);
   };
   const handleUpdateInvoice = async () => {
-    if (Number(paymentAmount) <= 0) {
-      setErrorMessage("Payment amount must be greater then 0");
-      setTimeout(() => {
-        setErrorMessage("");
-      }, 4000);
-      return;
-    }
     //@ts-ignore
     const newTotalPaid = Number(paymentAmount) + details?.serviceBill?.amount_paid;
     try {
@@ -101,7 +113,9 @@ const InvoiceDetails = () => {
       fetchDetails(params.invoiceId);
       setIsSheetOpen(false);
     } catch (error) {}
-    console.log(newTotalPaid);
+    toast.error("Something went wrong. Please restart the application", {
+      position: "top-center",
+    });
   };
   return (
     <div className="min-h-screen bg-gray-100">
@@ -133,8 +147,8 @@ const InvoiceDetails = () => {
               <BlobProvider document={<MyDocument details={details} />}>
                 {({ url }) => (
                   //@ts-ignore
-                  <a href={url} target="_blank" >
-                     <Button
+                  <a href={url} target="_blank">
+                    <Button
                       className="bg-[#173468] text-white cursor-pointer"
                       variant={"outline"}
                       size={"icon"}
@@ -163,7 +177,24 @@ const InvoiceDetails = () => {
                     {" "}
                     <User strokeWidth={1.5} /> {details?.service?.name}{" "}
                   </p> */}
-                  <div
+                  {details?.service?.name && (
+                    <div
+                      className="flex items-center gap-2 cursor-pointer text-blue-800"
+                      onClick={() => navigate(`/customer-details/${details?.service?.customer_id}`)}
+                    >
+                      <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                        <User2 className="text-gray-500" strokeWidth={1.5} />{" "}
+                      </div>
+                      <div className="flex flex-col">
+                        <p className="font-semibold text-gray-600">{details?.service?.name}</p>
+                        <p className="text-gray-400 text-sm font-semibold">
+                          {details?.service?.phone_number}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* <div
                     className="flex items-center gap-2 cursor-pointer text-blue-800"
                     onClick={() => navigate(`/customer-details/${details?.service?.customer_id}`)}
                   >
@@ -171,22 +202,56 @@ const InvoiceDetails = () => {
                       <User2 className="text-gray-500" strokeWidth={1.5} />{" "}
                     </div>
                     <p className="font-semibold text-gray-600">{details?.service?.name}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
-                      <Phone className="text-gray-500" strokeWidth={1.5} />
+                    <p className="font-semibold text-gray-600">{details?.service?.phone_number}</p>
+                  </div> */}
+                  {details?.service?.company_name && (
+                    <div
+                      className="flex items-center gap-2 cursor-pointer text-blue-800"
+                      onClick={() => navigate(`/customer-details/${details?.service?.customer_id}`)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                          <Building2 className="text-gray-500" strokeWidth={1.5} />
+                        </div>
+                        <div className="flex flex-col">
+                          <p className="font-semibold text-gray-600">
+                            {" "}
+                            {details?.service?.company_name}
+                          </p>
+                          <p className="text-gray-400 text-sm font-semibold">
+                            {" "}
+                            {details?.service?.company_phone_number}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <p className="font-semibold text-gray-600"> {details?.service?.phone_number}</p>
-                  </div>
+                  )}
+                  {/* {details?.service?.phone_number && (
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
+                        <Phone className="text-gray-500" strokeWidth={1.5} />
+                      </div>
+                      <p className="font-semibold text-gray-600">
+                        {" "}
+                        {details?.service?.phone_number}
+                      </p>
+                    </div>
+                  )} */}
 
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">
                       <Car className="text-gray-500" strokeWidth={1.5} />
                     </div>
-                    <p className="font-semibold text-gray-600">
-                      {" "}
-                      {details?.service?.vehicle_number}
-                    </p>
+                    <div className="flex flex-col gap-1">
+                      <p className="font-semibold text-gray-600">
+                        {" "}
+                        {details?.service?.vehicle_number}
+                      </p>
+                      <p className="text-gray-400 text-sm font-semibold">
+                        {" "}
+                        {details?.service?.chassis_number}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">

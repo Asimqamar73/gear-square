@@ -3,6 +3,7 @@ import Table from "./components/Table";
 import useDebounce from "react-debounced";
 import SearchBar from "../../../components/SearchBar";
 import PageHeader from "../../../components/PageHeader";
+import { toast } from "sonner";
 
 const Invoices = () => {
   const debounce = useDebounce(2000);
@@ -19,9 +20,10 @@ const Invoices = () => {
       //@ts-ignore
       const { response } = await window.electron.getInvoices();
       setInvoices(response);
-      console.log(response);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 

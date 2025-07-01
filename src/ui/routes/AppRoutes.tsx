@@ -91,7 +91,7 @@ function AppRoutes() {
             }
           />
             <Route
-            path="/edit-invoice/:customerId"
+            path="/edit-invoice/:invoiceId"
             element={
               <PrivateRoute>
                 <EditCustomerInvoive />

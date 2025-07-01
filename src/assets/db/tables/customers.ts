@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS customers (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     phone_number TEXT,
+    company_name TEXT,
+    company_phone_number TEXT,
     email TEXT,
     address TEXT,
     created_at TEXT DEFAULT (datetime('now','localtime')),
@@ -30,6 +32,8 @@ CREATE TABLE IF NOT EXISTS customers (
 export function addCustomerToDB({
   name,
   phoneNumber,
+  companyName,
+  companyPhoneNumber,
   email,
   address,
   createdBy,
@@ -37,19 +41,20 @@ export function addCustomerToDB({
 }: {
   name: string;
   phoneNumber: string;
+  companyName: string;
+  companyPhoneNumber: string;
   email: string;
   address: string;
   createdBy: number;
   updatedBy: number;
 }) {
   return new Promise((res, rej) => {
-    const query = `INSERT INTO customers (name, phone_number, email, address, created_by,updated_by) VALUES (?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO customers (name, phone_number, company_name, company_phone_number, email, address, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
     //@ts-ignore\
     db.run(
       query,
-      [name, phoneNumber, email, address, createdBy, updatedBy],
-      function (err: any, row: any) {
-        console.log(row);
+      [name, phoneNumber, companyName, companyPhoneNumber, email, address, createdBy, updatedBy],
+      function (err: any) {
         if (err) return rej(err);
         //@ts-ignore
         res(this.lastID);
@@ -61,7 +66,6 @@ export function addCustomerToDB({
 export function getAllCustomers() {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM customers ORDER BY created_at DESC", [], (err: any, rows: any) => {
-      console.log(rows);
       if (err) return reject(err);
       resolve(rows);
     });
@@ -71,10 +75,9 @@ export function getAllCustomers() {
 export function searchCustomerByPhoneNumber(phoneNumber: number) {
   return new Promise((resolve, reject) => {
     db.all(
-      "SELECT * FROM customers WHERE phone_number = ?",
-      [phoneNumber],
+      "SELECT * FROM customers WHERE phone_number = ? OR company_phone_number = ?",
+      [phoneNumber, phoneNumber],
       (err: any, row: any) => {
-        console.log(row);
         if (err) return reject(err);
         resolve(row);
       }
@@ -85,7 +88,6 @@ export function searchCustomerByPhoneNumber(phoneNumber: number) {
 export function getCustomerById(id: number) {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM customers WHERE id = ? ", [id], (err: any, row: any) => {
-      console.log("getCustomerById row", row);
       if (err) return reject(err);
       resolve(row);
     });
@@ -95,7 +97,6 @@ export function getCustomerById(id: number) {
 export function deleteCustomerById(id: number) {
   return new Promise((resolve, reject) => {
     db.get("DELETE FROM customers WHERE id = ? ", [id], (err: any, row: any) => {
-      console.log("getCustomerById row", row);
       if (err) return reject(err);
       resolve(row);
     });
@@ -106,6 +107,8 @@ export function updateCustomerDetailsById({
   name,
   email,
   phone_number,
+  company_name,
+  company_phone_number,
   address,
   updated_by,
   id,
@@ -113,6 +116,8 @@ export function updateCustomerDetailsById({
   name: string;
   email: string;
   phone_number: number;
+  company_name: string;
+  company_phone_number: string;
   address: string;
   updated_by: number;
   id: number;
@@ -124,19 +129,22 @@ export function updateCustomerDetailsById({
         name = ?,
         email = ?,
         phone_number = ?,
+        company_name = ?,
+        company_phone_number = ?,
         address = ?,
         updated_by = ?
       WHERE id = ?;
     `;
-    db.run(query, [name, email, phone_number, address, updated_by, id], function (err: any) {
-      if (err) {
-        console.error("Error updating customer details:", err.message);
-        return reject(err);
+    db.run(
+      query,
+      [name, email, phone_number, company_name, company_phone_number, address, updated_by, id],
+      function (err: any) {
+        if (err) {
+          return reject(err);
+        }
+        //@ts-ignore
+        resolve(this.changes);
       }
-      //@ts-ignore
-      console.log(`Rows updated: ${this.changes}`);
-      //@ts-ignore
-      resolve(this.changes);
-    });
+    );
   });
 }

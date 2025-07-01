@@ -76,6 +76,11 @@ electron.contextBridge.exposeInMainWorld("electron", {
 
     return result;
   },
+
+   updateInvoice: async (data: any) => {
+    const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
+    return result;
+  },
   getInvoices: async (data: any) => {
     const result = await electron.ipcRenderer.invoke("db:get-invoices", data);
     return result;
@@ -86,7 +91,6 @@ electron.contextBridge.exposeInMainWorld("electron", {
   },
 
   getServicesById: async (customerId: number) => {
-    console.log("first", customerId);
     const result = await electron.ipcRenderer.invoke("db:get-services-by-id", customerId);
     return result;
   },

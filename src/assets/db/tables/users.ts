@@ -14,8 +14,6 @@ export const create_users_table = () => {
       if (err) {
         return console.error(err.message);
       }
-      console.log("Users table created or already exists.");
-      
       // Check if admin user already exists
       db.get(
         "SELECT id FROM users WHERE username = ? OR email = ?",
@@ -24,7 +22,6 @@ export const create_users_table = () => {
           if (err) {
             return console.error("Error checking for admin user:", err.message);
           }
-          
           // If no admin user found, create one
           if (!row) {
             db.run(
@@ -34,7 +31,6 @@ export const create_users_table = () => {
                 if (err) {
                   return console.error("Error creating admin user:", err.message);
                 }
-                console.log("Default admin user created successfully.");
               }
             );
           } else {
@@ -46,14 +42,12 @@ export const create_users_table = () => {
   );
 };
 
-
-
 export const login = async ({ username, password }: { username: string; password: string }) => {
   return new Promise((resolve, reject) => {
     db.get(
       `SELECT * FROM users WHERE username = ? AND password = ?`,
       [username, password],
-      (err:any, row:any) => {
+      (err: any, row: any) => {
         if (err) {
           console.error("Database error:", err);
           reject(err);
@@ -68,10 +62,9 @@ export const login = async ({ username, password }: { username: string; password
   });
 };
 
-
 export function get_all_users() {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM users", [], (err:any, rows:any) => {
+    db.all("SELECT * FROM users", [], (err: any, rows: any) => {
       if (err) return reject(err);
       resolve(rows);
     });

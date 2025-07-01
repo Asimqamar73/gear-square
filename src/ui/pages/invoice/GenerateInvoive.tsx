@@ -4,6 +4,7 @@ import InvoiceItem from "./components/InvoiceItem";
 import { Button } from "../../../components/ui/button";
 import AlertBox from "../../../components/AlertBox";
 import PageHeader from "../../../components/PageHeader";
+import { toast } from "sonner";
 
 interface IItems {
   product: any;
@@ -24,7 +25,7 @@ export const GenerateInvoive = () => {
   };
   const [products, setProducts] = useState([]);
   const [totalBill, setTotalBill] = useState(0);
-  const [comboBoxValue,setComboBoxValue] = useState();
+  const [comboBoxValue, setComboBoxValue] = useState();
   const [discountPercentge, setDiscountPrecentage] = useState(0);
   const [serviceDetails, setServiceDetails] = useState(initialServiceDetailsState);
 
@@ -40,7 +41,9 @@ export const GenerateInvoive = () => {
       //@ts-ignore
       setProducts(response);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -131,43 +134,41 @@ export const GenerateInvoive = () => {
     <div className="min-h-screen bg-gray-100">
       <div className="py-16 px-8">
         <div className="flex flex-col gap-2 mb-8">
-         <PageHeader title="Invoice details">
-          
-             {items.length && items[0].product && (
-               <Button
-               variant="outline"
-               className="bg-[#173468] text-white font-bold"
-               // onClick={handleInvoiceGeneration}
-               onClick={() => setOpen(true)}
-               >
+          <PageHeader title="Invoice details">
+            {items.length && items[0].product && (
+              <Button
+                variant="outline"
+                className="bg-[#173468] text-white font-bold"
+                // onClick={handleInvoiceGeneration}
+                onClick={() => setOpen(true)}
+              >
                 Generate
               </Button>
             )}
-          
-          <AlertBox
-            open={open}
-            setOpen={setOpen}
-            continueProcessHandler={handleInvoiceGeneration}
-            text=""
-            subtext=""
+
+            <AlertBox
+              open={open}
+              setOpen={setOpen}
+              continueProcessHandler={handleInvoiceGeneration}
+              text=""
+              subtext=""
             />
-            
-         </PageHeader>
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-4">
-            <div className="grow">
-              <InvoiceHeadInfo
-                servive={serviceDetails}
-                handleServiceDetailsChange={handleServiceDetailsChange}
-              />
-            </div>
-            <div className="flex justify-end">
-              <div className="p-4 bg-white rounded-2xl flex flex-col gap-2 border border-gray-300 shadow w-fit">
-                <h2 className="text-lg font-semibold mt-2 flex justify-between text-gray-600">
-                  Sub total <p>{totalBill} aed</p>
-                </h2>
-                <div className="flex flex-col justify-end gap-4">
-                  {/* <div className="flex flex-col gap-1 grow">
+          </PageHeader>
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4">
+              <div className="grow">
+                <InvoiceHeadInfo
+                  servive={serviceDetails}
+                  handleServiceDetailsChange={handleServiceDetailsChange}
+                />
+              </div>
+              <div className="flex justify-end">
+                <div className="p-4 bg-white rounded-2xl flex flex-col gap-2 border border-gray-300 shadow w-fit">
+                  <h2 className="text-lg font-semibold mt-2 flex justify-between text-gray-600">
+                    Sub total <p>{totalBill} aed</p>
+                  </h2>
+                  <div className="flex flex-col justify-end gap-4">
+                    {/* <div className="flex flex-col gap-1 grow">
                 <label htmlFor="name" className="text-sm text-gray-500">
                   Total
                 </label>
@@ -184,26 +185,26 @@ export const GenerateInvoive = () => {
                   disabled
                 />
               </div>{" "} */}
-                  <div className="flex flex-col gap-1 grow">
-                    <label htmlFor="name" className="text-sm text-gray-500">
-                      Discount
-                    </label>
-                    <input
-                      type="text"
-                      name=""
-                      id="name"
-                      className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                      //@ts-ignore
-                      onChange={(e) => setDiscountPrecentage(e?.target?.value)}
-                      value={discountPercentge}
-                      required
-                      placeholder="2.7%"
-                    />
-                    <p className="text-xs text-right text-gray-600">
-                      {(discountPercentge / 100) * totalBill} aed
-                    </p>
-                  </div>{" "}
-                  {/* <div className="flex flex-col gap-1 grow">
+                    <div className="flex flex-col gap-1 grow">
+                      <label htmlFor="name" className="text-sm text-gray-500">
+                        Discount
+                      </label>
+                      <input
+                        type="text"
+                        name=""
+                        id="name"
+                        className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+                        //@ts-ignore
+                        onChange={(e) => setDiscountPrecentage(e?.target?.value)}
+                        value={discountPercentge}
+                        required
+                        placeholder="2.7%"
+                      />
+                      <p className="text-xs text-right text-gray-600">
+                        {(discountPercentge / 100) * totalBill} aed
+                      </p>
+                    </div>{" "}
+                    {/* <div className="flex flex-col gap-1 grow">
                     <label htmlFor="name" className="text-sm text-gray-500">
                       Tax
                     </label>
@@ -218,17 +219,17 @@ export const GenerateInvoive = () => {
                       placeholder="5.3%"
                     />
                   </div>{" "} */}
-                  <hr className="bg-gray-200 text-gray-300" />
-                  <h2 className="text-lg font-semibold flex justify-between text-gray-600">
-                    Total{" "}
-                    <p>
-                      {totalBill > 0
-                        ? (totalBill - (discountPercentge / 100) * totalBill).toFixed(1)
-                        : 0}{" "}
-                      aed
-                    </p>
-                  </h2>
-                  {/* <div className="flex flex-col gap-1 grow">
+                    <hr className="bg-gray-200 text-gray-300" />
+                    <h2 className="text-lg font-semibold flex justify-between text-gray-600">
+                      Total{" "}
+                      <p>
+                        {totalBill > 0
+                          ? (totalBill - (discountPercentge / 100) * totalBill).toFixed(1)
+                          : 0}{" "}
+                        aed
+                      </p>
+                    </h2>
+                    {/* <div className="flex flex-col gap-1 grow">
                 <label htmlFor="name" className="text-sm text-gray-500">
                   Grand total
                 </label>
@@ -244,24 +245,24 @@ export const GenerateInvoive = () => {
                   disabled
                 />
               </div> */}
+                  </div>
                 </div>
               </div>
             </div>
+            <InvoiceItem
+              products={products}
+              handleProductChange={handleProductChange}
+              handleQuantityChange={handleQuantityChange}
+              handleSubtotal={handleSubtotal}
+              items={items}
+              addNewItem={addNewItem}
+              deleteItem={deleteItem}
+              comboboxValue={comboBoxValue}
+              comboboxSetValue={setComboBoxValue}
+            />
           </div>
-          <InvoiceItem
-            products={products}
-            handleProductChange={handleProductChange}
-            handleQuantityChange={handleQuantityChange}
-            handleSubtotal={handleSubtotal}
-            items={items}
-            addNewItem={addNewItem}
-            deleteItem={deleteItem}
-            comboboxValue={comboBoxValue}
-            comboboxSetValue={setComboBoxValue}
-          />
         </div>
       </div>
-    </div>
     </div>
   );
 };

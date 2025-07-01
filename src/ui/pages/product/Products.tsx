@@ -40,7 +40,9 @@ const Products = () => {
       setLoading(false);
     } catch (error) {
       setLoading(false);
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -62,7 +64,9 @@ const Products = () => {
       toast("Stock updated", { position: "top-center", className: "bg-red-300" });
       setNewQuantity(1);
     } catch (error) {
-      console.log();
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -97,7 +101,6 @@ const Products = () => {
             <div className="grid gap-1">
               <label htmlFor="name">Photo</label>
               <div className="flex justify-center">
-                
                 {selectedProduct?.image && (
                   <img
                     src={`file://${selectedProduct?.image}`}
@@ -146,13 +149,13 @@ const Products = () => {
               </div>
 
               <div className="grid gap-1">
-                <label htmlFor="quantity">Barcode</label>
+                <label htmlFor="quantity">Part number</label>
                 <input
                   id="quantity"
                   readOnly
                   //@ts-ignore
 
-                  value={selectedProduct?.barcode}
+                  value={selectedProduct?.part_number}
                   className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
                   disabled
                 />

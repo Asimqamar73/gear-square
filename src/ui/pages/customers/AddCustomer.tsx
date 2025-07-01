@@ -9,6 +9,8 @@ const AddCustomer = () => {
     name: "",
     email: "",
     phoneNumber: "",
+    companyName: "",
+    companyPhoneNumber: "",
     address: "",
   };
 
@@ -16,16 +18,18 @@ const AddCustomer = () => {
   //@ts-ignore
 
   const handleSubmit = async (e: any) => {
-    //@ts-ignoreå
-  const data = JSON.parse(localStorage.getItem("gear-square-user"));
-
-    console.log(data)
     e.preventDefault();
-    console.log({
-        ...detail,
-        createdBy: data.id,
-        updatedBy: data.id,
-      })
+
+    if (!detail.name.trim() && !detail.companyName.trim()) {
+      toast("Name or company name must required", { position: "top-center" });
+      return;
+    }
+    if (!detail.phoneNumber.trim() && !detail.companyPhoneNumber.trim()) {
+      toast("Phone number or company phone must required", { position: "top-center" });
+      return;
+    }
+    //@ts-ignoreå
+    const data = JSON.parse(localStorage.getItem("gear-square-user"));
     try {
       //@ts-ignore
       const response = await window.electron.addCustomer({
@@ -36,11 +40,12 @@ const AddCustomer = () => {
       if (response.success) {
         toast("Customer added successfully...", { position: "top-center" });
       }
-      console.log(response)
-      navigate(`/generate-invoice/${response.customerId}`)
-      setDetails(initialState)
+      navigate(`/generate-invoice/${response.customerId}`);
+      setDetails(initialState);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -59,36 +64,67 @@ const AddCustomer = () => {
           <div className="col-span-3 flex flex-col gap-4">
             <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border border-gray-300 shadow">
               <h2 className="text-xl mt-2">General information</h2>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="name" className="text-sm text-gray-500">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                  onChange={onMutate}
-                  value={detail.name}
-                  placeholder="E.g John Doe"
-                  required
-                />
+              <div className="flex gap-2">
+                <div className="flex flex-col gap-1 grow">
+                  <label htmlFor="name" className="text-sm text-gray-500">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="name"
+                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+                    onChange={onMutate}
+                    value={detail.name}
+                    placeholder="E.g John Doe"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 grow">
+                  <label htmlFor="phoneNumber" className="text-sm text-gray-500">
+                    Phone number
+                  </label>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    id="phoneNumber"
+                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+                    onChange={onMutate}
+                    value={detail.phoneNumber}
+                    placeholder="0097150450000"
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-1 grow">
-                <label htmlFor="phoneNumber" className="text-sm text-gray-500">
-                  Phone number
-                </label>
-                <input
-                  type="tel"
-                  name="phoneNumber"
-                  id="phoneNumber"
-                  className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                  onChange={onMutate}
-                  required
-                  value={detail.phoneNumber}
-                  placeholder="0097150450000"
-                />
+              <div className="flex gap-2">
+                <div className="flex flex-col gap-1 grow">
+                  <label htmlFor="name" className="text-sm text-gray-500">
+                    Company name
+                  </label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    id="companyName"
+                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+                    onChange={onMutate}
+                    value={detail.companyName}
+                    placeholder="Gear Square"
+                  />
+                </div>
+                <div className="flex flex-col gap-1 grow">
+                  <label htmlFor="phoneNumber" className="text-sm text-gray-500">
+                    Company phone number
+                  </label>
+                  <input
+                    type="tel"
+                    name="companyPhoneNumber"
+                    id="companyPhoneNumber"
+                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+                    onChange={onMutate}
+                    value={detail.companyPhoneNumber}
+                    placeholder="0097150450000"
+                  />
+                </div>
               </div>
+
               <div className="flex flex-col gap-1 grow">
                 <label htmlFor="email" className="text-sm text-gray-500">
                   Email

@@ -28,7 +28,7 @@ const Table = ({ data, handleSheetToggle }: any) => {
           <TableHead>Retail price (aed)</TableHead>
           <TableHead>Quantity (units)</TableHead>
           <TableHead className="text-right">SKU</TableHead>
-          <TableHead className="text-right">Barcode</TableHead>
+          <TableHead className="text-center">Part number</TableHead>
           <TableHead className="text-right">Action</TableHead>
         </TableRow>
       </TableHeader>
@@ -43,12 +43,12 @@ const Table = ({ data, handleSheetToggle }: any) => {
               />
             </TableCell>
             <TableCell className="font-medium">{datum.name}</TableCell>
-            <TableCell>{datum.description}</TableCell>
+            <TableCell>{datum.description || "-"}</TableCell>
             <TableCell>{datum.cost_price}</TableCell>
             <TableCell>{datum.retail_price}</TableCell>
             <TableCell>{datum.quantity}</TableCell>
             <TableCell className="text-right">{datum.sku}</TableCell>
-            <TableCell className="text-right">{datum.barcode}</TableCell>
+            <TableCell className="text-center">{datum.part_number}</TableCell>
             <TableCell className="text-right">
               <div className="text-right flex gap-2 justify-end">
                 <Tooltip>

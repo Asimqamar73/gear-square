@@ -4,13 +4,13 @@ const InvoiceHeadInfo = ({ vehicleDetails, handleVehicleDetailsChange }: any) =>
       <h2 className="text-xl mt-2">Vehicle information</h2>
       <div className="flex gap-4">
         <div className="flex flex-col gap-1 grow">
-          <label htmlFor="name" className="text-sm text-gray-500">
+          <label htmlFor="vehicleNumber" className="text-sm text-gray-500">
             Vehicle number
           </label>
           <input
             type="text"
-            name="vehicle_number"
-            id="vehicle_number"
+            name="vehicleNumber"
+            id="vehicleNumber"
             className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
             //   onChange={onMutate}
             //   value={product.name}
@@ -51,6 +51,23 @@ const InvoiceHeadInfo = ({ vehicleDetails, handleVehicleDetailsChange }: any) =>
             required
             value={vehicleDetails.model}
             placeholder="Accord"
+            onChange={handleVehicleDetailsChange}
+          />
+        </div>
+            <div className="flex flex-col gap-1 grow">
+          <label htmlFor="chassisNumber" className="text-sm text-gray-500">
+            Chassis number
+          </label>
+          <input
+            type="text"
+            name="chassisNumber"
+            id="chassisNumber"
+            className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+            //   onChange={onMutate}
+            //   value={product.name}
+            required
+            value={vehicleDetails.chassis_number}
+            placeholder="5UXXW3C53J0"
             onChange={handleVehicleDetailsChange}
           />
         </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ProductMediaBox from "./components/ProductMediaBox";
+import { toast } from "sonner";
 
 const AddProduct = () => {
   const productInitialState = {
@@ -9,7 +10,7 @@ const AddProduct = () => {
     costPrice: "",
     retailPrice: "",
     sku: "",
-    barcode: "",
+    partNumber: "",
     quantity: "",
   };
   const [product, setProduct] = useState(productInitialState);
@@ -35,29 +36,36 @@ const AddProduct = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log(product);
     try {
       //@ts-ignore
       const resp = await window.electron.addProduct({
         ...product,
         createdBy: data.id,
         updatedBy: data.id,
-        productImage: product.productImage ?  {
-          //@ts-ignore
-          buffer: await product.productImage.arrayBuffer(),
-          //@ts-ignore
-          imageName: product.productImage.name,
-        } : null,
+        productImage: product.productImage
+          ? {
+              //@ts-ignore
+              buffer: await product.productImage.arrayBuffer(),
+              //@ts-ignore
+              imageName: product.productImage.name,
+            }
+          : null,
       });
       if (resp.success) {
         setMessage("Product added successfully");
         setProduct(productInitialState);
+      } else {
+        toast.error(`Product ${resp.error.message.split(":")[2].split(".")[1]} is already used`, {
+          position: "top-center",
+        });
       }
       setTimeout(() => {
         setMessage("");
       }, 4000);
     } catch (error) {
-      console.log(error)
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   return (
@@ -162,17 +170,17 @@ const AddProduct = () => {
                 </div>
                 <div className="flex flex-col gap-1 grow">
                   <label htmlFor="price" className="text-sm text-gray-500">
-                    Barcode
+                    Part number
                   </label>
                   <input
-                    type="number"
-                    name="barcode"
-                    id="barcode"
-                    placeholder="3356783367"
+                    type="text"
+                    name="partNumber"
+                    id="partNumber"
+                    placeholder="ND1060"
                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
                     onChange={onMutate}
                     required
-                    value={product.barcode}
+                    value={product.partNumber}
                   />
                 </div>
                 <div className="flex flex-col gap-1 grow">
@@ -197,7 +205,11 @@ const AddProduct = () => {
             </button>
           </div>
           <div className="col-span-2">
-            <ProductMediaBox onMutate={onMutate} image={product.productImage} newImage={product.productImage}/>
+            <ProductMediaBox
+              onMutate={onMutate}
+              image={product.productImage}
+              newImage={product.productImage}
+            />
           </div>
         </form>
       </div>

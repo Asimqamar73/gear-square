@@ -91,6 +91,9 @@ const MyDocument = ({ details }: { details: any }) => (
         >
           <Text style={{ fontSize: 8 }}>Vehicle number: <Text style={{fontWeight:700}}>{details?.service?.vehicle_number}</Text></Text>
           <Text style={{ fontSize: 8 }}>
+            Chassis: <Text style={{fontWeight:700}}>{details?.service?.chassis_number}</Text>
+          </Text>
+           <Text style={{ fontSize: 8 }}>
             Make: <Text style={{fontWeight:700}}>{details?.service?.make}</Text>
           </Text>
           <Text style={{ fontSize: 8 }}>Model: <Text style={{fontWeight:700}}>{details?.service?.model}</Text></Text>

@@ -3,6 +3,7 @@ import PageHeader from "../../../components/PageHeader";
 import Table from "./components/Table";
 import { MoveRight, Search } from "lucide-react";
 import AlertBox from "../../../components/AlertBox";
+import { toast } from "sonner";
 
 const Customers = () => {
   const [customers, setCustomers] = useState([]);
@@ -22,10 +23,11 @@ const Customers = () => {
     try {
       //@ts-ignore
       const { response } = await window.electron.getAllCustomers();
-      console.log(response);
       setCustomers(response);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   const handleSearchChange = (e: any) => {
@@ -37,24 +39,25 @@ const Customers = () => {
       //@ts-ignore
       const { response } = await window.electron.searchCustomerByPhoneNumber(searchVal);
       setCustomers(response);
-      console.log(response);
       setSearchLoading(false);
       setIsSearchDone(true);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
       setIsSearchDone(true);
     }
   };
 
   const deleteCustomer = async () => {
-    console.log("heere")
     try {
       //@ts-ignore
       const response = await window.electron.deleteCustomerById(open.userId);
-      console.log(response);
       fetchAllCustomers();
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   return (
@@ -86,7 +89,7 @@ const Customers = () => {
               type="text"
               className="rounded-3xl border outline-0 p-1.5 border-gray-500 indent-6 w-full bg-teal-50/30"
               value={searchVal}
-              placeholder={"Search customer by phone..."}
+              placeholder={"Phone or company phone"}
               onChange={handleSearchChange}
             />
             {isSearchDone && (

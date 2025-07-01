@@ -1,5 +1,12 @@
 import { createDeductProductQuantityTrigger } from "../assets/db/triggers/triggers.js";
-import { dailyDueAmount, dailyProfit, last7DaysDueAmount, last7DaysProfit, last7DaysServicesCount, todayServicesCount } from "../assets/db/tables/dashboard.js";
+import {
+  dailyDueAmount,
+  dailyProfit,
+  last7DaysDueAmount,
+  last7DaysProfit,
+  last7DaysServicesCount,
+  todayServicesCount,
+} from "../assets/db/tables/dashboard.js";
 import {
   addCustomerToDB,
   create_customers_table,
@@ -22,6 +29,7 @@ import {
   addServiceItems,
   create_service_items_table,
   getServiceItems,
+  updateServiceItems,
 } from "../assets/db/tables/serviceItems.js";
 import {
   addService,
@@ -202,7 +210,7 @@ app.on("ready", () => {
         costPrice,
         retailPrice,
         sku,
-        barcode,
+        partNumber,
         quantity,
         productImage,
         createdBy,
@@ -213,7 +221,7 @@ app.on("ready", () => {
         costPrice: number;
         retailPrice: number;
         sku: number;
-        barcode: number;
+        partNumber: string;
         quantity: number;
         productImage: any;
         createdBy: number;
@@ -233,9 +241,7 @@ app.on("ready", () => {
         // Add error handling for file writing
         try {
           fs.writeFileSync(filePath, Buffer.from(productImage.buffer));
-          console.log("Image saved successfully at:", filePath);
         } catch (fileError: any) {
-          console.error("Error writing file:", fileError);
           throw new Error(`Failed to save image: ${fileError.message}`);
         }
 
@@ -246,7 +252,7 @@ app.on("ready", () => {
           costPrice,
           retailPrice,
           sku,
-          barcode,
+          partNumber,
           quantity,
           filePath,
           createdBy,
@@ -256,7 +262,7 @@ app.on("ready", () => {
         return { success: true, path: filePath, response };
       } catch (error: any) {
         console.error("Error in add-product handler:", error);
-        return { success: false, error: error.message };
+        return { success: false, error: error };
       }
     }
   );
@@ -428,7 +434,7 @@ app.on("ready", () => {
         cost_price,
         retail_price,
         sku,
-        barcode,
+        part_number,
         quantity,
         productImage,
         updatedBy,
@@ -439,7 +445,7 @@ app.on("ready", () => {
         cost_price: number;
         retail_price: number;
         sku: number;
-        barcode: number;
+        part_number: string;
         quantity: number;
         productImage: any;
         updatedBy: number;
@@ -466,7 +472,6 @@ app.on("ready", () => {
 
           try {
             fs.writeFileSync(filePath, Buffer.from(productImage.buffer));
-            console.log("New image saved successfully at:", filePath);
           } catch (fileError: any) {
             console.error("Error writing new image file:", fileError);
             throw new Error(`Failed to save new image: ${fileError.message}`);
@@ -480,7 +485,7 @@ app.on("ready", () => {
           cost_price,
           retail_price,
           sku,
-          barcode,
+          part_number,
           quantity,
           filePath,
           updatedBy,
@@ -505,7 +510,7 @@ app.on("ready", () => {
         const itemsResponse = await addServiceItems(args.items, service_id);
         const serviceBillResponse = await addServiceBill(args.bill, service_id);
 
-        return { success: true,service_id, itemsResponse, serviceBillResponse };
+        return { success: true, service_id, itemsResponse, serviceBillResponse };
       }
 
       return { success: true };
@@ -514,6 +519,18 @@ app.on("ready", () => {
       return { success: false, error: error.message };
     }
   });
+
+  ipcMain.handle("db:update-invoice", async (event, args) => {
+    try {
+      const response: any = await updateServiceItems(args, args.service_id);
+
+      return { success: true, message: response };
+    } catch (error) {
+      //@ts-ignore
+      return { success: false, error: error.message };
+    }
+  });
+
   ipcMain.handle("db:update-service-due-payment", async (ev, { amountPaid, billStatus, id }) => {
     return await UpdateServiceBillPayment(amountPaid, billStatus, id);
   });
@@ -529,7 +546,6 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("db:get-services-by-id", async (event, customerId) => {
-    console.log(customerId);
     try {
       const response = await getServicesById(customerId);
       return { success: true, response };
@@ -554,6 +570,20 @@ app.on("ready", () => {
   });
 });
 
+// ipcMain.handle("db:invoice-details", async (event, id) => {
+//   try {
+//     const service = await getServiceDetails(id);
+//     if (service) {
+//       const serviceItems = await getServiceItems(id);
+//       const serviceBill = await getServiceBill(id);
+//       return { success: true, service, serviceItems, serviceBill };
+//     }
+//   } catch (error) {
+//     //@ts-ignore
+//     return { success: false, error: error.message };
+//   }
+// });
+
 ipcMain.handle("db:searchInvoice", async (ev, searchInput) => {
   return await searchInvoice(searchInput);
 });
@@ -565,6 +595,8 @@ ipcMain.handle(
     {
       name,
       phoneNumber,
+      companyName,
+      companyPhoneNumber,
       email,
       address,
       createdBy,
@@ -572,6 +604,8 @@ ipcMain.handle(
     }: {
       name: string;
       phoneNumber: string;
+      companyName: string;
+      companyPhoneNumber: string;
       email: string;
       address: string;
       createdBy: number;
@@ -582,6 +616,8 @@ ipcMain.handle(
       const response = await addCustomerToDB({
         name,
         phoneNumber,
+        companyName,
+        companyPhoneNumber,
         email,
         address,
         createdBy,
@@ -637,9 +673,21 @@ ipcMain.handle("db:delete-customers-by-id", async (event, id) => {
 });
 ipcMain.handle(
   "db:update-customers-details-by-id",
-  async (event, { name, email, phone_number, address,updated_by, id }) => {
+  async (
+    event,
+    { name, email, phone_number, company_name, company_phone_number, address, updated_by, id }
+  ) => {
     try {
-      const response = await updateCustomerDetailsById({ name, email, phone_number, address,updated_by, id });
+      const response = await updateCustomerDetailsById({
+        name,
+        email,
+        phone_number,
+        company_name,
+        company_phone_number,
+        address,
+        updated_by,
+        id,
+      });
       return { success: true, response };
     } catch (error) {
       //@ts-ignore
@@ -698,7 +746,6 @@ ipcMain.handle("db:get-daily-due-amount", async (event, args) => {
   }
 });
 
-
 ipcMain.handle("db:get-last-7-days-due-amount", async (event, args) => {
   try {
     const totalDueAmount: any = await last7DaysDueAmount();
@@ -708,6 +755,3 @@ ipcMain.handle("db:get-last-7-days-due-amount", async (event, args) => {
     return { success: false, error: error.message };
   }
 });
-
-
-

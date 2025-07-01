@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import ProductMediaBox from "./components/ProductMediaBox";
 import { useParams } from "react-router-dom";
 import { Button } from "../../../components/ui/button";
+import { toast } from "sonner";
 
 const EditProduct = () => {
   const params = useParams();
@@ -12,7 +13,7 @@ const EditProduct = () => {
     cost_price: "",
     retail_price: "",
     sku: "",
-    barcode: "",
+    part_number: "",
     quantity: "",
     image: "",
   };
@@ -29,10 +30,11 @@ const EditProduct = () => {
     try {
       //@ts-ignore
       const response = await window.electron.getProductById(params.productId);
-      console.log(response);
       setProduct(response);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -52,7 +54,6 @@ const EditProduct = () => {
   };
 
   const handleSubmit = async (e: any) => {
-    console.log(product);
     e.preventDefault();
     try {
       //@ts-ignore
@@ -76,7 +77,9 @@ const EditProduct = () => {
         setMessage("");
       }, 4000);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   return (
@@ -130,7 +133,7 @@ const EditProduct = () => {
               <h2 className="text-xl mt-2">Pricing</h2>
               <div className="flex flex-wrap gap-2">
                 <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="price" className="text-sm text-gray-500">
+                  <label htmlFor="cost_price" className="text-sm text-gray-500">
                     Cost price
                   </label>
                   <input
@@ -145,7 +148,7 @@ const EditProduct = () => {
                   />
                 </div>
                 <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="price" className="text-sm text-gray-500">
+                  <label htmlFor="retail_price" className="text-sm text-gray-500">
                     Retail price
                   </label>
                   <input
@@ -166,7 +169,7 @@ const EditProduct = () => {
               <h2 className="text-xl mt-2">Inventory</h2>
               <div className="flex flex-wrap gap-2">
                 <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="price" className="text-sm text-gray-500">
+                  <label htmlFor="sku" className="text-sm text-gray-500">
                     SKU
                   </label>
                   <input
@@ -181,22 +184,22 @@ const EditProduct = () => {
                   />
                 </div>
                 <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="price" className="text-sm text-gray-500">
-                    Barcode
+                  <label htmlFor="part_number" className="text-sm text-gray-500">
+                    Part number
                   </label>
                   <input
-                    type="number"
-                    name="barcode"
-                    id="barcode"
+                    type="text"
+                    name="part_number"
+                    id="part_number"
                     placeholder="3356783367"
                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
                     onChange={onMutate}
                     required
-                    value={product.barcode}
+                    value={product.part_number}
                   />
                 </div>
                 <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="price" className="text-sm text-gray-500">
+                  <label htmlFor="quantity" className="text-sm text-gray-500">
                     Quantity
                   </label>
                   <input
@@ -220,7 +223,11 @@ const EditProduct = () => {
             </Button>
           </div>
           <div className="col-span-2">
-            <ProductMediaBox onMutate={onMutate} image={product?.image} newImage={product.productImage} />
+            <ProductMediaBox
+              onMutate={onMutate}
+              image={product?.image}
+              newImage={product.productImage}
+            />
           </div>
         </form>
       </div>

@@ -8,7 +8,6 @@ export function pollResources(mainWindow: BrowserWindow) {
     const cpuUsage = await getCpuUsage();
     const ramUsage = getRamUsage();
     mainWindow.webContents.send("statistics", { cpuUsage, ramUsage });
-    console.log({ cpuUsage, ramUsage });
   }, POLLING_INTERVAL);
 }
 function getCpuUsage() {

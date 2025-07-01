@@ -136,7 +136,6 @@ if (!fs.existsSync(dbPath)) {
   // Check if file is writable
   try {
     fs.accessSync(dbPath, fs.constants.W_OK);
-    console.log("Database file is writable");
   } catch (err: any) {
     console.error("Database file is not writable:", err.message);
   }

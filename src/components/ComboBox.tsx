@@ -43,7 +43,7 @@ export function Combobox({
           aria-expanded={open}
           className="justify-between h-11 border rounded-sm p-2 bg-teal-50/30 border-gray-400"
         >
-          {data?.find((datum: any) => datum?.name === item?.product?.name)?.name || placeholder}
+          {data?.find((datum: any) => datum?.id === item?.product?.id)?.name || placeholder}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>

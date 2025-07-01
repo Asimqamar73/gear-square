@@ -5,7 +5,7 @@ import { Button } from "../../../components/ui/button";
 import AlertBox from "../../../components/AlertBox";
 import PageHeader from "../../../components/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
-import { MapPin, Phone, User2 } from "lucide-react";
+import { Building2, MapPin, Phone, User2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface IItems {
@@ -18,6 +18,8 @@ interface ICustomerInfo {
   name: string;
   address: string;
   email: string;
+  company_name: string;
+  company_phone_number: string;
   phone_number: string;
   created_at: string;
   created_by: number;
@@ -40,11 +42,12 @@ export const GenerateCustomerInvoive = () => {
   };
 
   const vehicleInfoInitialState = {
-    vehicle_number: "",
+    vehicleNumber: "",
     make: "",
     model: "",
     year: "",
     note: "",
+    chassisNumber: "",
   };
   const [products, setProducts] = useState([]);
   const [customerInfo, setCustomerInfo] = useState<ICustomerInfo | null>(null);
@@ -65,22 +68,24 @@ export const GenerateCustomerInvoive = () => {
     try {
       //@ts-ignore
       const response = await window.electron.getProducts();
-      console.log("response-products", response);
       //@ts-ignore
       setProducts(response);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
   const fetchCustomerInformation = async () => {
     try {
       //@ts-ignore
       const { response } = await window.electron.getCustomerById(params.customerId);
-      console.log("Response-customer", response);
       //@ts-ignore
       setCustomerInfo(response);
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -102,7 +107,6 @@ export const GenerateCustomerInvoive = () => {
     const total = updatedItem.reduce((prev, curr) => {
       return prev + curr.subtotal;
     }, 0);
-    console.log("total", total);
     setTotalBill(total);
     setItems(updatedItem);
   };
@@ -135,7 +139,7 @@ export const GenerateCustomerInvoive = () => {
     setItems([...filteredItems]);
   };
 
-  const handleInvoiceGeneration =async () => {
+  const handleInvoiceGeneration = async () => {
     try {
       // @ts-ignore
       const response = await window.electron.generateInvoice({
@@ -156,14 +160,12 @@ export const GenerateCustomerInvoive = () => {
           amountPaid,
         },
       });
-
       setItems([initialItemState]);
       setDiscountPrecentage(0);
       setAmountPaid(0);
       setPaymentStatus(0);
       setVehicleDetails(vehicleInfoInitialState);
       setTotalBill(0);
-console.log(response)
       if (response.success) {
         toast("Invoice generated successfully.", {
           position: "top-center",
@@ -171,7 +173,9 @@ console.log(response)
         navigate(`/invoice/${response.service_id}`);
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Something went wrong. Please restart the application", {
+        position: "top-center",
+      });
     }
   };
 
@@ -220,12 +224,27 @@ console.log(response)
               <div className="flex justify-end">
                 <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border border-gray-300 shadow">
                   <h2 className="text-xl mt-2">Customer Details</h2>
-                  <CustomerDetail text={customerInfo?.name} subtext={customerInfo?.email}>
-                    <User2 className="text-gray-500 size-6" />
-                  </CustomerDetail>
-                  <CustomerDetail text={customerInfo?.phone_number}>
-                    <Phone className="text-gray-500 size-6" />
-                  </CustomerDetail>
+                  {customerInfo?.name && (
+                    <CustomerDetail text={customerInfo?.name} subtext={customerInfo?.email}>
+                      <User2 className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+                  {customerInfo?.company_name && (
+                    <CustomerDetail text={customerInfo?.company_name}>
+                      <Building2 className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+                  {customerInfo?.phone_number && (
+                    <CustomerDetail text={customerInfo?.phone_number}>
+                      <Phone className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+                  {customerInfo?.company_phone_number && (
+                    <CustomerDetail text={customerInfo?.company_phone_number}>
+                      <Phone className="text-gray-500 size-6" />
+                    </CustomerDetail>
+                  )}
+
                   {customerInfo?.address && (
                     <CustomerDetail text={customerInfo?.address}>
                       <MapPin className="text-gray-500 size-6" />
