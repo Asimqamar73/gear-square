@@ -2,9 +2,18 @@ import { createDeductProductQuantityTrigger } from "../assets/db/triggers/trigge
 import {
   dailyDueAmount,
   dailyProfit,
+  last30DaysDueAmount,
+  last30DaysProfit,
+  last30DaysServicesCount,
+  last365DaysDueAmount,
+  last365DaysProfit,
+  last365DaysServicesCount,
   last7DaysDueAmount,
   last7DaysProfit,
   last7DaysServicesCount,
+  timelineDueAmount,
+  timelineServicesCount,
+  timelineSummary,
   todayServicesCount,
 } from "../assets/db/tables/dashboard.js";
 import {
@@ -31,13 +40,23 @@ import {
   getServiceItems,
   updateServiceItems,
 } from "../assets/db/tables/serviceItems.js";
+// import {
+//   // addService,
+//   // create_service_table,
+//   getAllInvoices,
+//   getServiceDetails,
+//   getServicesById,
+//   searchInvoice,
+// } from "../assets/db/tables/services.js";
+
 import {
-  addService,
   create_service_table,
+  addService,
   getAllInvoices,
   getServiceDetails,
   getServicesById,
   searchInvoice,
+  getServicesByVehicleId,
 } from "../assets/db/tables/services.js";
 import { get_all_users, login, create_users_table } from "../assets/db/tables/users.js";
 import {
@@ -49,9 +68,17 @@ import {
 import { BrowserWindow, app, ipcMain } from "electron";
 import path from "path";
 import { isDev } from "./util.js";
-import { getPreloadath } from "./pathResolver.js";
+import { getPreloadpath } from "./pathResolver.js";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import {
+  create_vehicles_table,
+  deleteVehicleFromDatabase,
+  getVehicleById,
+  getVehiclesCustomerId,
+  insertVehicleToDatabase,
+  updateVehicleInDatabase,
+} from "../assets/db/tables/vehicles.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -61,17 +88,18 @@ app.on("ready", () => {
     height: 800,
     icon: path.join(__dirname, "assets/mac-icon.icns"),
     webPreferences: {
-      preload: getPreloadath(),
+      preload: getPreloadpath(),
       webSecurity: false,
     },
   });
-  create_users_table();
-  create_customers_table();
-  create_products_table();
-  create_service_table();
-  create_service_items_table();
-  create_service_bill_table();
-  createDeductProductQuantityTrigger();
+  // create_users_table();
+  // create_customers_table();
+  // create_products_table();
+  // create_vehicles_table();
+  // create_service_table();
+  // create_service_items_table();
+  // create_service_bill_table();
+  // createDeductProductQuantityTrigger();
 
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123/");
@@ -200,6 +228,70 @@ app.on("ready", () => {
     }
   }
 
+  // ipcMain.handle(
+  //   "add-product",
+  //   async (
+  //     event,
+  //     {
+  //       name,
+  //       description,
+  //       costPrice,
+  //       retailPrice,
+  //       sku,
+  //       partNumber,
+  //       quantity,
+  //       productImage,
+  //       createdBy,
+  //       updatedBy,
+  //     }: {
+  //       name: string;
+  //       description: string;
+  //       costPrice: number;
+  //       retailPrice: number;
+  //       sku: number;
+  //       partNumber: string;
+  //       quantity: number;
+  //       productImage: any;
+  //       createdBy: number;
+  //       updatedBy: number;
+  //     }
+  //   ) => {
+  //     try {
+  //       const imageDir = getImagesDirectory();
+
+  //       if (!fs.existsSync(imageDir)) {
+  //         fs.mkdirSync(imageDir, { recursive: true });
+  //       }
+
+  //       const filePath = path.join(imageDir, Date.now() + "_" + productImage.imageName);
+
+  //       try {
+  //         fs.writeFileSync(filePath, Buffer.from(productImage.buffer));
+  //       } catch (fileError: any) {
+  //         throw new Error(`Failed to save image: ${fileError.message}`);
+  //       }
+
+  //       const response = await insertProductToDatabase({
+  //         name,
+  //         description,
+  //         costPrice,
+  //         retailPrice,
+  //         sku,
+  //         partNumber,
+  //         quantity,
+  //         filePath,
+  //         createdBy,
+  //         updatedBy,
+  //       });
+
+  //       return { success: true, path: filePath, response };
+  //     } catch (error: any) {
+  //       console.error("Error in add-product handler:", error);
+  //       return { success: false, error: error };
+  //     }
+  //   }
+  // );
+
   ipcMain.handle(
     "add-product",
     async (
@@ -228,6 +320,8 @@ app.on("ready", () => {
         updatedBy: number;
       }
     ) => {
+      let filePath: string | null = null;
+
       try {
         const imageDir = getImagesDirectory();
 
@@ -236,7 +330,7 @@ app.on("ready", () => {
           fs.mkdirSync(imageDir, { recursive: true });
         }
 
-        const filePath = path.join(imageDir, Date.now() + "_" + productImage.imageName);
+        filePath = path.join(imageDir, Date.now() + "_" + productImage.imageName);
 
         // Add error handling for file writing
         try {
@@ -262,10 +356,22 @@ app.on("ready", () => {
         return { success: true, path: filePath, response };
       } catch (error: any) {
         console.error("Error in add-product handler:", error);
+
+        // Delete the saved image if it exists and database operation failed
+        if (filePath && fs.existsSync(filePath)) {
+          try {
+            fs.unlinkSync(filePath);
+            console.log("Cleaned up image file after database error:", filePath);
+          } catch (deleteError: any) {
+            console.error("Failed to delete image file:", deleteError.message);
+          }
+        }
+
         return { success: false, error: error };
       }
     }
   );
+
   //   ipcMain.handle(
   //   "update-product-details",
   //   async (
@@ -439,6 +545,7 @@ app.on("ready", () => {
         productImage,
         updatedBy,
         image, // this is the old image path
+        id,
       }: {
         name: string;
         description: string;
@@ -450,6 +557,7 @@ app.on("ready", () => {
         productImage: any;
         updatedBy: number;
         image: string;
+        id: number;
       }
     ) => {
       try {
@@ -489,6 +597,7 @@ app.on("ready", () => {
           quantity,
           filePath,
           updatedBy,
+          id,
         });
 
         return { success: true, path: filePath, response };
@@ -504,6 +613,7 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("db:generate-invoice", async (event, args) => {
+    console.log(args);
     try {
       const service_id: any = await addService(args.vehicleDetails);
       if (service_id) {
@@ -548,6 +658,15 @@ app.on("ready", () => {
   ipcMain.handle("db:get-services-by-id", async (event, customerId) => {
     try {
       const response = await getServicesById(customerId);
+      return { success: true, response };
+    } catch (error) {
+      //@ts-ignore
+      return { success: false, error: error.message };
+    }
+  });
+  ipcMain.handle("db:get-services-by-vehicle-id", async (event, vehicleId) => {
+    try {
+      const response = await getServicesByVehicleId(vehicleId);
       return { success: true, response };
     } catch (error) {
       //@ts-ignore
@@ -599,6 +718,7 @@ ipcMain.handle(
       companyPhoneNumber,
       email,
       address,
+      trn,
       createdBy,
       updatedBy,
     }: {
@@ -608,6 +728,7 @@ ipcMain.handle(
       companyPhoneNumber: string;
       email: string;
       address: string;
+      trn:string,
       createdBy: number;
       updatedBy: number;
     }
@@ -620,6 +741,7 @@ ipcMain.handle(
         companyPhoneNumber,
         email,
         address,
+        trn,
         createdBy,
         updatedBy,
       });
@@ -675,7 +797,7 @@ ipcMain.handle(
   "db:update-customers-details-by-id",
   async (
     event,
-    { name, email, phone_number, company_name, company_phone_number, address, updated_by, id }
+    { name, email, phone_number, company_name, company_phone_number, address,trn, updated_by, id }
   ) => {
     try {
       const response = await updateCustomerDetailsById({
@@ -685,6 +807,7 @@ ipcMain.handle(
         company_name,
         company_phone_number,
         address,
+        trn,
         updated_by,
         id,
       });
@@ -750,6 +873,185 @@ ipcMain.handle("db:get-last-7-days-due-amount", async (event, args) => {
   try {
     const totalDueAmount: any = await last7DaysDueAmount();
     return { success: true, totalDueAmount: totalDueAmount.total_due_amount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+// 30 days dashboard business stats
+
+ipcMain.handle("db:get-30-days-profit", async (event, id) => {
+  try {
+    const response = await last30DaysProfit();
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-last-30-days-due-amount", async (event, args) => {
+  try {
+    const totalDueAmount: any = await last30DaysDueAmount();
+    return { success: true, totalDueAmount: totalDueAmount.total_due_amount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-last-30-days-services-count", async (event, args) => {
+  try {
+    const totalServicesCount = await last30DaysServicesCount();
+    return { success: true, totalServicesCount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-365-days-profit", async (event, id) => {
+  try {
+    const response = await last365DaysProfit();
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-last-365-days-due-amount", async (event, args) => {
+  try {
+    const totalDueAmount: any = await last365DaysDueAmount();
+    return { success: true, totalDueAmount: totalDueAmount.total_due_amount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-last-365-days-services-count", async (event, args) => {
+  try {
+    const totalServicesCount = await last365DaysServicesCount();
+    return { success: true, totalServicesCount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+// Timeline statistics
+
+ipcMain.handle("db:get-timeline-summary", async (event, timeline) => {
+  try {
+    const response = await timelineSummary(timeline);
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-timeline-due-amount", async (event, args) => {
+  try {
+    const totalDueAmount: any = await timelineDueAmount();
+    return { success: true, totalDueAmount: totalDueAmount.total_due_amount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-timeline-services-count", async (event, args) => {
+  try {
+    const totalServicesCount = await timelineServicesCount();
+    return { success: true, totalServicesCount };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+// Vehicles
+ipcMain.handle(
+  "db:add-vehicle",
+  async (
+    event,
+    {
+      vehicle_number,
+      make,
+      model,
+      year,
+      chassis_number,
+      customer_id,
+      createdBy,
+      updatedBy,
+    }: {
+      vehicle_number: string;
+      make: string;
+      model: number;
+      year: string;
+      chassis_number: string;
+      customer_id: number;
+      createdBy: number;
+      updatedBy: number;
+    }
+  ) => {
+    try {
+      const response = await insertVehicleToDatabase({
+        vehicle_number,
+        make,
+        model,
+        year,
+        chassis_number,
+        customer_id,
+        createdBy,
+        updatedBy,
+      });
+
+      return { success: true, vehicle: response };
+    } catch (error) {
+      //@ts-ignore
+      return { success: false, error: error.message };
+    }
+  }
+);
+
+ipcMain.handle("db:get-vehicles-by-customer-id", async (event, id) => {
+  try {
+    const response = await getVehiclesCustomerId(id);
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:get-vehicle-details", async (event, id) => {
+  try {
+    const response = await getVehicleById(id);
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:update-vehicle-details", async (event, data) => {
+  try {
+    const response = await updateVehicleInDatabase(data);
+    return { success: true, response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle("db:delete-vehicle-by-id", async (event, id) => {
+  try {
+    const response = await deleteVehicleFromDatabase(id);
+    return { success: true, response };
   } catch (error) {
     //@ts-ignore
     return { success: false, error: error.message };

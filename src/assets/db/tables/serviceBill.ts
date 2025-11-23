@@ -8,6 +8,7 @@ export const create_service_bill_table = () => {
     subtotal DECIMAL(10, 2) NOT NULL,
     service_id INTEGER NOT NULL,
     discount DECIMAL(10, 2),
+    vat_amount DECIMAL(10, 2) NOT NULL,
     total DECIMAL(10, 2) NOT NULL,
     amount_paid DECIMAL(10, 2),
     amount_due DECIMAL(10, 2) GENERATED ALWAYS AS (total - amount_paid) STORED,
@@ -26,17 +27,20 @@ export const create_service_bill_table = () => {
 
 export function addServiceBill(data: any, service_id: number) {
   return new Promise((res, rej) => {
-    const query = `INSERT INTO service_bill 
+    const query = `
+    INSERT INTO 
+    service_bill 
     (service_id, 
     subtotal,
     total,
+    vat_amount,
     discount,
     amount_paid,
-    bill_status) VALUES (?, ?, ?, ?, ?, ?)`;
+    bill_status) VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     db.run(
       query,
-      [service_id, data.subtotal, data.total, data.discount, data.amountPaid, data.billStatus],
+      [service_id, data.subtotal, data.total, data.vatAmount, data.discount, data.amountPaid, data.billStatus],
       function (err: any) {
         if (err) return rej(err);
         //@ts-ignore

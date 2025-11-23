@@ -2,9 +2,11 @@
   "appId": "com.n-ziermann.electron-app",
   "files": ["dist-electron", "dist-react"],
   "icon": "./gear-square-logo2.png",
-  "productName":"Gear square",
+  "productName": "Gear square",
   "extraResources": [
     "dist-electron/electron/preload.cjs",
+    "public/fonts",
+
     {
       "from": "dist-electron/assets/db/gear-square.db",
       "to": "db/gear-square.db"

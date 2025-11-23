@@ -1,12 +1,286 @@
+// import { useEffect, useState } from "react";
+// import ProductMediaBox from "./components/ProductMediaBox";
+// import { useNavigate, useParams } from "react-router-dom";
+// import { Button } from "../../../components/ui/button";
+// import { toast } from "sonner";
+
+// const EditProduct = () => {
+//   const navigate = useNavigate();
+//   const params = useParams();
+//   const productInitialState = {
+//     id: null,
+//     productImage: null,
+//     name: "",
+//     description: "",
+//     cost_price: "",
+//     retail_price: "",
+//     sku: "",
+//     part_number: "",
+//     quantity: "",
+//     image: "",
+//   };
+//   const [product, setProduct] = useState(productInitialState);
+//   //@ts-ignore
+//   const data = JSON.parse(localStorage.getItem("gear-square-user"));
+
+//   const [message, setMessage] = useState("");
+//   useEffect(() => {
+//     fetchProductDetails();
+//   }, []);
+
+//   const fetchProductDetails = async () => {
+//     try {
+//       //@ts-ignore
+//       const response = await window.electron.getProductById(params.productId);
+//       console.log(response)
+//       setProduct(response);
+//     } catch (error) {
+//       toast.error("Something went wrong. Please restart the application", {
+//         position: "top-center",
+//       });
+//     }
+//   };
+
+//   const onMutate = (event: any) => {
+//     if (event.target.files) {
+//       setProduct((prevState) => ({
+//         ...prevState,
+//         productImage: event.target.files[0],
+//       }));
+//     }
+//     if (!event.target.files) {
+//       setProduct((prevState) => ({
+//         ...prevState,
+//         [event.target.id]: event.target.value,
+//       }));
+//     }
+//   };
+
+//   const handleSubmit = async (e: any) => {
+//     e.preventDefault();
+//     try {
+//       //@ts-ignore
+//       const resp = await window.electron.updateProductDetails({
+//         ...product,
+//         updatedBy: data.id,
+//         productImage: product.productImage
+//           ? {
+//               //@ts-ignore
+//               buffer: await product.productImage.arrayBuffer(),
+//               //@ts-ignore
+//               imageName: product.productImage.name,
+//             }
+//           : null,
+//       });
+//       if (resp.success) {
+//         setMessage("Product updated successfully");
+//         setProduct(productInitialState);
+//         navigate("/product");
+//       }
+//       setTimeout(() => {
+//         setMessage("");
+//       }, 4000);
+//     } catch (error) {
+//       toast.error("Something went wrong. Please restart the application", {
+//         position: "top-center",
+//       });
+//     }
+//   };
+//   return (
+//     <div className="min-h-screen bg-gray-100">
+//       <div className="py-16 px-8">
+//         <div className="flex flex-col gap-2 mb-8 text-gray-700">
+//           <h1 className="text-3xl font-medium">Edit product</h1>
+//           <p>Update product details</p>
+//           {message ? (
+//             <p className="text-green-500 font-bold p-2 rounded-lg border w-68 bg-green-200">
+//               {message}
+//             </p>
+//           ) : (
+//             ""
+//           )}
+//         </div>
+//         <form onSubmit={handleSubmit} className="grid grid-cols-5 gap-4">
+//           <div className="col-span-3 flex flex-col gap-4">
+//             <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
+//               <h2 className="text-xl mt-2">General information</h2>
+//               <div className="flex flex-col gap-1">
+//                 <label htmlFor="name" className="text-sm text-gray-500">
+//                   Name
+//                 </label>
+//                 <input
+//                   type="text"
+//                   name=""
+//                   id="name"
+//                   className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+//                   onChange={onMutate}
+//                   value={product.name}
+//                   required
+//                 />
+//               </div>
+//               <div className="flex flex-col gap-1 border-gray-200">
+//                 <label htmlFor="description" className="text-sm text-gray-500">
+//                   Description
+//                 </label>
+//                 <textarea
+//                   name="description"
+//                   id="description"
+//                   className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+//                   rows={5}
+//                   onChange={onMutate}
+//                   required
+//                   value={product.description}
+//                 ></textarea>
+//               </div>
+//             </div>
+//             <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
+//               <h2 className="text-xl mt-2">Pricing</h2>
+//               <div className="flex flex-wrap gap-2">
+//                 <div className="flex flex-col gap-1 grow">
+//                   <label htmlFor="cost_price" className="text-sm text-gray-500">
+//                     Cost price
+//                   </label>
+//                   <input
+//                     type="number"
+//                     name="cost_price"
+//                     id="cost_price"
+//                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+//                     onChange={onMutate}
+//                     required
+//                     value={product.cost_price}
+//                     placeholder="115"
+//                   />
+//                 </div>
+//                 <div className="flex flex-col gap-1 grow">
+//                   <label htmlFor="retail_price" className="text-sm text-gray-500">
+//                     Retail price
+//                   </label>
+//                   <input
+//                     type="number"
+//                     name="retail_price"
+//                     id="retail_price"
+//                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+//                     onChange={onMutate}
+//                     required
+//                     value={product.retail_price}
+//                     placeholder="135"
+//                   />
+//                 </div>
+//               </div>
+//             </div>
+
+//             <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
+//               <h2 className="text-xl mt-2">Inventory</h2>
+//               <div className="flex flex-wrap gap-2">
+//                 <div className="flex flex-col gap-1 grow">
+//                   <label htmlFor="sku" className="text-sm text-gray-500">
+//                     SKU
+//                   </label>
+//                   <input
+//                     type="text"
+//                     name="sku"
+//                     id="sku"
+//                     placeholder="453783"
+//                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+//                     onChange={onMutate}
+//                     required
+//                     value={product.sku}
+//                   />
+//                 </div>
+//                 <div className="flex flex-col gap-1 grow">
+//                   <label htmlFor="part_number" className="text-sm text-gray-500">
+//                     Part number
+//                   </label>
+//                   <input
+//                     type="text"
+//                     name="part_number"
+//                     id="part_number"
+//                     placeholder="3356783367"
+//                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+//                     onChange={onMutate}
+//                     required
+//                     value={product.part_number}
+//                   />
+//                 </div>
+//                 <div className="flex flex-col gap-1 grow">
+//                   <label htmlFor="quantity" className="text-sm text-gray-500">
+//                     Quantity
+//                   </label>
+//                   <input
+//                     type="number"
+//                     name="quantity"
+//                     id="quantity"
+//                     placeholder="190"
+//                     className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
+//                     onChange={onMutate}
+//                     required
+//                     value={product.quantity}
+//                   />
+//                 </div>
+//               </div>
+//             </div>
+//             {/* <button type="submit" className=" p-2 rounded-sm text-white font-bold">
+//               Update
+//             </button> */}
+//             <Button type="submit" className="bg-[#173468] text-white" variant={"outline"}>
+//               Update
+//             </Button>
+//           </div>
+//           <div className="col-span-2">
+//             <ProductMediaBox
+//               onMutate={onMutate}
+//               image={product?.image}
+//               newImage={product.productImage}
+//             />
+//           </div>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default EditProduct;
+
+
+
+
+
+
+
 import { useEffect, useState } from "react";
-import ProductMediaBox from "./components/ProductMediaBox";
-import { useParams } from "react-router-dom";
-import { Button } from "../../../components/ui/button";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { 
+  Package, 
+  DollarSign, 
+  Barcode, 
+  ArrowLeft, 
+  Save, 
+  FileText,
+  Image as ImageIcon,
+  Loader2
+} from "lucide-react";
+import ProductMediaBox from "./components/ProductMediaBox";
+
+interface ProductData {
+  id: number | null;
+  productImage: File | null;
+  name: string;
+  description: string;
+  cost_price: string;
+  retail_price: string;
+  sku: string;
+  part_number: string;
+  quantity: string;
+  image: string;
+}
 
 const EditProduct = () => {
+  const navigate = useNavigate();
   const params = useParams();
-  const productInitialState = {
+  
+  const productInitialState: ProductData = {
+    id: null,
     productImage: null,
     name: "",
     description: "",
@@ -17,11 +291,11 @@ const EditProduct = () => {
     quantity: "",
     image: "",
   };
-  const [product, setProduct] = useState(productInitialState);
-  //@ts-ignore
-  const data = JSON.parse(localStorage.getItem("gear-square-user"));
 
-  const [message, setMessage] = useState("");
+  const [product, setProduct] = useState<ProductData>(productInitialState);
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     fetchProductDetails();
   }, []);
@@ -32,202 +306,319 @@ const EditProduct = () => {
       const response = await window.electron.getProductById(params.productId);
       setProduct(response);
     } catch (error) {
-      toast.error("Something went wrong. Please restart the application", {
+      toast.error("Failed to load product details. Please try again.", {
         position: "top-center",
       });
+      navigate("/products");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const onMutate = (event: any) => {
-    if (event.target.files) {
-      setProduct((prevState) => ({
-        ...prevState,
-        productImage: event.target.files[0],
-      }));
-    }
-    if (!event.target.files) {
-      setProduct((prevState) => ({
-        ...prevState,
-        [event.target.id]: event.target.value,
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = event.target;
+    setProduct((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setProduct((prev) => ({
+        ...prev,
+        productImage: event.target.files![0],
       }));
     }
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
+
     try {
       //@ts-ignore
-      const resp = await window.electron.updateProductDetails({
+      const user = JSON.parse(localStorage.getItem("gear-square-user"));
+      
+      const productData = {
         ...product,
-        updatedBy: data.id,
+        updatedBy: user.id,
         productImage: product.productImage
           ? {
-              //@ts-ignore
               buffer: await product.productImage.arrayBuffer(),
-              //@ts-ignore
               imageName: product.productImage.name,
             }
           : null,
-      });
-      if (resp.success) {
-        setMessage("Product added successfully");
-        setProduct(productInitialState);
+      };
+
+      //@ts-ignore
+      const response = await window.electron.updateProductDetails(productData);
+      
+      if (response.success) {
+        toast.success("Product updated successfully", { position: "top-center" });
+        navigate("/product");
+      } else {
+        toast.error("Failed to update product", { position: "top-center" });
       }
-      setTimeout(() => {
-        setMessage("");
-      }, 4000);
     } catch (error) {
-      toast.error("Something went wrong. Please restart the application", {
+      console.error("Error updating product:", error);
+      toast.error("Failed to update product. Please try again.", {
         position: "top-center",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="py-16 px-8">
-        <div className="flex flex-col gap-2 mb-8 text-gray-700">
-          <h1 className="text-3xl font-medium">Edit product</h1>
-          <p>Update product details</p>
-          {message ? (
-            <p className="text-green-500 font-bold p-2 rounded-lg border w-68 bg-green-200">
-              {message}
-            </p>
-          ) : (
-            ""
-          )}
+
+  const calculateMargin = () => {
+    const cost = parseFloat(product.cost_price);
+    const retail = parseFloat(product.retail_price);
+    if (cost && retail && retail > 0) {
+      return (((retail - cost) / retail) * 100).toFixed(1);
+    }
+    return "0";
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-2" />
+          <p className="text-sm text-gray-500">Loading product details...</p>
         </div>
-        <form onSubmit={handleSubmit} className="grid grid-cols-5 gap-4">
-          <div className="col-span-3 flex flex-col gap-4">
-            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
-              <h2 className="text-xl mt-2">General information</h2>
-              <div className="flex flex-col gap-1">
-                <label htmlFor="name" className="text-sm text-gray-500">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  name=""
-                  id="name"
-                  className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                  onChange={onMutate}
-                  value={product.name}
-                  required
-                />
-              </div>
-              <div className="flex flex-col gap-1 border-gray-200">
-                <label htmlFor="description" className="text-sm text-gray-500">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  id="description"
-                  className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                  rows={5}
-                  onChange={onMutate}
-                  required
-                  value={product.description}
-                ></textarea>
-              </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="py-8 px-8 max-w-[1400px] mx-auto">
+        
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-2">
+            <button
+              onClick={() => navigate("/product")}
+              className="w-10 h-10 rounded-lg border border-gray-300 hover:bg-white hover:shadow-sm flex items-center justify-center transition-all"
+            >
+              <ArrowLeft className="w-4 h-4 text-gray-700" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-semibold text-gray-900">Edit Product</h1>
+              <p className="text-sm text-gray-500 mt-0.5">Update product information</p>
             </div>
-            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
-              <h2 className="text-xl mt-2">Pricing</h2>
-              <div className="flex flex-wrap gap-2">
-                <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="cost_price" className="text-sm text-gray-500">
-                    Cost price
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
+          
+          {/* Main Form Sections */}
+          <div className="lg:col-span-2 space-y-6">
+            
+            {/* General Information */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <Package className="w-5 h-5 text-gray-600" />
+                  <h2 className="text-base font-semibold text-gray-900">Product Information</h2>
+                </div>
+              </div>
+              
+              <div className="p-6 space-y-5">
+                {/* Product Name */}
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                    <Package className="w-4 h-4 text-gray-400" />
+                    Product Name
                   </label>
                   <input
-                    type="number"
-                    name="cost_price"
-                    id="cost_price"
-                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                    onChange={onMutate}
+                    type="text"
+                    id="name"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                    onChange={handleInputChange}
+                    value={product.name}
+                    placeholder="Enter product name"
                     required
-                    value={product.cost_price}
-                    placeholder="115"
                   />
                 </div>
-                <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="retail_price" className="text-sm text-gray-500">
-                    Retail price
+
+                {/* Description */}
+                <div className="space-y-2">
+                  <label htmlFor="description" className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-gray-400" />
+                    Description
                   </label>
-                  <input
-                    type="number"
-                    name="retail_price"
-                    id="retail_price"
-                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                    onChange={onMutate}
-                    required
-                    value={product.retail_price}
-                    placeholder="135"
+                  <textarea
+                    id="description"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all resize-none"
+                    rows={4}
+                    onChange={handleInputChange}
+                    value={product.description}
+                    placeholder="Enter product description"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
-              <h2 className="text-xl mt-2">Inventory</h2>
-              <div className="flex flex-wrap gap-2">
-                <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="sku" className="text-sm text-gray-500">
-                    SKU
-                  </label>
-                  <input
-                    type="number"
-                    name="sku"
-                    id="sku"
-                    placeholder="453783"
-                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                    onChange={onMutate}
-                    required
-                    value={product.sku}
-                  />
+            {/* Pricing */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-gray-600" />
+                    <h2 className="text-base font-semibold text-gray-900">Pricing</h2>
+                  </div>
+                  {product.cost_price && product.retail_price && (
+                    <span className="text-xs font-medium text-gray-500 px-2.5 py-1 bg-gray-100 rounded-full">
+                      Margin: {calculateMargin()}%
+                    </span>
+                  )}
                 </div>
-                <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="part_number" className="text-sm text-gray-500">
-                    Part number
-                  </label>
-                  <input
-                    type="text"
-                    name="part_number"
-                    id="part_number"
-                    placeholder="3356783367"
-                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                    onChange={onMutate}
-                    required
-                    value={product.part_number}
-                  />
-                </div>
-                <div className="flex flex-col gap-1 grow">
-                  <label htmlFor="quantity" className="text-sm text-gray-500">
-                    Quantity
-                  </label>
-                  <input
-                    type="number"
-                    name="quantity"
-                    id="quantity"
-                    placeholder="190"
-                    className="border rounded-sm p-2 bg-teal-50/30 border-gray-400"
-                    onChange={onMutate}
-                    required
-                    value={product.quantity}
-                  />
+              </div>
+              
+              <div className="p-6">
+                <div className="grid sm:grid-cols-2 gap-5">
+                  {/* Cost Price */}
+                  <div className="space-y-2">
+                    <label htmlFor="cost_price" className="text-sm font-medium text-gray-700">
+                      Cost Price (AED)
+                    </label>
+                    <input
+                      type="number"
+                      id="cost_price"
+                      step="0.01"
+                      min="0"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      onChange={handleInputChange}
+                      value={product.cost_price}
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
+
+                  {/* Retail Price */}
+                  <div className="space-y-2">
+                    <label htmlFor="retail_price" className="text-sm font-medium text-gray-700">
+                      Retail Price (AED)
+                    </label>
+                    <input
+                      type="number"
+                      id="retail_price"
+                      step="0.01"
+                      min="0"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      onChange={handleInputChange}
+                      value={product.retail_price}
+                      placeholder="0.00"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-            {/* <button type="submit" className=" p-2 rounded-sm text-white font-bold">
-              Update
-            </button> */}
-            <Button type="submit" className="bg-[#173468] text-white" variant={"outline"}>
-              Update
-            </Button>
+
+            {/* Inventory */}
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <Barcode className="w-5 h-5 text-gray-600" />
+                  <h2 className="text-base font-semibold text-gray-900">Inventory & Identification</h2>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="grid sm:grid-cols-3 gap-5">
+                  {/* SKU */}
+                  <div className="space-y-2">
+                    <label htmlFor="sku" className="text-sm font-medium text-gray-700">
+                      SKU
+                    </label>
+                    <input
+                      type="text"
+                      id="sku"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      onChange={handleInputChange}
+                      value={product.sku}
+                      placeholder="SKU123"
+                      required
+                    />
+                  </div>
+
+                  {/* Part Number */}
+                  <div className="space-y-2">
+                    <label htmlFor="part_number" className="text-sm font-medium text-gray-700">
+                      Part Number
+                    </label>
+                    <input
+                      type="text"
+                      id="part_number"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      onChange={handleInputChange}
+                      value={product.part_number}
+                      placeholder="PN-001"
+                      required
+                    />
+                  </div>
+
+                  {/* Quantity */}
+                  <div className="space-y-2">
+                    <label htmlFor="quantity" className="text-sm font-medium text-gray-700">
+                      Stock Quantity
+                    </label>
+                    <input
+                      type="number"
+                      id="quantity"
+                      min="0"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                      onChange={handleInputChange}
+                      value={product.quantity}
+                      placeholder="0"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="col-span-2">
-            <ProductMediaBox
-              onMutate={onMutate}
-              image={product?.image}
-              newImage={product.productImage}
-            />
+
+          {/* Product Image Section */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm sticky top-8">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5 text-gray-600" />
+                  <h2 className="text-base font-semibold text-gray-900">Product Image</h2>
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Update product photo</p>
+              </div>
+              
+              <div className="p-6">
+                <ProductMediaBox
+                  onMutate={handleImageChange}
+                  image={product.image}
+                  newImage={product.productImage}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons - Full Width */}
+          <div className="lg:col-span-3 flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => navigate("/product")}
+              className="px-5 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white font-medium rounded-lg transition-all shadow-sm hover:shadow-md disabled:cursor-not-allowed"
+            >
+              <Save className="w-4 h-4" />
+              {isSubmitting ? "Updating..." : "Update Product"}
+            </button>
           </div>
         </form>
       </div>

@@ -11,7 +11,7 @@ interface IItems {
   quantity: number;
   subtotal: number;
 }
-export const GenerateInvoive = () => {
+export const GenerateInvoice = () => {
   const initialItemState: IItems = {
     product: null,
     quantity: 1,

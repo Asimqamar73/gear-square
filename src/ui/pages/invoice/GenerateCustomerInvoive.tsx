@@ -29,12 +29,12 @@ interface ICustomerInfo {
 
 export const GenerateCustomerInvoive = () => {
   const navigate = useNavigate();
+  const params = useParams();
   const paymentStatuses = [
     { title: "Unpaid", value: 0 },
     { title: "Partial", value: 1 },
     { title: "Paid", value: 2 },
   ];
-  const params = useParams();
   const initialItemState: IItems = {
     product: null,
     quantity: 1,
@@ -230,8 +230,8 @@ export const GenerateCustomerInvoive = () => {
                     </CustomerDetail>
                   )}
                   {customerInfo?.company_name && (
-                    <CustomerDetail text={customerInfo?.company_name}>
-                      <Building2 className="text-gray-500 size-6" />
+                    <CustomerDetail text={customerInfo?.company_name} subtext={customerInfo?.company_phone_number}>
+                      <Building2 className="text-gray-500 size-6"  />
                     </CustomerDetail>
                   )}
                   {customerInfo?.phone_number && (
@@ -239,12 +239,6 @@ export const GenerateCustomerInvoive = () => {
                       <Phone className="text-gray-500 size-6" />
                     </CustomerDetail>
                   )}
-                  {customerInfo?.company_phone_number && (
-                    <CustomerDetail text={customerInfo?.company_phone_number}>
-                      <Phone className="text-gray-500 size-6" />
-                    </CustomerDetail>
-                  )}
-
                   {customerInfo?.address && (
                     <CustomerDetail text={customerInfo?.address}>
                       <MapPin className="text-gray-500 size-6" />
@@ -333,6 +327,15 @@ export const GenerateCustomerInvoive = () => {
                   <p>
                     {totalBill > 0
                       ? (totalBill - (discountPercentge / 100) * totalBill).toFixed(1)
+                      : 0}{" "}
+                    aed
+                  </p>
+                </h2>
+                  <h2 className="text-lg font-semibold flex justify-between text-gray-600">
+                  Remaining{" "}
+                  <p>
+                    {totalBill > 0
+                      ? ((totalBill - (discountPercentge / 100) * totalBill) - amountPaid).toFixed(1)
                       : 0}{" "}
                     aed
                   </p>

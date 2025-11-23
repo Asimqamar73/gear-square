@@ -7,20 +7,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../components/ui/alert-dialog";
+} from "./ui/alert-dialog";
 
-const AlertBox = ({
+const AlertBoxPDF = ({
   open,
   setOpen,
   continueProcessHandler,
   text,
   subtext,
+  pdfAction,
+  setPdfAction,
 }: {
   open: any;
   setOpen: any;
   continueProcessHandler: any;
   text: string;
   subtext: string;
+  pdfAction: any;
+  setPdfAction: any;
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -28,9 +32,33 @@ const AlertBox = ({
         <AlertDialogHeader>
           <AlertDialogTitle>{text}</AlertDialogTitle>
           <AlertDialogDescription>{subtext}</AlertDialogDescription>
+
+          <div className="flex items-center gap-2 mt-3">
+            <p className="text-sm">Add TRN</p>
+            <input
+              type="checkbox"
+              className="size-3 cursor-pointer"
+              checked={pdfAction.addTRN}
+              onChange={(e) =>
+                setPdfAction((prev: any) => ({
+                  ...prev,
+                  addTRN: e.target.checked,
+                }))
+              }
+            />
+          </div>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+          <AlertDialogCancel
+            onClick={() => {
+              setPdfAction({ name: "", addTRN: false });
+            }}
+            className="cursor-pointer"
+          >
+            Cancel
+          </AlertDialogCancel>
+
           <AlertDialogAction
             onClick={continueProcessHandler}
             className="bg-[#173468] text-white cursor-pointer"
@@ -43,4 +71,4 @@ const AlertBox = ({
   );
 };
 
-export default AlertBox;
+export default AlertBoxPDF;

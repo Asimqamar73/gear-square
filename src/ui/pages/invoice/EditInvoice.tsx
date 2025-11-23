@@ -1,7 +1,7 @@
 import { CalendarDays, Car, Clock10, Download, Phone, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import ServiceItemTable from "./components/ServiceItemTable";
+// import ServiceItemTable from "./components/ServiceItemTable";
 import { dateFormatter, to12HourFormat } from "../../utils/DateFormatter";
 import { Badge } from "../../../components/ui/badge";
 import PageHeader from "../../../components/PageHeader";
@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 interface IInoviceDetails {
   service: IService | undefined;
-  serviceItems: IServiceItems | undefined;
+  serviceItems: IServiceItems | [];
   serviceBill: IServiceBill | undefined;
 }
 
@@ -115,7 +115,7 @@ const EditInovice = () => {
           <PageHeader title="Invoice details">
             <div className="flex gap-1">
               <PDFDownloadLink
-                document={<MyDocument details={details} />}
+                document={<MyDocument details={details} isTrnInclude={true}/>}
                 fileName={`${details?.service?.name}-${details?.service?.vehicle_number}.pdf`}
               >
                 {(
@@ -237,7 +237,7 @@ const EditInovice = () => {
                   <p className=" flex gap-2 items-center">
                     Due amount{" "}
                     <span className="font-semibold text-gray-600">
-                      AED {details?.serviceBill?.amount_due}
+                      AED {details?.serviceBill?.amount_due?.toFixed(2)}
                     </span>
                   </p>
                   <p className=" flex gap-2 items-center">
@@ -267,7 +267,7 @@ const EditInovice = () => {
         </div>
         <div className="mt-8">
           <h2 className="font-semibold text-lg">Items detail</h2>
-          <ServiceItemTable data={details?.serviceItems} />
+          {/* <ServiceItemTable data={details?.serviceItems} /> */}
         </div>
       </div>
       <CustomSheet

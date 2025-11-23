@@ -62,6 +62,7 @@ import { create_products_table } from "./tables/products.js";
 import { create_service_table } from "./tables/services.js";
 import { create_service_items_table } from "./tables/serviceItems.js";
 import { create_service_bill_table } from "./tables/serviceBill.js";
+import { create_vehicles_table } from "./tables/vehicles.js";
 import { createDeductProductQuantityTrigger } from "./triggers/triggers.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -160,6 +161,7 @@ function initializeTables() {
   create_users_table();
   create_customers_table();
   create_products_table();
+  create_vehicles_table();
   create_service_table();
   create_service_items_table();
   create_service_bill_table();

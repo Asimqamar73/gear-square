@@ -21,6 +21,7 @@ export const create_products_table = () => {
     )`,
     (err: any) => {
       if (err) console.error("Error creating products table:", err.message);
+      console.log("Client/Customer table created or already exists.");
     }
   );
 };
@@ -83,6 +84,7 @@ export function updateProductDetails({
   quantity,
   filePath,
   updatedBy,
+  id,
 }: {
   name: string;
   description: string;
@@ -93,7 +95,9 @@ export function updateProductDetails({
   quantity: number;
   filePath: string;
   updatedBy: number;
+  id: number;
 }) {
+  console.log("id: ", sku);
   return new Promise((resolve, reject) => {
     const query = `
       UPDATE products
@@ -104,9 +108,10 @@ export function updateProductDetails({
         retail_price = ?,
         part_number = ?,
         quantity = ?,
+        sku = ?,
         image = ?,
         updated_by = ?
-      WHERE sku = ?;
+      WHERE id = ?;
     `;
     db.run(
       query,
@@ -117,17 +122,17 @@ export function updateProductDetails({
         retail_price,
         part_number,
         quantity,
+        sku,
         filePath,
         updatedBy,
-        sku,
+        id,
       ],
-      function (err: any) {
+      //@ts-ignore
+      function (err: any, row: any) {
         if (err) {
           console.error("Error updating product:", err.message);
           return reject(err);
         }
-        //@ts-ignore
-        console.log(`Rows updated: ${this.changes}`);
         //@ts-ignore
         resolve(this.changes);
       }
@@ -169,11 +174,17 @@ export function getproductById(id: number) {
 
 export function searchProduct(search: string) {
   return new Promise((resolve, reject) => {
-    const query = "SELECT * FROM products WHERE name LIKE ?";
-    const wildcardSearch = `%${search}%`; // Wrap search string with wildcards
-    db.all(query, [wildcardSearch], (err: any, rows: any) => {
+    const query = `
+      SELECT * FROM products
+      WHERE name LIKE ?
+         OR sku LIKE ?
+         OR part_number LIKE ?
+    `;
+    const wildcardSearch = `%${search}%`;
+    db.all(query, [wildcardSearch, wildcardSearch, wildcardSearch], (err: any, rows: any) => {
       if (err) return reject(err);
       resolve(rows);
     });
   });
 }
+

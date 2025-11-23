@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS customers (
     company_phone_number TEXT,
     email TEXT,
     address TEXT,
+    trn TEXT,
     created_at TEXT DEFAULT (datetime('now','localtime')),
     created_by INTEGER,
     updated_at TEXT DEFAULT (datetime('now','localtime')),
@@ -24,7 +25,7 @@ CREATE TABLE IF NOT EXISTS customers (
       if (err) {
         return console.error(err.message);
       }
-      console.log("Client table created or already exists.");
+      console.log("Client/Customer table created or already exists.");
     }
   );
 };
@@ -36,6 +37,7 @@ export function addCustomerToDB({
   companyPhoneNumber,
   email,
   address,
+  trn,
   createdBy,
   updatedBy,
 }: {
@@ -44,16 +46,17 @@ export function addCustomerToDB({
   companyName: string;
   companyPhoneNumber: string;
   email: string;
+  trn: string;
   address: string;
   createdBy: number;
   updatedBy: number;
 }) {
   return new Promise((res, rej) => {
-    const query = `INSERT INTO customers (name, phone_number, company_name, company_phone_number, email, address, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO customers (name, phone_number, company_name, company_phone_number, email, address, trn, created_by, updated_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?,?)`;
     //@ts-ignore\
     db.run(
       query,
-      [name, phoneNumber, companyName, companyPhoneNumber, email, address, createdBy, updatedBy],
+      [name, phoneNumber, companyName, companyPhoneNumber, email, address, trn, createdBy, updatedBy],
       function (err: any) {
         if (err) return rej(err);
         //@ts-ignore
@@ -110,6 +113,7 @@ export function updateCustomerDetailsById({
   company_name,
   company_phone_number,
   address,
+  trn,
   updated_by,
   id,
 }: {
@@ -119,6 +123,7 @@ export function updateCustomerDetailsById({
   company_name: string;
   company_phone_number: string;
   address: string;
+  trn: string;
   updated_by: number;
   id: number;
 }) {
@@ -132,12 +137,13 @@ export function updateCustomerDetailsById({
         company_name = ?,
         company_phone_number = ?,
         address = ?,
+        trn = ?,
         updated_by = ?
       WHERE id = ?;
     `;
     db.run(
       query,
-      [name, email, phone_number, company_name, company_phone_number, address, updated_by, id],
+      [name, email, phone_number, company_name, company_phone_number, address, trn, updated_by, id],
       function (err: any) {
         if (err) {
           return reject(err);

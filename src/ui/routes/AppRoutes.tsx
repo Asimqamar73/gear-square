@@ -4,7 +4,7 @@ import Home from "../pages/Home";
 import { HashRouter, Route, Routes } from "react-router-dom";
 import Products from "../pages/product/Products";
 import Layout from "../layouts/AppLayout";
-import { GenerateInvoive } from "../pages/invoice/GenerateInvoive";
+import { GenerateInvoice } from "../pages/invoice/GenerateInvoice";
 import Invoices from "../pages/invoice/Invoices";
 import InvoiceDetails from "../pages/invoice/InvoiceDetails";
 import PrivateRoute from "./PrivateRoute";
@@ -12,10 +12,12 @@ import Customers from "../pages/customers/Customers";
 import Dashboard from "../pages/dashboard/Dashboard";
 import AddCustomer from "../pages/customers/AddCustomer";
 import { GenerateCustomerInvoive } from "../pages/invoice/GenerateCustomerInvoive";
-import CusomerDetails from "../pages/customers/CusomerDetails";
+import CusomerDetails from "../pages/customers/CustomerDetails";
 import EditProduct from "../pages/product/EditProduct";
 import EditCustomer from "../pages/customers/EditCustomer";
 import { EditCustomerInvoive } from "../pages/invoice/EditCustomerInvoive";
+import VehicleDetails from "../pages/vehicle/vehicleDetails";
+import { GenerateVehicleServiceInvoice } from "../pages/invoice/GenerateVehicleServiceInvoice";
 
 function AppRoutes() {
   return (
@@ -62,7 +64,7 @@ function AppRoutes() {
             path="/generate-invoice"
             element={
               <PrivateRoute>
-                <GenerateInvoive />
+                <GenerateInvoice />
               </PrivateRoute>
             }
           />
@@ -71,6 +73,15 @@ function AppRoutes() {
             element={
               <PrivateRoute>
                 <GenerateCustomerInvoive />
+              </PrivateRoute>
+            }
+          />
+
+            <Route
+            path="/generate-service-invoice/:vehicleId"
+            element={
+              <PrivateRoute>
+                <GenerateVehicleServiceInvoice />
               </PrivateRoute>
             }
           />
@@ -127,6 +138,15 @@ function AppRoutes() {
             element={
               <PrivateRoute>
                 <CusomerDetails />
+              </PrivateRoute>
+            }
+          />
+          // Vehicle details
+             <Route
+            path="/vehicle-details/:vehicleId"
+            element={
+              <PrivateRoute>
+                <VehicleDetails />
               </PrivateRoute>
             }
           />

@@ -3,7 +3,6 @@ import PageHeader from "../../../components/PageHeader";
 import { useEffect, useState } from "react";
 import { Building2, MapPin, Phone, User2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
-import CustomerServicesTable from "./components/CustomerServicesTable";
 import { toast } from "sonner";
 
 interface ICustomerInfo {
@@ -24,6 +23,7 @@ const CusomerDetails = () => {
   const { customerId } = useParams();
   const navigate = useNavigate();
   const [customerInfo, setCustomerInfo] = useState<ICustomerInfo | null>(null);
+  //@ts-ignore
   const [servicesInfo, setServicesInfo] = useState(null);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const CusomerDetails = () => {
       //@ts-ignore
       const { response } = await window.electron.getServicesById(customerId);
       //@ts-ignore
-      setServicesInfo(response);
+      setServicesInfo(response || []);
     } catch (error) {
        toast.error("Something went wrong. Please restart the application", {
         position: "top-center",
@@ -72,6 +72,7 @@ const CusomerDetails = () => {
           <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border border-gray-300 shadow">
             <h2 className="text-xl mt-2">Customer Details</h2>
             {customerInfo?.name && (
+          
                     <CustomerDetail text={customerInfo?.name} subtext={customerInfo?.email}>
                       <User2 className="text-gray-500 size-6" />
                     </CustomerDetail>
@@ -100,7 +101,8 @@ const CusomerDetails = () => {
           </div>
         </div>
         <h2 className="my-4 text-2xl">Invoices</h2>
-        <CustomerServicesTable data={servicesInfo} />
+        
+        {/* <CustomerServicesTable data={servicesInfo} /> */}
       </div>
     </div>
   );
