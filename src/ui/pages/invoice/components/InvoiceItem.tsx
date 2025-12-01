@@ -1,6 +1,6 @@
 import { Combobox } from "../../../../components/ComboBox";
 import { Button } from "../../../../components/ui/button";
-import { Trash } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 
 const InvoiceItem = ({
   products,
@@ -126,7 +126,10 @@ const InvoiceItem = ({
               className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 disabled:bg-gray-100"
               //   onChange={onMutate}
               // value={selectedProduct?.barcode}
-              value={((item.product?.retail_price - item.product?.cost_price) * item.quantity).toFixed(2)}
+              value={(
+                (item.product?.retail_price - item.product?.cost_price) *
+                item.quantity
+              ).toFixed(2)}
               required
               disabled
               placeholder="30 aed"
@@ -146,9 +149,10 @@ const InvoiceItem = ({
       ))}
       <Button
         variant={"outline"}
-        className="w-fit bg-[#173468] text-white cursor-pointer"
+        className="w-fit items-center gap-2 px-5 py-2.5 rounded-lg bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium transition-all shadow-sm hover:shadow-md"
         onClick={addNewItem}
       >
+        <Plus className="w-4 h-4" />
         Add item
       </Button>
     </div>
@@ -156,8 +160,6 @@ const InvoiceItem = ({
 };
 
 export default InvoiceItem;
-
-
 
 // // 2nd
 // import { Combobox } from "../../../../components/ComboBox";
@@ -327,10 +329,7 @@ export default InvoiceItem;
 
 // export default InvoiceItem;
 
-
-
 // 3rd
-
 
 // import { Button } from "../../../../components/ui/button";
 // import { Trash2, Plus } from "lucide-react";
@@ -395,7 +394,7 @@ export default InvoiceItem;
 //                   handleProductChange={(product) => handleProductChange(idx, product)}
 //                   item={item}
 //                   itemIdx={idx}
-                  
+
 //                 />
 //               </div>
 

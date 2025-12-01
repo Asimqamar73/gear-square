@@ -188,26 +188,17 @@
 
 // export default MyDocument;
 
-
-
-
-
-
-
-
-
-
 // import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
 // import { dateFormatter } from "../ui/utils/DateFormatter";
 
 // // Fonts
 // Font.register({ family: "Oswald", src: "https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf" });
-// Font.register({ 
-//   family: "Noto", 
-//   fonts: [{ 
-//     src: "https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyvu3CBFQLaig.ttf", 
-//     fontWeight: 700 
-//   }] 
+// Font.register({
+//   family: "Noto",
+//   fonts: [{
+//     src: "https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHFlhQ5l3sQWIHPqzCfyGyvu3CBFQLaig.ttf",
+//     fontWeight: 700
+//   }]
 // });
 
 // const VAT = 0.05;
@@ -334,7 +325,6 @@
 
 // export default MyDocument;
 
-
 import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
 import { dateFormatter } from "../ui/utils/DateFormatter";
 
@@ -345,7 +335,10 @@ Font.register({
   family: "Oswald",
   src: "https://fonts.gstatic.com/s/oswald/v13/Y_TKV6o8WovbUd3m_X9aAA.ttf",
 });
-
+Font.register({
+  family: "Montserrat",
+  src: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap",
+});
 Font.register({
   family: "Noto",
   fonts: [
@@ -375,7 +368,7 @@ const styles = StyleSheet.create({
   contactBar: {
     flexDirection: "row",
     justifyContent: "space-between",
-    backgroundColor: "#f2f2f2",
+    backgroundColor: "#e2e2e2",
     padding: 6,
     marginVertical: 8,
     fontSize: 8,
@@ -390,8 +383,15 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: "#ccc",
   },
-  stripe: { backgroundColor: "#fafafa" },
-  summaryBox: { marginTop: 12, padding: 8, borderWidth: 1, borderColor: "#ccc", width: "40%", alignSelf: "flex-end" },
+  stripe: { backgroundColor: "#eaeaea" },
+  summaryBox: {
+    marginTop: 12,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    width: "40%",
+    alignSelf: "flex-end",
+  },
   summaryRow: { flexDirection: "row", justifyContent: "space-between", marginVertical: 2 },
   paymentBox: { flexDirection: "row", gap: 12, marginTop: 12 },
   paymentItem: { flexDirection: "row", alignItems: "center", gap: 4 },
@@ -422,12 +422,21 @@ const TableRow = ({ item, index }: { item: any; index: number }) => {
   const vatAmount = item.subtotal * VAT;
   return (
     <View style={[styles.tableRow, ...(index % 2 === 0 ? [styles.stripe] : [])]}>
-
-      <View style={[styles.tableCell, { width: "15%" }]}><Text>{index + 1}</Text></View>
-      <View style={[styles.tableCell, { width: "40%" }]}><Text>{item.name}</Text></View>
-      <View style={[styles.tableCell, { width: "15%" }]}><Text>{item.quantity}</Text></View>
-      <View style={[styles.tableCell, { width: "15%" }]}><Text>{item.subtotal.toFixed(2)}</Text></View>
-      <View style={[styles.tableCell, { width: "15%", borderRightWidth: 0 }]}><Text>{(item.subtotal + vatAmount).toFixed(2)}</Text></View>
+      <View style={[styles.tableCell, { width: "15%" }]}>
+        <Text>{index + 1}</Text>
+      </View>
+      <View style={[styles.tableCell, { width: "40%" }]}>
+        <Text>{item.name}</Text>
+      </View>
+      <View style={[styles.tableCell, { width: "15%" }]}>
+        <Text>{item.quantity}</Text>
+      </View>
+      <View style={[styles.tableCell, { width: "15%" }]}>
+        <Text>{item.subtotal.toFixed(2)}</Text>
+      </View>
+      <View style={[styles.tableCell, { width: "15%", borderRightWidth: 0 }]}>
+        <Text>{(item.subtotal + vatAmount).toFixed(2)}</Text>
+      </View>
     </View>
   );
 };
@@ -452,23 +461,26 @@ const MyDocument = ({ details, isTrnInclude }: { details: any; isTrnInclude: boo
       {/* Contact Info */}
       <View style={styles.contactBar}>
         <Text>Mob: +971558757029, +971503315047</Text>
+        <Text style={{fontWeight:700 }}>TRN: 104712178300003</Text>
         <Text>Email: jesralhayah2024@gmail.com</Text>
-        <Text>TRN: 104712178300003</Text>
+      </View>
+      <View >
+        <Text style={{fontWeight:700, fontSize:14,textAlign:"center"}}>Invoice</Text>
       </View>
 
       {/* Vehicle & Customer Info */}
       <View style={styles.sectionRow}>
         <View>
+          <Text>Customer: {details.service.name}</Text>
+          <Text>Phone: {details.service.phone_number}</Text>
           <Text>Vehicle: {details.service.vehicle_number}</Text>
           <Text>Chassis: {details.service.chassis_number}</Text>
-          <Text>Make: {details.service.make}</Text>
-          <Text>Model: {details.service.model}</Text>
-          <Text>Date: {dateFormatter(details.service.created_at)}</Text>
+          <Text>Make & Model: {details.service.make} • {details.service.model}</Text>
+          <Text></Text>
         </View>
         <View>
-          <Text>Customer: {details.service.name}</Text>
-          <Text>Invoice no: {details.service.id}</Text>
-          <Text>Phone: {details.service.phone_number}</Text>
+          <Text style={{ fontSize: 14,fontWeight:700 }}>Invoice no: {details.service.id}</Text>
+          <Text>Date: {dateFormatter(details.service.created_at)}</Text>
           {isTrnInclude && <Text>TRN: {details.service.trn || "N/A"}</Text>}
         </View>
       </View>
@@ -483,6 +495,7 @@ const MyDocument = ({ details, isTrnInclude }: { details: any; isTrnInclude: boo
 
       {/* Summary */}
       <View style={styles.summaryBox}>
+        <SummaryRow label="Labor cost" value={details.service.labor_cost} />
         <SummaryRow label="Subtotal" value={details.serviceBill.subtotal} />
         <SummaryRow label="VAT (5%)" value={details.serviceBill.vat_amount} />
         <SummaryRow label="Discount" value={`${details.serviceBill.discount}%`} />
@@ -515,11 +528,6 @@ const MyDocument = ({ details, isTrnInclude }: { details: any; isTrnInclude: boo
 );
 
 export default MyDocument;
-
-
-
-
-
 
 // import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
 // import { dateFormatter } from "../ui/utils/DateFormatter";
@@ -564,7 +572,7 @@ export default MyDocument;
 //     fontWeight: 400,
 //     color: "#1a1a1a",
 //   },
-  
+
 //   // Header Section
 //   header: {
 //     marginBottom: 30,
@@ -612,7 +620,7 @@ export default MyDocument;
 //     fontSize: 11,
 //     color: "#666666",
 //   },
-  
+
 //   // Details Section
 //   detailsSection: {
 //     flexDirection: "row",
@@ -809,7 +817,7 @@ export default MyDocument;
 // const TableRow = ({ item, index }: { item: any; index: number }) => {
 //   const vatAmount = item.subtotal * VAT_RATE;
 //   const totalWithVat = item.subtotal + vatAmount;
-  
+
 //   return (
 //     <View style={[styles.tableRow, index % 2 === 1 && styles.tableRowAlt]}>
 //       <Text style={[styles.tableCell, { width: "8%" }]}>{index + 1}</Text>
@@ -832,11 +840,11 @@ export default MyDocument;
 // // Main Document
 // const MyDocument = ({ details, isTrnInclude }: { details: any; isTrnInclude: boolean }) => {
 //   const currentDate = new Date().toLocaleDateString("en-GB");
-  
+
 //   return (
 //     <Document>
 //       <Page size="A4" style={styles.page}>
-        
+
 //         {/* Header */}
 //         <View style={styles.header}>
 //           <Text style={styles.companyName}>JESR AL HAYAH MAIN W. SHOP</Text>
@@ -989,9 +997,6 @@ export default MyDocument;
 
 // export default MyDocument;
 
-
-
-
 // import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
 // import { dateFormatter } from "../ui/utils/DateFormatter";
 
@@ -1035,7 +1040,7 @@ export default MyDocument;
 //     fontWeight: 400,
 //     color: "#1a1a1a",
 //   },
-  
+
 //   // Header Section
 //   header: {
 //     marginBottom: 15,
@@ -1088,7 +1093,7 @@ export default MyDocument;
 //     fontWeight: 700,
 //     color: "#2d2d2d",
 //   },
-  
+
 //   // Details Section
 //   detailsSection: {
 //     flexDirection: "row",
@@ -1285,7 +1290,7 @@ export default MyDocument;
 // const TableRow = ({ item, index }: { item: any; index: number }) => {
 //   const vatAmount = item.subtotal * VAT_RATE;
 //   const totalWithVat = item.subtotal + vatAmount;
-  
+
 //   return (
 //     <View style={[styles.tableRow, index % 2 === 1 && styles.tableRowAlt]}>
 //       <Text style={[styles.tableCell, { width: "8%" }]}>{index + 1}</Text>
@@ -1310,7 +1315,7 @@ export default MyDocument;
 //   return (
 //     <Document>
 //       <Page size="A4" style={styles.page}>
-        
+
 //         {/* Header */}
 //         <View style={styles.header}>
 //           <Text style={styles.companyName}>JESR AL HAYAH MAIN W. SHOP</Text>
@@ -1462,19 +1467,6 @@ export default MyDocument;
 // };
 
 // export default MyDocument;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import {
 //   Page,
@@ -1911,16 +1903,6 @@ export default MyDocument;
 
 // export default MyDocument;
 
-
-
-
-
-
-
-
-
-
-
 // import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
 // import { dateFormatter } from "../ui/utils/DateFormatter";
 
@@ -1964,7 +1946,7 @@ export default MyDocument;
 //     fontWeight: 400,
 //     color: "#1a1a1a",
 //   },
-  
+
 //   // Header Section
 //   header: {
 //     marginBottom: 15,
@@ -2017,7 +1999,7 @@ export default MyDocument;
 //     fontWeight: 700,
 //     color: "#2d2d2d",
 //   },
-  
+
 //   // Details Section
 //   detailsSection: {
 //     flexDirection: "row",
@@ -2217,7 +2199,7 @@ export default MyDocument;
 // const TableRow = ({ item, index }: { item: any; index: number }) => {
 //   const vatAmount = item.subtotal * VAT_RATE;
 //   const totalWithVat = item.subtotal + vatAmount;
-  
+
 //   return (
 //     <View style={[styles.tableRow, index % 2 === 1 && styles.tableRowAlt]} wrap={false}>
 //       <Text style={[styles.tableCell, { width: "8%" }]}>{index + 1}</Text>
@@ -2242,7 +2224,7 @@ export default MyDocument;
 //   return (
 //     <Document>
 //       <Page size="A4" style={styles.page}>
-        
+
 //         {/* Header */}
 //         <View style={styles.header}>
 //           <Text style={styles.companyName}>JESR AL HAYAH MAIN W. SHOP</Text>

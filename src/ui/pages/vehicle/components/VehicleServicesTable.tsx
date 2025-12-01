@@ -720,8 +720,8 @@
 
 
 
-import { Eye, Hash } from "lucide-react";
-import { useState } from "react";
+import { Edit2, Eye, Hash } from "lucide-react";
+// import { useState } from "react";
 
 interface VehicleService {
   id: number;
@@ -735,15 +735,17 @@ interface VehicleService {
 interface VehicleServicesTableProps {
   data: VehicleService[];
   onViewInvoice: (invoiceId: number) => void;
+  onEditInvoice: (invoiceId: number) => void;
   dateFormatter: (date: string) => string;
 }
 
 const VehicleServicesTable = ({ 
   data, 
-  onViewInvoice, 
+  onViewInvoice,
+  onEditInvoice,
   dateFormatter 
 }: VehicleServicesTableProps) => {
-  const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
+  // const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
   const hasData = data && data.length > 0;
 
   const paymentStatuses = {
@@ -855,22 +857,38 @@ const VehicleServicesTable = ({
                       </td>
                       
                       <td className="px-6 py-4">
-                        <div className="flex justify-center">
+                        <div className="flex justify- gap-1">
                           <div className="relative">
                             <button
                               className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all text-gray-600"
+                              onClick={() => onEditInvoice(service.id)}
+                              // onMouseEnter={() => setHoveredTooltip(`edit-${service.id}`)}
+                              // onMouseLeave={() => setHoveredTooltip(null)}
+                              aria-label="View invoice"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            {/* {hoveredTooltip === `view-${service.id}` && (
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap z-10">
+                                View
+                              </div>
+                            )} */}
+                          </div>
+                           <div className="relative">
+                            <button
+                              className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all text-gray-600"
                               onClick={() => onViewInvoice(service.id)}
-                              onMouseEnter={() => setHoveredTooltip(`view-${service.id}`)}
-                              onMouseLeave={() => setHoveredTooltip(null)}
+                              // onMouseEnter={() => setHoveredTooltip(`view-${service.id}`)}
+                              // onMouseLeave={() => setHoveredTooltip(null)}
                               aria-label="View invoice"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            {hoveredTooltip === `view-${service.id}` && (
+                            {/* {hoveredTooltip === `view-${service.id}` && (
                               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-gray-900 text-white text-xs rounded-md whitespace-nowrap z-10">
                                 View
                               </div>
-                            )}
+                            )} */}
                           </div>
                         </div>
                       </td>
@@ -879,7 +897,7 @@ const VehicleServicesTable = ({
                 })}
               </tbody>
               
-              <tfoot className="border-t border-gray-200 bg-gray-50/50">
+              <tfoot className="border-t border-gray-300 bg-linear-to-r from-slate-200 to-slate-300">
                 <tr>
                   <td className="px-6 py-3.5">
                     <span className="text-xs font-semibold text-gray-700 uppercase tracking-wider">Total</span>

@@ -9,7 +9,7 @@ export const dailyProfit = (): Promise<{ total_profit: number }> => {
       JOIN service_items 
         ON services.id = service_items.service_id
       JOIN products 
-        ON products.id = service_items.item
+        ON products.id = service_items.product_id
       WHERE DATE(services.created_at) = DATE('now', 'localtime')
     `;
 
@@ -32,7 +32,7 @@ export const last7DaysProfit = (): Promise<{ total_profit: number }> => {
       JOIN service_items 
         ON services.id = service_items.service_id
       JOIN products 
-        ON products.id = service_items.item
+        ON products.id = service_items.product_id
       WHERE DATE(services.created_at) >= DATE('now', 'localtime', '-7 days')
         AND DATE(services.created_at) < DATE('now', 'localtime')
     `;
@@ -130,7 +130,7 @@ export const last30DaysProfit = (): Promise<{ total_profit: number }> => {
       JOIN service_items 
         ON services.id = service_items.service_id
       JOIN products 
-        ON products.id = service_items.item
+        ON products.id = service_items.product_id
       WHERE DATE(services.created_at) >= DATE('now', 'localtime', '-30 days')
         AND DATE(services.created_at) < DATE('now', 'localtime')
     `;
@@ -192,7 +192,7 @@ export const last365DaysProfit = (): Promise<{ total_profit: number }> => {
       JOIN service_items 
         ON services.id = service_items.service_id
       JOIN products 
-        ON products.id = service_items.item
+        ON products.id = service_items.product_id
       WHERE DATE(services.created_at) >= DATE('now', 'localtime', '-365 days')
         AND DATE(services.created_at) < DATE('now', 'localtime')
     `;

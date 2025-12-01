@@ -38,7 +38,7 @@ import {
   addServiceItems,
   create_service_items_table,
   getServiceItems,
-  updateServiceItems,
+  updateServiceByServiceId,
 } from "../assets/db/tables/serviceItems.js";
 // import {
 //   // addService,
@@ -57,6 +57,7 @@ import {
   getServicesById,
   searchInvoice,
   getServicesByVehicleId,
+  generateInvoice,
 } from "../assets/db/tables/services.js";
 import { get_all_users, login, create_users_table } from "../assets/db/tables/users.js";
 import {
@@ -612,34 +613,46 @@ app.on("ready", () => {
     return await updateProductStock({ quantity, id });
   });
 
+  // ipcMain.handle("db:generate-invoice", async (event, args) => {
+  //   console.log(args);
+  //   try {
+  //     const service_id: any = await addService(args.vehicleDetails);
+  //     if (service_id) {
+  //       const itemsResponse = await addServiceItems(args.items, service_id);
+  //       const serviceBillResponse = await addServiceBill(args.bill, service_id);
+
+  //       return { success: true, service_id, itemsResponse, serviceBillResponse };
+  //     }
+
+  //     return { success: true };
+  //   } catch (error) {
+  //     //@ts-ignore
+  //     return { success: false, error: error.message };
+  //   }
+  // });
+
+
   ipcMain.handle("db:generate-invoice", async (event, args) => {
-    console.log(args);
-    try {
-      const service_id: any = await addService(args.vehicleDetails);
-      if (service_id) {
-        const itemsResponse = await addServiceItems(args.items, service_id);
-        const serviceBillResponse = await addServiceBill(args.bill, service_id);
+  try {
+    const invoiceId = await generateInvoice(args.vehicleDetails, args.items, args.discount, args.vatAmount, args.amountPaid, args.billStatus);
+    return { success: true, invoiceId };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message };
+  }
+});
 
-        return { success: true, service_id, itemsResponse, serviceBillResponse };
-      }
+ipcMain.handle("db:update-invoice", async (event, args) => {
+  try {
+    // Pass the entire args object which now includes service_id and updated_by
+    const response: any = await updateServiceByServiceId(args);
 
-      return { success: true };
-    } catch (error) {
-      //@ts-ignore
-      return { success: false, error: error.message };
-    }
-  });
-
-  ipcMain.handle("db:update-invoice", async (event, args) => {
-    try {
-      const response: any = await updateServiceItems(args, args.service_id);
-
-      return { success: true, message: response };
-    } catch (error) {
-      //@ts-ignore
-      return { success: false, error: error.message };
-    }
-  });
+    return { success: true, message: response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message || error };
+  }
+});
 
   ipcMain.handle("db:update-service-due-payment", async (ev, { amountPaid, billStatus, id }) => {
     return await UpdateServiceBillPayment(amountPaid, billStatus, id);

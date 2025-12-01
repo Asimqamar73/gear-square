@@ -89,13 +89,13 @@ interface ServiceItemTableProps {
 const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
   const hasData = data && data.length > 0;
 
-  const calculateVAT = (subtotal: number) => {
-    return (subtotal * (vatRate / 100)).toFixed(2);
-  };
+  // const calculateVAT = (subtotal: number) => {
+  //   return (subtotal * (vatRate / 100)).toFixed(2);
+  // };
 
-  const calculateTotal = (subtotal: number) => {
-    return (subtotal + subtotal * (vatRate / 100)).toFixed(2);
-  };
+  // const calculateTotal = (subtotal: number) => {
+  //   return (subtotal + subtotal * (vatRate / 100)).toFixed(2);
+  // };
 
   const getTotals = () => {
     if (!hasData) return { subtotal: 0, vat: 0, total: 0 };
@@ -146,12 +146,12 @@ const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
                   <th className="px-4 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Subtotal
                   </th>
-                  <th className="px-4 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                  {/* <th className="px-4 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     VAT ({vatRate}%)
                   </th>
                   <th className="px-4 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Total
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               
@@ -203,7 +203,7 @@ const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
                       </span>
                     </td>
                     
-                    <td className="px-4 py-4 text-right">
+                    {/* <td className="px-4 py-4 text-right">
                       <span className="text-sm text-green-600 font-medium">
                         +{calculateVAT(item.subtotal)} AED
                       </span>
@@ -213,16 +213,16 @@ const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
                       <span className="text-sm font-bold text-gray-900">
                         {calculateTotal(item.subtotal)} AED
                       </span>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
               
               <tfoot>
                 <tr className="bg-gradient-to-r from-blue-50 to-blue-100 border-t-2 border-blue-200">
-                  <td colSpan={5} className="px-4 py-4 text-right">
+                  <td  className="px-4 py-4 text-right" colSpan={5}>
                     <span className="text-sm font-bold text-gray-700 uppercase tracking-wide">
-                      Invoice Totals
+                      Items Totals
                     </span>
                   </td>
                   <td className="px-4 py-4 text-right">
@@ -233,7 +233,7 @@ const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
                       </span>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-right">
+                  {/* <td className="px-4 py-4 text-right">
                     <div className="flex flex-col gap-1">
                       <span className="text-xs text-gray-500">VAT ({vatRate}%)</span>
                       <span className="text-base font-bold text-green-600">
@@ -250,7 +250,7 @@ const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
                         </span>
                       </div>
                     </div>
-                  </td>
+                  </td> */}
                 </tr>
               </tfoot>
             </>

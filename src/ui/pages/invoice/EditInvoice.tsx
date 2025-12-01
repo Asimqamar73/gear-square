@@ -1,7 +1,6 @@
 import { CalendarDays, Car, Clock10, Download, Phone, User2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-// import ServiceItemTable from "./components/ServiceItemTable";
 import { dateFormatter, to12HourFormat } from "../../utils/DateFormatter";
 import { Badge } from "../../../components/ui/badge";
 import PageHeader from "../../../components/PageHeader";

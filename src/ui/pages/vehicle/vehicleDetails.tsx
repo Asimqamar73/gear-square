@@ -257,7 +257,7 @@ const VehicleDetails = () => {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-base font-semibold text-gray-900">Service History</h2>
+                  <h2 className="text-base font-semibold  text-gray-900">Service History</h2>
                   <p className="text-sm text-gray-500 mt-0.5">
                     {servicesList.length} {servicesList.length === 1 ? "service" : "services"}{" "}
                     recorded
@@ -271,6 +271,7 @@ const VehicleDetails = () => {
             <VehicleServicesTable
               data={servicesList}
               onViewInvoice={(id) => navigate(`/invoice/${id}`)}
+              onEditInvoice={(id) => navigate(`/edit-invoice/${id}`)}
               dateFormatter={dateFormatter}
             />
           </div>
@@ -322,3 +323,4 @@ const DetailCard = ({
     </div>
   </div>
 );
+

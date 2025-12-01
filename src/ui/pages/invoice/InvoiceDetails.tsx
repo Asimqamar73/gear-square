@@ -466,8 +466,6 @@ import {
   Download, 
   Printer, 
   User, 
-  DollarSign,
-  Receipt,
   CreditCard,
   AlertCircle
 } from "lucide-react";
@@ -498,6 +496,7 @@ interface Service {
   chassis_number: string;
   company_phone_number: string;
   vehicle_number: string;
+  labor_cost: number;
   created_at: string;
   customer_id: number;
 }
@@ -580,17 +579,18 @@ const InvoiceDetailsPage = () => {
       return;
     }
 
-    if (amount > (details?.serviceBill?.amount_due || 0)) {
+    if (amount > (Number(details?.serviceBill?.amount_due.toFixed(2) )|| 0)) {
       setErrorMessage("Payment amount cannot exceed outstanding balance");
       return;
     }
 
-    const newTotalPaid = amount + (details?.serviceBill?.amount_paid || 0);
+    const newTotalPaid = amount + (Number(details?.serviceBill?.amount_paid?.toFixed(2)) || 0);
     
     try {
       //@ts-ignore
       await window.electron.updateServiceDuePayment({
-        billStatus: newTotalPaid === details?.serviceBill?.total ? 2 : 1,
+        //@ts-ignore
+        billStatus: newTotalPaid >= details?.serviceBill?.total ? 2 : 1,
         amountPaid: newTotalPaid,
         id: details?.serviceBill?.id,
       });
@@ -618,7 +618,7 @@ const InvoiceDetailsPage = () => {
       a.download = `Invoice-${details.service?.id}-${details.service?.vehicle_number}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success("PDF downloaded successfully!");
+      // toast.success("PDF downloaded successfully!");
     } catch (error) {
       toast.error("Failed to generate PDF.");
     }
@@ -789,11 +789,19 @@ const InvoiceDetailsPage = () => {
               {/* Financial Details */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
+                  <span className="text-gray-600">Labor cost</span>
+                  <span className="font-semibold text-gray-900">
+                    {details?.service?.labor_cost?.toFixed(2)} AED
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">Subtotal</span>
                   <span className="font-semibold text-gray-900">
                     {details?.serviceBill?.subtotal?.toFixed(2)} AED
                   </span>
                 </div>
+                
 
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-600">VAT (5%)</span>
@@ -866,7 +874,6 @@ const InvoiceDetailsPage = () => {
             {/* Current Invoice Summary */}
             <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-4 space-y-3 border border-blue-200">
               <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Receipt className="w-4 h-4" />
                 Invoice Summary
               </h3>
               <div className="space-y-2">
@@ -899,7 +906,7 @@ const InvoiceDetailsPage = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Outstanding Balance</span>
+                  <span className="text-gray-600"></span>
                   <span className="font-medium text-red-600">
                     {details?.serviceBill?.amount_due?.toFixed(2)} AED
                   </span>
@@ -912,7 +919,7 @@ const InvoiceDetailsPage = () => {
             {/* Payment Input */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <DollarSign className="w-4 h-4" />
+        
                 Enter Payment Amount (AED)
               </label>
               <input

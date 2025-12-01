@@ -5,11 +5,11 @@ export const create_service_items_table = () => {
     `
   CREATE TABLE IF NOT EXISTS service_items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    item INTEGER,
+    product_id INTEGER,
     service_id INTEGER,
     quantity INTEGER,
     subtotal DECIMAL(10, 2),
-    FOREIGN KEY(item) REFERENCES products(id),
+    FOREIGN KEY(product_id) REFERENCES products(id),
     FOREIGN KEY(service_id) REFERENCES services(id) ON DELETE CASCADE
   )
 `,
@@ -24,7 +24,7 @@ export const create_service_items_table = () => {
 
 export function addServiceItems(dataArray: any[], service_id: number) {
   return new Promise((res, rej) => {
-    const query = `INSERT INTO service_items (item, service_id, quantity, subtotal) VALUES (?, ?, ?, ?)`;
+    const query = `INSERT INTO service_items (product_id, service_id, quantity, subtotal) VALUES (?, ?, ?, ?)`;
 
     db.serialize(() => {
       db.run("BEGIN TRANSACTION");
@@ -177,86 +177,237 @@ export function addServiceItems(dataArray: any[], service_id: number) {
 //   });
 // }
 
-export function updateServiceItems(
-  data: { items: any[]; payment_status: string; subtotal: number; total: number }, // Frontend sends this structure
-  service_id: number
+// export function updateServiceItems(
+//   data: { items: any[]; payment_status: string; subtotal: number; total: number }, // Frontend sends this structure
+//   service_id: number
+// ) {
+//   return new Promise((res, rej) => {
+//     const insertQuery = `INSERT INTO service_items (product_id, service_id, quantity, subtotal) VALUES (?, ?, ?, ?)`;
+//     const deleteQuery = `DELETE FROM service_items WHERE service_id = ?`;
+//     const updateServiceBillQuery = `UPDATE service_bill 
+//                                    SET bill_status = ?, subtotal = ?, total = ? 
+//                                    WHERE service_id = ?`;
+
+//     db.serialize(() => {
+//       // Begin Transaction
+//       db.run("BEGIN TRANSACTION");
+
+//       // Handle Delete: Remove all previous items for the service_id
+//       const deleteStmt = db.prepare(deleteQuery);
+//       deleteStmt.run([service_id], (err: any) => {
+//         if (err) {
+//           db.run("ROLLBACK");
+//           return rej(err);
+//         }
+//       });
+
+//       // Handle Insert: Add new items
+//       const insertStmt = db.prepare(insertQuery);
+//       for (const dataItem of data.items) {
+//         insertStmt.run(
+//           [dataItem.product.id, service_id, dataItem.quantity, dataItem.subtotal],
+//           (err: any) => {
+//             if (err) {
+//               db.run("ROLLBACK");
+//               return rej(err);
+//             }
+//           }
+//         );
+//       }
+
+//       // Finalize all queries
+//       insertStmt.finalize((err: any) => {
+//         if (err) {
+//           db.run("ROLLBACK");
+//           return rej(err);
+//         }
+//       });
+
+//       deleteStmt.finalize((err: any) => {
+//         if (err) {
+//           db.run("ROLLBACK");
+//           return rej(err);
+//         }
+//       });
+
+//       // After all items have been inserted and deleted, update the serviceBill with data from frontend
+//       const updateServiceBillStmt = db.prepare(updateServiceBillQuery);
+//       updateServiceBillStmt.run(
+//         [data.payment_status, data.subtotal, data.total, service_id],
+//         (err: any) => {
+//           if (err) {
+//             db.run("ROLLBACK");
+//             return rej(err);
+//           }
+//         }
+//       );
+
+//       // Finalize the update for serviceBill
+//       updateServiceBillStmt.finalize((err: any) => {
+//         if (err) {
+//           db.run("ROLLBACK");
+//           return rej(err);
+//         }
+//       });
+
+//       // Commit the transaction
+//       db.run("COMMIT", (commitErr: any) => {
+//         if (commitErr) {
+//           return rej(commitErr);
+//         }
+//         res({
+//           message: `${data.items.length} records inserted, all previous items for service ${service_id} deleted, and serviceBill updated.`,
+//         });
+//       });
+//     });
+//   });
+// }
+
+
+
+export function updateServiceByServiceId(
+  data: {
+    items: any[];
+    payment_status: number;
+    subtotal: number;
+    total: number;
+    vat_amount: number;
+    discount_percentage: number;
+    discount_amount: number;
+    amount_paid: number;
+    labor_cost: number;
+    service_note: string;
+    service_id: number;
+    updated_by: number;
+  }
 ) {
   return new Promise((res, rej) => {
-    const insertQuery = `INSERT INTO service_items (item, service_id, quantity, subtotal) VALUES (?, ?, ?, ?)`;
+    const { service_id, updated_by } = data;
+    
+    const insertQuery = `INSERT INTO service_items (product_id, service_id, quantity, subtotal) 
+                         VALUES (?, ?, ?, ?)`;
+    
     const deleteQuery = `DELETE FROM service_items WHERE service_id = ?`;
+    
     const updateServiceBillQuery = `UPDATE service_bill 
-                                   SET bill_status = ?, subtotal = ?, total = ? 
-                                   WHERE service_id = ?`;
+                                    SET bill_status = ?, 
+                                        subtotal = ?, 
+                                        total = ?,
+                                        vat_amount = ?,
+                                        discount = ?,
+                                        amount_paid = ?
+                                    WHERE service_id = ?`;
+    
+    const updateServiceQuery = `UPDATE services 
+                                SET labor_cost = ?,
+                                    note = ?,
+                                    updated_at = datetime('now','localtime'),
+                                    updated_by = ?
+                                WHERE id = ?`;
 
     db.serialize(() => {
       // Begin Transaction
       db.run("BEGIN TRANSACTION");
 
-      // Handle Delete: Remove all previous items for the service_id
+      // 1. Delete all previous service items for this service_id
       const deleteStmt = db.prepare(deleteQuery);
       deleteStmt.run([service_id], (err: any) => {
         if (err) {
           db.run("ROLLBACK");
-          return rej(err);
+          return rej({ error: "Failed to delete previous items", details: err });
         }
       });
+      deleteStmt.finalize();
 
-      // Handle Insert: Add new items
+      // 2. Insert new service items
       const insertStmt = db.prepare(insertQuery);
       for (const dataItem of data.items) {
+        // Skip items without a valid product
+        if (!dataItem.product || !dataItem.product.id) {
+          continue;
+        }
+        
         insertStmt.run(
           [dataItem.product.id, service_id, dataItem.quantity, dataItem.subtotal],
           (err: any) => {
             if (err) {
               db.run("ROLLBACK");
-              return rej(err);
+              return rej({ error: "Failed to insert item", details: err });
             }
           }
         );
       }
-
-      // Finalize all queries
+      
       insertStmt.finalize((err: any) => {
         if (err) {
           db.run("ROLLBACK");
-          return rej(err);
+          return rej({ error: "Failed to finalize insert", details: err });
         }
       });
 
-      deleteStmt.finalize((err: any) => {
-        if (err) {
-          db.run("ROLLBACK");
-          return rej(err);
-        }
-      });
-
-      // After all items have been inserted and deleted, update the serviceBill with data from frontend
+      // 3. Update service_bill with all financial data
       const updateServiceBillStmt = db.prepare(updateServiceBillQuery);
       updateServiceBillStmt.run(
-        [data.payment_status, data.subtotal, data.total, service_id],
+        [
+          data.payment_status,
+          data.subtotal,
+          data.total,
+          data.vat_amount,
+          data.discount_percentage, // Store actual discount amount, not percentage
+          data.amount_paid,
+          service_id
+        ],
         (err: any) => {
           if (err) {
             db.run("ROLLBACK");
-            return rej(err);
+            return rej({ error: "Failed to update service bill", details: err });
           }
         }
       );
-
-      // Finalize the update for serviceBill
+      
       updateServiceBillStmt.finalize((err: any) => {
         if (err) {
           db.run("ROLLBACK");
-          return rej(err);
+          return rej({ error: "Failed to finalize service bill update", details: err });
         }
       });
 
-      // Commit the transaction
+      // 4. Update services table with labor cost and note
+      const updateServiceStmt = db.prepare(updateServiceQuery);
+      updateServiceStmt.run(
+        [
+          data.labor_cost,
+          data.service_note,
+          updated_by,
+          service_id
+        ],
+        (err: any) => {
+          if (err) {
+            db.run("ROLLBACK");
+            return rej({ error: "Failed to update service", details: err });
+          }
+        }
+      );
+      
+      updateServiceStmt.finalize((err: any) => {
+        if (err) {
+          db.run("ROLLBACK");
+          return rej({ error: "Failed to finalize service update", details: err });
+        }
+      });
+
+      // 5. Commit the transaction
       db.run("COMMIT", (commitErr: any) => {
         if (commitErr) {
-          return rej(commitErr);
+          db.run("ROLLBACK");
+          return rej({ error: "Failed to commit transaction", details: commitErr });
         }
+        
         res({
-          message: `${data.items.length} records inserted, all previous items for service ${service_id} deleted, and serviceBill updated.`,
+          success: true,
+          message: `Invoice updated successfully: ${data.items.length} items processed, service bill and service details updated.`,
+          service_id: service_id,
+          items_count: data.items.length
         });
       });
     });
@@ -274,7 +425,7 @@ export async function getServiceItems(id: number) {
         products.retail_price
         FROM service_items 
         JOIN products 
-        ON products.id = service_items.item 
+        ON products.id = service_items.product_id
         where service_id = ?`,
         [id],
         (err: any, rows: any) => {
@@ -296,12 +447,12 @@ export async function getServiceItemsDetials(id: number) {
         `SELECT 
         service_items.quantity,
         service_items.subtotal,
-        service_items.item,
+        service_items.product_id,
         service_items.id,
         products.*
         FROM service_items 
         JOIN products 
-        ON products.id = service_items.item 
+        ON products.id = service_items.product_id 
         WHERE service_id = ?`,
         [id],
         (err: any, rows: any) => {
