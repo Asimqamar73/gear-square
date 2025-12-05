@@ -155,14 +155,27 @@ export function updateProductStock({ quantity, id }: { quantity: number; id: num
   });
 }
 
-export function getAllProducts() {
+export function getAllProducts(limit?: number, offset?: number) {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM products", [], (err: any, rows: any) => {
+    const dataQuery = `
+      SELECT * FROM products
+      ${limit ? `LIMIT ${limit} OFFSET ${offset || 0}` : ""}
+    `;
+
+    const countQuery = `SELECT COUNT(*) as total FROM products`;
+
+    db.all(dataQuery, [], (err: any, rows: any) => {
       if (err) return reject(err);
-      resolve(rows);
+
+      // Get total count
+      db.get(countQuery, [], (err2: any, countRow: any) => {
+        if (err2) return reject(err2);
+        resolve({ data: rows, total: countRow.total });
+      });
     });
   });
 }
+
 export function getproductById(id: number) {
   return new Promise((resolve, reject) => {
     db.get("SELECT * FROM products WHERE id = ?", [id], (err: any, row: any) => {
@@ -172,19 +185,55 @@ export function getproductById(id: number) {
   });
 }
 
-export function searchProduct(search: string) {
+export function searchProduct({
+  search,
+  limit,
+  offset,
+}: {
+  search: string;
+  limit: number;
+  offset: number;
+}) {
   return new Promise((resolve, reject) => {
-    const query = `
-      SELECT * FROM products
+    const wildcard = `%${search}%`;
+
+    // 🔍 PAGINATED QUERY
+    const dataQuery = `
+      SELECT *
+      FROM products
+      WHERE name LIKE ?
+         OR sku LIKE ?
+         OR part_number LIKE ?
+      LIMIT ? OFFSET ?
+    `;
+
+    // 🔢 TOTAL COUNT QUERY
+    const countQuery = `
+      SELECT COUNT(*) AS total
+      FROM products
       WHERE name LIKE ?
          OR sku LIKE ?
          OR part_number LIKE ?
     `;
-    const wildcardSearch = `%${search}%`;
-    db.all(query, [wildcardSearch, wildcardSearch, wildcardSearch], (err: any, rows: any) => {
-      if (err) return reject(err);
-      resolve(rows);
-    });
+
+    // First Get Data
+    db.all(
+      dataQuery,
+      [wildcard, wildcard, wildcard, limit, offset],
+      (err: any, rows: any[]) => {
+        if (err) return reject(err);
+
+        // Then Get Total Count
+        db.get(countQuery, [wildcard, wildcard, wildcard], (err2: any, countRow: any) => {
+          if (err2) return reject(err2);
+
+          resolve({
+            data: rows,
+            total: countRow?.total || 0,
+          });
+        });
+      }
+    );
   });
 }
 

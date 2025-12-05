@@ -66,14 +66,32 @@ export function addCustomerToDB({
   });
 }
 
-export function getAllCustomers() {
+export function getAllCustomers(limit?: number, offset?: number) {
   return new Promise((resolve, reject) => {
-    db.all("SELECT * FROM customers ORDER BY created_at DESC", [], (err: any, rows: any) => {
+    const dataQuery = `
+      SELECT *
+      FROM customers
+      ORDER BY created_at DESC
+      ${limit ? `LIMIT ${limit} OFFSET ${offset || 0}` : ""}
+    `;
+
+    const countQuery = `SELECT COUNT(*) AS total FROM customers`;
+
+    db.all(dataQuery, [], (err: any, rows: any) => {
       if (err) return reject(err);
-      resolve(rows);
+
+      db.get(countQuery, [], (err2: any, countRow: any) => {
+        if (err2) return reject(err2);
+
+        resolve({
+          data: rows,
+          total: countRow.total,
+        });
+      });
     });
   });
 }
+
 
 export function searchCustomerByPhoneNumber(phoneNumber: number) {
   return new Promise((resolve, reject) => {

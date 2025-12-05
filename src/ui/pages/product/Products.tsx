@@ -1,199 +1,4 @@
 // import { useEffect, useState } from "react";
-// import Table from "./components/Table";
-// import useDebounce from "react-debounced";
-// import SearchBar from "../../../components/SearchBar";
-// import CustomSheet from "../../../components/CustomSheet";
-// import { Separator } from "../../../components/ui/separator";
-// import { toast } from "sonner";
-// import ProductsTable from "./components/Table";
-// import { useNavigate } from "react-router-dom";
-
-// const Products = () => {
-//   const [products, setProducts] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [searchLoading, setSearchLoading] = useState(false);
-
-//   const debounce = useDebounce(2000);
-//   const [searchVal, setSearchVal] = useState("");
-
-//   const handleSearch = (e: any) => {
-//     const inputValue = e.target.value;
-//     setSearchVal(inputValue);
-//     setSearchLoading(true);
-//     debounce(async () => {
-//       //@ts-ignore
-//       const response = await window.electron.searchProducts(inputValue);
-//       setProducts(response);
-//       setSearchLoading(false);
-//     });
-//   };
-//   const navigate = useNavigate();
-//   useEffect(() => {
-//     //@ts-ignore
-//     // window.electron.createUsersTable()
-//     fetchAllProducts();
-//   }, []);
-
-//   const fetchAllProducts = async () => {
-//     try {
-//       //@ts-ignore
-//       const result = await window.electron.getProducts();
-//       setProducts(result);
-//       setLoading(false);
-//     } catch (error) {
-//       setLoading(false);
-//       toast.error("Something went wrong. Please restart the application", {
-//         position: "top-center",
-//       });
-//     }
-//   };
-
-//   const [newQuantity, setNewQuantity] = useState<number | string>(1);
-//   const [isSheetOpen, setIsSheetOpen] = useState(false);
-//   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-
-//   const handleUpdateStock = async () => {
-//     try {
-//       //@ts-ignore
-//       const response = await window.electron.updateProductStock({
-//         //@ts-ignore
-//         quantity: Number(newQuantity) + selectedProduct?.quantity,
-//         //@ts-ignore
-//         id: selectedProduct?.id,
-//       });
-//       fetchAllProducts();
-//       setIsSheetOpen(false);
-//       toast("Stock updated", { position: "top-center", className: "bg-red-300" });
-//       setNewQuantity(1);
-//     } catch (error) {
-//       toast.error("Something went wrong. Please restart the application", {
-//         position: "top-center",
-//       });
-//     }
-//   };
-
-//   if (loading) <h1>loading</h1>;
-//   return (
-//     <div className="bg-gray-100 min-h-screen w-full">
-//       <div className="px-8 py-16">
-//         <div className="flex justify-between items-start">
-//           <h1 className="text-3xl font-medium mb-8 text-gray-700">Inventory</h1>
-//           <SearchBar
-//             handleSearch={handleSearch}
-//             searchVal={searchVal}
-//             searchLoading={searchLoading}
-//             placeholder="Search products"
-//           />
-//         </div>
-//         {/* <Table
-//           data={products}
-//           handleSheetToggle={(prdduct: any) => {
-//             setSelectedProduct(prdduct);
-//             setIsSheetOpen(true);
-//           }}
-//           // updateStockHandler={(product: any) => setSelectedProduct(product)}
-//         /> */}
-
-//         <ProductsTable
-//           data={products}
-//           onEdit={(id) => navigate(`/edit-product/${id}`)}
-//           onRestock={(product) => {
-//             setSelectedProduct(product);
-//             setIsSheetOpen(true);
-//           }}
-//         />
-//         <CustomSheet
-//           title="Restock product"
-//           isOpen={isSheetOpen}
-//           handleSheetToggle={() => setIsSheetOpen(false)}
-//           handleSubmit={handleUpdateStock}
-//         >
-//           <div className="grid flex-1 auto-rows-min gap-2 px-4">
-//             <div className="grid gap-1">
-//               <label htmlFor="name">Photo</label>
-//               <div className="flex justify-center">
-//                 {selectedProduct?.image && (
-//                   <img
-//                     src={`file://${selectedProduct?.image}`}
-//                     alt="Product image"
-//                     className="max-h-48"
-//                   />
-//                 )}
-//               </div>
-//             </div>
-//             <div className="grid gap-1">
-//               <label htmlFor="name">Name</label>
-//               <input
-//                 id="name"
-//                 readOnly
-//                 //@ts-ignore
-
-//                 value={selectedProduct?.name}
-//                 className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-//                 disabled
-//               />
-//             </div>
-
-//             <div className="grid gap-1">
-//               <label htmlFor="quantity">Quantity</label>
-//               <input
-//                 id="quantity"
-//                 readOnly
-//                 //@ts-ignore
-//                 value={selectedProduct?.quantity}
-//                 className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-//                 disabled
-//               />
-//             </div>
-//             <div className="flex gap-2">
-//               <div className="grid gap-1">
-//                 <label htmlFor="quantity">SKU</label>
-//                 <input
-//                   id="quantity"
-//                   readOnly
-//                   //@ts-ignore
-
-//                   value={selectedProduct?.sku}
-//                   className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-//                   disabled
-//                 />
-//               </div>
-
-//               <div className="grid gap-1">
-//                 <label htmlFor="quantity">Part number</label>
-//                 <input
-//                   id="quantity"
-//                   readOnly
-//                   //@ts-ignore
-
-//                   value={selectedProduct?.part_number}
-//                   className="p-1.5 indent-2 text-sm border rounded-md focus:outline-amber-800"
-//                   disabled
-//                 />
-//               </div>
-//             </div>
-//             <Separator orientation="horizontal" className="my-4 bg-gray-500" />
-//             <div className="grid gap-1">
-//               <label htmlFor="quantity">New stock quantity</label>
-//               <input
-//                 id="new-quantity"
-//                 type="number"
-//                 min={1}
-//                 value={newQuantity}
-//                 className="p-1.5 indent-2 text-sm border rounded-md"
-//                 onChange={(e) => setNewQuantity(e.target.value)}
-//               />
-//             </div>
-//           </div>
-//         </CustomSheet>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Products;
-
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import useDebounce from "react-debounced";
@@ -201,6 +6,7 @@ import { Search, Package, Plus, TrendingUp, Loader2 } from "lucide-react";
 import ProductsTable from "./components/Table";
 import CustomSheet from "../../../components/CustomSheet";
 import { Separator } from "../../../components/ui/separator";
+import { useEffect, useState } from "react";
 
 interface Product {
   id: number;
@@ -223,22 +29,27 @@ const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [newQuantity, setNewQuantity] = useState<number | string>(1);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalProducts, setTotalProducts] = useState(0);
+
   const debounce = useDebounce(500);
 
   useEffect(() => {
-    fetchAllProducts();
-  }, []);
+    fetchAllProducts(currentPage);
+  }, [currentPage, rowsPerPage]);
 
-  const fetchAllProducts = async () => {
+  const fetchAllProducts = async (page = 1) => {
+    setLoading(true);
     try {
+      const offset = (page - 1) * rowsPerPage;
       //@ts-ignore
-      const result = await window.electron.getProducts();
-      console.log(result)
-      setProducts(result || []);
+      const result = await window.electron.getProducts({ limit: rowsPerPage, offset });
+      setProducts(result.data || []);
+      setTotalProducts(result.total || 0);
     } catch (error) {
-      toast.error("Failed to load products. Please try again.", {
-        position: "top-center",
-      });
+      toast.error("Failed to load products. Please try again.", { position: "top-center" });
     } finally {
       setLoading(false);
     }
@@ -247,18 +58,21 @@ const Products = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     setSearchVal(inputValue);
+    setCurrentPage(1);
 
     if (!inputValue.trim()) {
-      fetchAllProducts();
+      fetchAllProducts(1);
       return;
     }
 
     setSearchLoading(true);
     debounce(async () => {
       try {
+        const offset = (currentPage - 1) * rowsPerPage;
         //@ts-ignore
-        const response = await window.electron.searchProducts(inputValue);
-        setProducts(response || []);
+        const response = await window.electron.searchProducts(inputValue, { limit: rowsPerPage, offset });
+        setProducts(response.data || []);
+        setTotalProducts(response.total || 0);
       } catch (error) {
         toast.error("Search failed. Please try again.");
       } finally {
@@ -266,23 +80,6 @@ const Products = () => {
       }
     });
   };
-
-  // const handleSearch = (e: any) => {
-  //   const inputValue = e.target.value;
-  //   setSearchVal(inputValue);
-  //   if (!inputValue.trim()) {
-  //     console.log("!inputValue.trim(): ", !inputValue.trim());
-  //     fetchAllProducts();
-  //     return;
-  //   }
-  //   setSearchLoading(true);
-  //   debounce(async () => {
-  //     //@ts-ignore
-  //     const response = await window.electron.searchProducts(inputValue);
-  //     setProducts(response);
-  //     setSearchLoading(false);
-  //   });
-  // };
 
   const handleUpdateStock = async () => {
     if (!selectedProduct) return;
@@ -300,18 +97,61 @@ const Products = () => {
         id: selectedProduct.id,
       });
 
-      toast.success(`Added ${addedQuantity} units to stock`, {
-        position: "top-center",
-      });
-      fetchAllProducts();
+      toast.success(`Added ${addedQuantity} units to stock`, { position: "top-center" });
+      fetchAllProducts(currentPage);
       setIsSheetOpen(false);
       setNewQuantity(1);
       setSelectedProduct(null);
     } catch (error) {
-      toast.error("Failed to update stock. Please try again.", {
-        position: "top-center",
-      });
+      toast.error("Failed to update stock. Please try again.", { position: "top-center" });
     }
+  };
+
+  const totalPages = Math.ceil(totalProducts / rowsPerPage);
+
+  // Render page buttons with ellipsis
+  const renderPageButtons = () => {
+    const pages: (number | string)[] = [];
+    const delta = 2; // pages before/after current
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (
+        i === 1 ||
+        i === totalPages ||
+        (i >= currentPage - delta && i <= currentPage + delta)
+      ) {
+        pages.push(i);
+      } else if (
+        i === currentPage - delta - 1 ||
+        i === currentPage + delta + 1
+      ) {
+        pages.push("...");
+      }
+    }
+
+    return pages.map((page, idx) => {
+      if (page === "...") {
+        return (
+          <span key={idx} className="w-8 h-8 flex items-center justify-center text-gray-400 select-none">
+            ...
+          </span>
+        );
+      }
+
+      return (
+        <button
+          key={idx}
+          onClick={() => setCurrentPage(Number(page))}
+          className={`w-8 h-8 flex items-center justify-center rounded-full transition ${
+            currentPage === page
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+          }`}
+        >
+          {page}
+        </button>
+      );
+    });
   };
 
   if (loading) {
@@ -337,7 +177,6 @@ const Products = () => {
                 View and manage your product inventory and stock levels
               </p>
             </div>
-
             <button
               onClick={() => navigate("/add-product")}
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-lg transition-all shadow-sm hover:shadow-md"
@@ -375,6 +214,52 @@ const Products = () => {
           }}
         />
 
+        {/* Pagination */}
+        {totalProducts > rowsPerPage && (
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
+            <div className="text-sm text-gray-500">
+              Showing <span className="font-medium">{(currentPage - 1) * rowsPerPage + 1}</span> –{" "}
+              <span className="font-medium">{Math.min(currentPage * rowsPerPage, totalProducts)}</span> of{" "}
+              <span className="font-medium">{totalProducts}</span> products
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1 rounded-lg bg-white shadow-sm border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Prev
+              </button>
+
+              {renderPageButtons()}
+
+              <button
+                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 rounded-lg bg-white shadow-sm border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                Next
+              </button>
+
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="px-3 py-1 rounded-lg border border-gray-200 bg-white text-gray-600 shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                {[5, 10, 20, 50].map((n) => (
+                  <option key={n} value={n}>
+                    {n} / page
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
         {/* Restock Sheet */}
         <CustomSheet
           title="Restock Product"
@@ -388,7 +273,6 @@ const Products = () => {
         >
           {selectedProduct && (
             <div className="space-y-5 px-4">
-              {/* Product Image */}
               {selectedProduct.image && (
                 <div className="flex justify-center p-4 bg-gray-50 rounded-lg border border-gray-200">
                   <img
@@ -399,7 +283,6 @@ const Products = () => {
                 </div>
               )}
 
-              {/* Product Info */}
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Product Name</label>
@@ -433,7 +316,6 @@ const Products = () => {
                   </div>
                 </div>
 
-                {/* Current Stock */}
                 <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div>
@@ -449,7 +331,6 @@ const Products = () => {
 
               <Separator className="my-4" />
 
-              {/* Add Stock */}
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label
@@ -470,16 +351,12 @@ const Products = () => {
                   />
                 </div>
 
-                {/* Preview */}
                 {Number(newQuantity) > 0 && (
                   <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-sm text-green-800">
-                      <span className="font-medium">New total stock:</span>{" "}
-                      {selectedProduct.quantity} + {Number(newQuantity)} ={" "}
-                      <span className="font-bold">
-                        {selectedProduct.quantity + Number(newQuantity)}
-                      </span>{" "}
-                      units
+                      <span className="font-medium">New total stock:</span> {selectedProduct.quantity} +{" "}
+                      {Number(newQuantity)} ={" "}
+                      <span className="font-bold">{selectedProduct.quantity + Number(newQuantity)}</span> units
                     </p>
                   </div>
                 )}

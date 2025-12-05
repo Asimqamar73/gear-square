@@ -64,6 +64,7 @@ import { create_service_items_table } from "./tables/serviceItems.js";
 import { create_service_bill_table } from "./tables/serviceBill.js";
 import { create_vehicles_table } from "./tables/vehicles.js";
 import { createDeductProductQuantityTrigger } from "./triggers/triggers.js";
+import { create_service_labor_charges_table } from "./tables/serviceLaborCharges.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const _dirname = path.dirname(__filename);
@@ -165,6 +166,7 @@ function initializeTables() {
   create_service_table();
   create_service_items_table();
   create_service_bill_table();
+  create_service_labor_charges_table();
   createDeductProductQuantityTrigger();
   // Add all your other table creation functions
 

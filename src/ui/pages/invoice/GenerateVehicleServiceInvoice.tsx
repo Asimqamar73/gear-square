@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import InvoiceItem from "./components/InvoiceItem";
 import AlertBox from "../../../components/AlertBox";
+import LabourCharges from "./components/InvoiceLabor";
+import { getStatusDot, paymentStatuses } from "../../utils/paymentHelpers";
 
 interface InvoiceItem {
   product: any;
@@ -56,9 +58,9 @@ export const GenerateVehicleServiceInvoice = () => {
   const [vehicleInfo, setVehicleInfo] = useState<VehicleInfo | null>(null);
   const [serviceNote, setServiceNote] = useState("");
   const [totalBill, setTotalBill] = useState(0);
-  const [paymentStatus, setPaymentStatus] = useState(0);
-  const [discountPercentage, setDiscountPercentage] = useState(0);
-  const [amountPaid, setAmountPaid] = useState(0);
+  const [paymentStatus, setPaymentStatus] = useState<any>(0);
+  const [discount, setDiscount] = useState<number | string | undefined>("");
+  const [amountPaid, setAmountPaid] = useState<number | string | undefined>("");
   const [laborCost, setLaborCost] = useState("0");
   const [items, setItems] = useState<InvoiceItem[]>([initialItemState]);
   const [loading, setLoading] = useState(true);
@@ -76,8 +78,8 @@ export const GenerateVehicleServiceInvoice = () => {
   const fetchAllProducts = async () => {
     try {
       //@ts-ignore
-      const response = await window.electron.getProducts();
-      setProducts(response || []);
+      const { data } = await window.electron.getProducts();
+      setProducts(data || []);
     } catch (error) {
       toast.error("Failed to load products. Please try again.");
     }
@@ -138,15 +140,17 @@ export const GenerateVehicleServiceInvoice = () => {
   const calculateTotals = () => {
     const subtotal = totalBill + Number(laborCost);
     const afterVat = Number(subtotal) + Number(subtotal) * VAT_RATE;
-    const discountAmount = (discountPercentage / 100) * Number(afterVat);
-    const total = Number(afterVat) - discountAmount;
-    const remaining = total - amountPaid;
+    const validDiscount = Number(discount) ? Number(discount) : 0;
+    const total = Number(afterVat) - validDiscount;
+    const validPaidAmount = Number(amountPaid) ? Number(amountPaid) : 0;
+    const remaining = total - validPaidAmount;
 
     return {
       subtotal,
       afterVat,
-      discountAmount,
+      validDiscount,
       total,
+      validPaidAmount,
       remaining,
     };
   };
@@ -169,11 +173,11 @@ export const GenerateVehicleServiceInvoice = () => {
           customerId: vehicleInfo?.id,
           laborCost: Number(laborCost),
         },
-          discount: discountPercentage,
-          billStatus: paymentStatus,
-          amountPaid,
-          vatAmount: (Number(totals.subtotal) * VAT_RATE).toFixed(2),
-        
+        laborItems,
+        discount: totals.validDiscount,
+        billStatus: paymentStatus,
+        amountPaid: totals.validPaidAmount,
+        vatAmount: (Number(totals.subtotal) * VAT_RATE).toFixed(2),
       });
       console.log(response);
       if (response.success) {
@@ -190,19 +194,27 @@ export const GenerateVehicleServiceInvoice = () => {
 
   const handleAmountPaid = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
-    setAmountPaid(value);
+    // setAmountPaid(value);
 
-    const totals = calculateTotals();
-    if (value === 0) {
-      setPaymentStatus(0);
-    } else if (value > 0 && value < totals.total) {
-      setPaymentStatus(1);
-    } else if (value >= totals.total) {
-      setPaymentStatus(2);
+    if (value || e.target.value == "") {
+      setAmountPaid(e.target.value);
+      const totals = calculateTotals();
+      if (value === 0) {
+        setPaymentStatus(0);
+      } else if (value > 0 && value < totals.total) {
+        setPaymentStatus(1);
+      } else if (value >= totals.total) {
+        setPaymentStatus(2);
+      }
     }
   };
 
+  const deleteLaborItem = (idx: number) => {
+    setLaborItems(laborItems.filter((_, i) => i !== idx));
+  };
+
   const totals = calculateTotals();
+  const [laborItems, setLaborItems] = useState([]);
 
   if (loading) {
     return (
@@ -332,7 +344,7 @@ export const GenerateVehicleServiceInvoice = () => {
           </div>
         </div>
 
-        {/* Invoice Items */}
+        {/*  */}
         <div className="mb-6">
           <InvoiceItem
             products={products}
@@ -345,11 +357,36 @@ export const GenerateVehicleServiceInvoice = () => {
           />
         </div>
 
+        <div className="mb-6">
+          <LabourCharges
+            labourItems={laborItems}
+            setLabourItems={setLaborItems}
+            setTotalLaborCost={setLaborCost}
+            deleteLaborItem={deleteLaborItem}
+          />
+          {/* <InvoiceItem
+            products={products}
+            handleProductChange={handleProductChange}
+            handleQuantityChange={handleQuantityChange}
+            handleSubtotal={handleSubtotal}
+            items={items}
+            addNewItem={addNewItem}
+            deleteItem={deleteItem}
+          /> */}
+        </div>
+
         {/* Summary */}
         <div className="flex justify-end">
           <div className="w-full max-w-md bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-            <div className="flex items-center gap-2 mb-5 pb-4 border-b border-gray-100">
+            <div className="flex items-center justify-between gap-2 mb-5 pb-4 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">Invoice Summary</h2>
+              <span
+                className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${paymentStatuses[paymentStatus].color}`}
+              >
+                {getStatusDot(paymentStatus)}
+
+                {paymentStatuses[paymentStatus].label}
+              </span>
             </div>
 
             <div className="space-y-4">
@@ -358,7 +395,7 @@ export const GenerateVehicleServiceInvoice = () => {
                 <span className="font-medium text-gray-900">{totalBill.toFixed(2)} AED</span>
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label htmlFor="laborCost" className="text-sm font-medium text-gray-700">
                   Service Labor Cost
                 </label>
@@ -372,12 +409,12 @@ export const GenerateVehicleServiceInvoice = () => {
                   placeholder="0"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
-              </div>
+              </div> */}
 
-              <div className="flex justify-between text-sm pt-2 border-t border-gray-200">
-                <span className="text-gray-600 font-medium">Subtotal</span>
+              <div className="flex justify-between text-sm  border-gray-200 ">
+                <span className="text-gray-600 font-medium">Labor Cost</span>
                 <span className="font-medium text-gray-900">
-                  {Number(totals.subtotal).toFixed(2)} AED
+                  {Number(laborCost).toFixed(2)} AED
                 </span>
               </div>
 
@@ -400,18 +437,20 @@ export const GenerateVehicleServiceInvoice = () => {
                   htmlFor="discount"
                   className="text-sm font-medium text-gray-700 flex justify-between"
                 >
-                  <span>Discount (%)</span>
-                  <span className="text-gray-500 font-normal">
-                    -{totals.discountAmount.toFixed(2)} AED
-                  </span>
+                  <span>Discount</span>
+                  {/* <span className="text-gray-500 font-normal">
+                    -{totals.discount.toFixed(2)} AED
+                  </span> */}
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="discount"
-                  min="0"
-                  max="100"
-                  value={discountPercentage}
-                  onChange={(e) => setDiscountPercentage(Number(e.target.value))}
+                  value={discount}
+                  onChange={(e) => {
+                    if (Number(e.target.value) || e.target.value == "") {
+                      setDiscount(e.target.value);
+                    }
+                  }}
                   placeholder="0"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
@@ -422,17 +461,16 @@ export const GenerateVehicleServiceInvoice = () => {
                   Amount Paid
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   id="amountPaid"
-                  min="0"
                   value={amountPaid}
-                  onChange={handleAmountPaid}
-                  placeholder="0.00"
+                  onChange={(e) => handleAmountPaid(e)}
+                  placeholder="0"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label htmlFor="paymentStatus" className="text-sm font-medium text-gray-700">
                   Payment Status
                 </label>
@@ -446,7 +484,7 @@ export const GenerateVehicleServiceInvoice = () => {
                   <option value={1}>Partial</option>
                   <option value={2}>Paid</option>
                 </select>
-              </div>
+              </div> */}
 
               <div className="pt-4 border-t border-gray-500 space-y-2">
                 <div className="flex justify-between">

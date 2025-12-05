@@ -80,6 +80,7 @@ import {
   insertVehicleToDatabase,
   updateVehicleInDatabase,
 } from "../assets/db/tables/vehicles.js";
+import { getServicelaborCostList } from "../assets/db/tables/serviceLaborCharges.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -126,9 +127,9 @@ app.on("ready", () => {
   });
 
   ipcMain.handle("db:getAllProducts", async (ev, args) => {
-    return await getAllProducts();
+    const { limit, offset } = args || {};
+    return await getAllProducts(limit, offset);
   });
-
   ipcMain.handle("db:get-product-by-id", async (ev, id) => {
     return await getproductById(id);
   });
@@ -631,20 +632,40 @@ app.on("ready", () => {
   //   }
   // });
 
-
   ipcMain.handle("db:generate-invoice", async (event, args) => {
-  try {
-    const invoiceId = await generateInvoice(args.vehicleDetails, args.items, args.discount, args.vatAmount, args.amountPaid, args.billStatus);
-    return { success: true, invoiceId };
-  } catch (error) {
-    //@ts-ignore
-    return { success: false, error: error.message };
-  }
-});
+    try {
+      const invoiceId = await generateInvoice(
+        args.vehicleDetails,
+        args.items,
+        args.laborItems,
+        args.discount,
+        args.vatAmount,
+        args.amountPaid,
+        args.billStatus
+      );
+      return { success: true, invoiceId };
+    } catch (error) {
+      //@ts-ignore
+      return { success: false, error: error.message };
+    }
+  });
 
-ipcMain.handle("db:update-invoice", async (event, args) => {
+  // ipcMain.handle("db:update-invoice", async (event, args) => {
+  //   try {
+  //     // Pass the entire args object which now includes service_id and updated_by
+  //     const response: any = await updateServiceByServiceId(args);
+
+  //     return { success: true, message: response };
+  //   } catch (error) {
+  //     //@ts-ignore
+  //     return { success: false, error: error.message || error };
+  //   }
+  // });
+
+
+  ipcMain.handle("db:update-invoice", async (event, args) => {
   try {
-    // Pass the entire args object which now includes service_id and updated_by
+    // Pass the entire args object which now includes added/updated/deleted arrays
     const response: any = await updateServiceByServiceId(args);
 
     return { success: true, message: response };
@@ -654,17 +675,26 @@ ipcMain.handle("db:update-invoice", async (event, args) => {
   }
 });
 
+
   ipcMain.handle("db:update-service-due-payment", async (ev, { amountPaid, billStatus, id }) => {
     return await UpdateServiceBillPayment(amountPaid, billStatus, id);
   });
 
   ipcMain.handle("db:get-invoices", async (event, args) => {
     try {
-      const response = await getAllInvoices();
-      return { success: true, response };
+      const { limit, offset, search } = args;
+      const response = await getAllInvoices(limit, offset, search);
+
+      return {
+        success: true,
+        response,
+      };
     } catch (error) {
-      //@ts-ignore
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        //@ts-ignore
+        error: error.message,
+      };
     }
   });
 
@@ -692,8 +722,9 @@ ipcMain.handle("db:update-invoice", async (event, args) => {
       const service = await getServiceDetails(id);
       if (service) {
         const serviceItems = await getServiceItems(id);
+        const serviceLaborCostList = await getServicelaborCostList(id);
         const serviceBill = await getServiceBill(id);
-        return { success: true, service, serviceItems, serviceBill };
+        return { success: true, service, serviceItems, serviceLaborCostList, serviceBill };
       }
     } catch (error) {
       //@ts-ignore
@@ -741,7 +772,7 @@ ipcMain.handle(
       companyPhoneNumber: string;
       email: string;
       address: string;
-      trn:string,
+      trn: string;
       createdBy: number;
       updatedBy: number;
     }
@@ -769,11 +800,12 @@ ipcMain.handle(
 
 ipcMain.handle("db:get-all-customers", async (event, args) => {
   try {
-    const response = await getAllCustomers();
+    const { limit, offset } = args || {};
+    const response = await getAllCustomers(limit, offset);
     return { success: true, response };
   } catch (error) {
     //@ts-ignore
-    return { success: false, error: error.message };
+    return { success: false, error: error?.message || "Unknown error" };
   }
 });
 
@@ -810,7 +842,7 @@ ipcMain.handle(
   "db:update-customers-details-by-id",
   async (
     event,
-    { name, email, phone_number, company_name, company_phone_number, address,trn, updated_by, id }
+    { name, email, phone_number, company_name, company_phone_number, address, trn, updated_by, id }
   ) => {
     try {
       const response = await updateCustomerDetailsById({

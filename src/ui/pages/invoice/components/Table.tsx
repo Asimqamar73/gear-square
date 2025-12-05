@@ -2,6 +2,7 @@ import { Eye, FileText, Phone, Building2, Car, Hash } from "lucide-react";
 import { useState } from "react";
 import { dateFormatter } from "../../../utils/DateFormatter";
 import { useNavigate } from "react-router-dom";
+import { getStatusDot, paymentStatuses } from "../../../utils/paymentHelpers";
 
 interface Invoice {
   invoice_id: string | number;
@@ -26,22 +27,7 @@ const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
   const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const paymentStatuses = {
-    0: { label: "Unpaid", color: "bg-red-100 text-red-700 border-red-200" },
-    1: { label: "Partial", color: "bg-amber-100 text-amber-700 border-amber-200" },
-    2: { label: "Paid", color: "bg-green-100 text-green-700 border-green-200" },
-    3: { label: "Overpaid", color: "bg-emerald-100 text-emerald-700 border-emerald-200" },
-  };
 
-  const getStatusDot = (status: 0 | 1 | 2 | 3) => {
-    const colors = {
-      0: "bg-red-500",
-      1: "bg-amber-500",
-      2: "bg-green-500",
-      3: "bg-emerald-500",
-    };
-    return <span className={`inline-block w-2 h-2 rounded-full ${colors[status]} mr-2`}></span>;
-  };
 
   const hasData = data && data.length > 0;
 
@@ -102,10 +88,8 @@ const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gray-200 flex items-center justify-center">
                           {/* <FileText className="w-4 h-4 text-blue-400" /> */}
                         <span className="font-semibold text-gray-600">#{invoice.invoice_id}</span>
-                        </div>
                       </div>
                     </td>
                     

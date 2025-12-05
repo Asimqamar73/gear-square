@@ -12,7 +12,7 @@
 //   return (
 //     <div className="bg-white shadow-md rounded-2xl border border-gray-200 overflow-hidden">
 //       <T className="min-w-full">
-//         <TableCaption className="text-gray-500 text-sm p-3">List of Invoice Items</TableCaption>
+//         <TableCaption className="text-gray-500 text-sm p-3">List of </TableCaption>
 
 //         <TableHeader>
 //           <TableRow className="bg-gray-100">
@@ -116,7 +116,7 @@ const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
           {!hasData && (
             <caption className="py-8 text-center">
               <Receipt className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-500 font-medium">No invoice items</p>
+              <p className="text-gray-500 font-medium">No </p>
               <p className="text-gray-400 text-sm mt-1">Add items to this invoice</p>
             </caption>
           )}

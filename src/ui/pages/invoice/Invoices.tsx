@@ -1,76 +1,8 @@
-// import { useEffect, useState } from "react";
-// import useDebounce from "react-debounced";
-// import SearchBar from "../../../components/SearchBar";
-// import PageHeader from "../../../components/PageHeader";
-// import { toast } from "sonner";
-// import {  useNavigate } from "react-router-dom";
-// import InvoiceTable from "./components/Table";
-
-// const paymentStatuses: any = {
-//   0: { value: "Unpaid", color: "bg-red-200 text-red-800" },
-//   1: { value: "Partial", color: "bg-amber-200 text-amber-800" },
-//   2: { value: "Paid", color: "bg-green-200 text-green-800" },
-//   3: { value: "Overpaid", color: "bg-green-400 text-white" },
-// };
-
-// const Invoices = () => {
-//   const debounce = useDebounce(2000);
-//   const navigate = useNavigate();
-//   const [invoices, setInvoices] = useState<any>([]);
-//   const [searchVal, setSearchVal] = useState("");
-//   const [searchLoading, setSearchLoading] = useState(false);
-
-//   useEffect(() => {
-//     fetchInvoices();
-//   }, []);
-
-//   const fetchInvoices = async () => {
-//     try {
-//       //@ts-ignore
-//       const { response } = await window.electron.getInvoices();
-//       setInvoices(response);
-//     } catch (error) {
-//       toast.error("Something went wrong. Please restart the application", {
-//         position: "top-center",
-//       });
-//     }
-//   };
-
-//   const handleSearch = (e: any) => {
-//     const inputValue = e.target.value;
-//     setSearchVal(inputValue);
-//     setSearchLoading(true);
-//     debounce(async () => {
-//       //@ts-ignore
-//       const response = await window.electron.searchInvoices(inputValue);
-//       setInvoices(response);
-//       setSearchLoading(false);
-//     });
-//   };
-//   return (
-//     <div className="min-h-screen bg-gray-100">
-//       <div className="py-16 px-8">
-//         <PageHeader title={"Recent Invoices"}>
-//           <SearchBar
-//             searchVal={searchVal}
-//             searchLoading={searchLoading}
-//             handleSearch={handleSearch}
-//             placeholder="Search invoice"
-//           />
-//         </PageHeader>
-//         <InvoiceTable data={invoices} onViewInvoice={(id)=>navigate(`/invoice/${id}`)}/>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Invoices;
-
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import useDebounce from "react-debounced";
-import { Search, Loader2 } from "lucide-react";
+// import useDebounce from "react-debounced";
+import { Search, Loader2, X } from "lucide-react";
 import InvoiceTable from "./components/Table";
 
 interface Invoice {
@@ -89,62 +21,134 @@ interface Invoice {
 
 const Invoices = () => {
   const navigate = useNavigate();
-  const debounce = useDebounce(500);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
 
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchVal, setSearchVal] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalInvoices, setTotalInvoices] = useState(0);
+
+  const totalPages = Math.ceil(totalInvoices / rowsPerPage);
+
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [currentPage, rowsPerPage]);
 
   const fetchInvoices = async () => {
+    setLoading(true);
+
     try {
       //@ts-ignore
-      const { response } = await window.electron.getInvoices();
-      setInvoices(response || []);
-    } catch (error) {
-      toast.error("Failed to load invoices. Please try again.", {
-        position: "top-center",
+      const res = await window.electron.getInvoices({
+        limit: rowsPerPage,
+        offset: (currentPage - 1) * rowsPerPage,
+        search: "",
       });
+      console.log(res)
+      if (res.success) {
+        setInvoices(res?.response?.rows || []);
+        setTotalInvoices(res?.response?.total || 0);
+      } else {
+        toast.error("Failed to load invoices.");
+      }
+    } catch (error) {
+      toast.error("Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    setSearchVal(inputValue);
+  // 🔍 Search handler
+  // const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const val = e.target.value;
+  //   setSearchVal(val);
 
-    if (!inputValue.trim()) {
-      fetchInvoices();
+  //   setSearchLoading(true);
+  //   debounce(() => {
+  //     setCurrentPage(1);
+  //     fetchInvoices();
+  //     setSearchLoading(false);
+  //   });
+  // };
+
+
+
+   const handleSearch = async () => {
+    if (!searchVal.trim()) {
+      toast.error("Please enter a vehicle or chassis number to search");
       return;
     }
 
     setSearchLoading(true);
-    debounce(async () => {
-      try {
-        //@ts-ignore
-        const response = await window.electron.searchInvoices(inputValue);
-        setInvoices(response || []);
-      } catch (error) {
-        toast.error("Search failed. Please try again.");
-      } finally {
-        setSearchLoading(false);
-      }
-    });
+
+    try {
+      //@ts-ignore
+        const res = await window.electron.getInvoices({
+        limit: rowsPerPage,
+        offset: (currentPage - 1) * rowsPerPage,
+        search: searchVal.trim() || "",
+      });
+       setInvoices(res?.response?.rows || []);
+       setIsSearchActive(true);
+        setTotalInvoices(res?.response?.total || 0);
+
+      setCurrentPage(1);
+    } catch (error) {
+      toast.error("Search failed. Please try again.", {
+        position: "top-center",
+      });
+    } finally {
+      setSearchLoading(false);
+    }
   };
 
-  // const getStatusCounts = () => {
-  //   return {
-  //     total: invoices.length,
-  //     unpaid: invoices.filter((inv) => inv.bill_status === 0).length,
-  //     partial: invoices.filter((inv) => inv.bill_status === 1).length,
-  //     paid: invoices.filter((inv) => inv.bill_status === 2).length,
-  //   };
-  // };
+  const handleClearSearch = () => {
+    setSearchVal("");
+    setIsSearchActive(false);
+    setCurrentPage(1);
+    fetchInvoices();
+  };
+
+  // 🌟 Ellipsis Pagination Logic
+  const renderPageButtons = () => {
+    const pages: (number | string)[] = [];
+    const delta = 2;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - delta && i <= currentPage + delta)) {
+        pages.push(i);
+      } else if (i === currentPage - delta - 1 || i === currentPage + delta + 1) {
+        pages.push("...");
+      }
+    }
+
+    return pages.map((p, idx) =>
+      p === "..." ? (
+        <span key={idx} className="w-8 h-8 flex items-center justify-center text-gray-400">
+          ...
+        </span>
+      ) : (
+        <button
+          key={idx}
+          onClick={() => setCurrentPage(Number(p))}
+          className={`w-8 h-8 flex items-center justify-center rounded-full transition text-sm
+          ${
+            currentPage === p
+              ? "bg-blue-600 text-white shadow-md"
+              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
+          }`}
+        >
+          {p}
+        </button>
+      )
+    );
+  };
 
   if (loading) {
     return (
@@ -162,95 +166,107 @@ const Invoices = () => {
       <div className="py-8 px-8 max-w-[1400px] mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900">Invoices</h1>
-              <p className="text-sm text-gray-500 mt-0.5">View and manage all invoices</p>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-lg border border-gray-200 p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-                    Total Invoices
-                  </p>
-                  <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
-                </div>
-                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-gray-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border border-red-200 p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-red-600 uppercase tracking-wide mb-1">
-                    Unpaid
-                  </p>
-                  <p className="text-2xl font-semibold text-red-700">{stats.unpaid}</p>
-                </div>
-                <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
-                  <Receipt className="w-6 h-6 text-red-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border border-amber-200 p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-amber-600 uppercase tracking-wide mb-1">
-                    Partial Payment
-                  </p>
-                  <p className="text-2xl font-semibold text-amber-700">{stats.partial}</p>
-                </div>
-                <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <Receipt className="w-6 h-6 text-amber-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg border border-green-200 p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-green-600 uppercase tracking-wide mb-1">
-                    Paid in Full
-                  </p>
-                  <p className="text-2xl font-semibold text-green-700">{stats.paid}</p>
-                </div>
-                <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-                  <Receipt className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-            </div>
-          </div> */}
+          <h1 className="text-2xl font-semibold text-gray-900">Invoices</h1>
+          <p className="text-sm text-gray-500 mt-0.5">View and manage all invoices</p>
 
           {/* Search Bar */}
-          <div className="relative max-w-md">
+          {/* <div className="relative max-w-md mt-5">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
               value={searchVal}
-              placeholder="Search invoices..."
               onChange={handleSearch}
+              placeholder="Search invoices..."
+              className="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
             />
             {searchLoading && (
-              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
+              <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 animate-spin text-gray-400" />
+            )}
+          </div> */}
+          <div className="space-y-2 mt-5">
+            <div className="relative max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+
+              <input
+                type="text"
+                className="w-full pl-10 pr-24 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                value={searchVal}
+                placeholder="Search..."
+                onChange={(e) => setSearchVal(e.target.value)}
+                // onKeyPress={handleKeyPress}
+              />
+
+              {searchLoading ? (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 animate-spin" />
+              ) : (
+                <button
+                  onClick={handleSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium rounded-md transition-colors"
+                >
+                  Search
+                </button>
+              )}
+            </div>
+
+            {isSearchActive && (
+              <button
+                onClick={handleClearSearch}
+                className="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                <X className="w-4 h-4" />
+                Clear search
+              </button>
             )}
           </div>
         </div>
 
-        {/* Invoices Table */}
-        <InvoiceTable
-          data={invoices}
-          onViewInvoice={(id) => navigate(`/invoice/${id}`)}
-          // onViewVehicle={(id) => navigate(`/vehicle-details/${id}`)}
-          // dateFormatter={dateFormatter}
-        />
+        {/* Table */}
+        <InvoiceTable data={invoices} onViewInvoice={(id) => navigate(`/invoice/${id}`)} />
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-6">
+            {/* Left: rows per page */}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="px-2 py-1 border border-gray-300 rounded-lg bg-white text-sm"
+              >
+                {[5, 10, 20, 50].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Center: pagination buttons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+              >
+                Prev
+              </button>
+
+              {renderPageButtons()}
+
+              <button
+                onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-gray-100 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

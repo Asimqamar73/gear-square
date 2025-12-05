@@ -12,9 +12,10 @@ const InvoiceItem = ({
   deleteItem,
   comboboxValue,
 }: any) => {
+  
   return (
-    <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow">
-      <h2 className="text-xl mt-2">Service items</h2>
+    <div className="p-4 bg-white rounded-2xl flex flex-col gap-4 border  border-gray-300 shadow-sm">
+      <h2 className="text-xl font-semibold text-gray-800">Service items</h2>
       {items.map((item: any, idx: number) => (
         <div className="flex items-end gap-4" key={idx}>
           <div className="flex flex-col gap-1 w-full">

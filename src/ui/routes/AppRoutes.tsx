@@ -15,9 +15,9 @@ import { GenerateCustomerInvoive } from "../pages/invoice/GenerateCustomerInvoiv
 import CusomerDetails from "../pages/customers/CustomerDetails";
 import EditProduct from "../pages/product/EditProduct";
 import EditCustomer from "../pages/customers/EditCustomer";
-import { EditCustomerInvoice } from "../pages/invoice/EditCustomerInvoive";
 import VehicleDetails from "../pages/vehicle/vehicleDetails";
 import { GenerateVehicleServiceInvoice } from "../pages/invoice/GenerateVehicleServiceInvoice";
+import { EditCustomerInvoice } from "../pages/invoice/EditCustomerInvoice";
 
 function AppRoutes() {
   return (

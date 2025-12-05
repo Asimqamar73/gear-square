@@ -98,6 +98,7 @@ interface SignInData {
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const currentYear = new Date().getFullYear();
   const [credentials, setCredentials] = useState<SignInData>({
     username: "",
     password: "",
@@ -236,7 +237,7 @@ const SignIn = () => {
 
         {/* Footer */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">© 2024 Gear Square. All rights reserved.</p>
+          <p className="text-xs text-gray-500">© {currentYear} Gear Square. All rights reserved.</p>
         </div>
       </div>
     </div>

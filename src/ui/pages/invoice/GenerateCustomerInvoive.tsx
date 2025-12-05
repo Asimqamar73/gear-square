@@ -68,6 +68,7 @@ export const GenerateCustomerInvoive = () => {
     try {
       //@ts-ignore
       const response = await window.electron.getProducts();
+      console.log(response)
       //@ts-ignore
       setProducts(response);
     } catch (error) {

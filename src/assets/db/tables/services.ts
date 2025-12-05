@@ -41,16 +41,68 @@ export function addService(data: any) {
   });
 }
 
-export async function getAllInvoices() {
-  try {
-    const rows = await new Promise((resolve, reject) => {
-      db.all(
-        `SELECT
-        services.id as invoice_id, 
+// export async function getAllInvoices() {
+//   try {
+//     const rows = await new Promise((resolve, reject) => {
+//       db.all(
+//         `SELECT
+//         services.id as invoice_id, 
+//         services.created_at, 
+//         vehicles.vehicle_number, 
+//         vehicles.chassis_number, 
+//         vehicles.id as vehicle_id, 
+//         customers.name, 
+//         customers.phone_number,
+//         customers.company_name,
+//         customers.company_phone_number,
+//         service_bill.amount_paid,
+//         service_bill.amount_due,
+//         service_bill.bill_status
+//         FROM services 
+//         JOIN vehicles ON vehicles.id=services.vehicle_id 
+//         JOIN customers ON customers.id=vehicles.customer_id 
+//         JOIN service_bill ON service_bill.service_id=services.id 
+//         order by services.id DESC`,
+//         [],
+//         (err: any, rows: any) => {
+//           if (err) return reject(err);
+//           resolve(rows);
+//         }
+//       );
+//     });
+//     return rows;
+//   } catch (error) {
+//     throw error;
+//   }
+// }
+
+export function getAllInvoices(limit: number, offset: number, search: string = "") {
+  return new Promise((resolve, reject) => {
+    let whereClause = "";
+    let params: any[] = [];
+
+    // SEARCH CONDITIONS
+    if (search && search.trim() !== "") {
+      const like = `%${search}%`;
+      whereClause = `
+        WHERE 
+          customers.name LIKE ? OR
+          customers.phone_number LIKE ? OR
+          customers.company_name LIKE ? OR
+          vehicles.vehicle_number LIKE ? OR
+          vehicles.chassis_number LIKE ? OR
+          services.id LIKE ?
+      `;
+      params = [like, like, like, like, like, like];
+    }
+
+    const query = `
+      SELECT
+        services.id AS invoice_id, 
         services.created_at, 
         vehicles.vehicle_number, 
         vehicles.chassis_number, 
-        vehicles.id as vehicle_id, 
+        vehicles.id AS vehicle_id, 
         customers.name, 
         customers.phone_number,
         customers.company_name,
@@ -58,23 +110,44 @@ export async function getAllInvoices() {
         service_bill.amount_paid,
         service_bill.amount_due,
         service_bill.bill_status
-        FROM services 
-        JOIN vehicles ON vehicles.id=services.vehicle_id 
-        JOIN customers ON customers.id=vehicles.customer_id 
-        JOIN service_bill ON service_bill.service_id=services.id 
-        order by services.id DESC`,
-        [],
-        (err: any, rows: any) => {
-          if (err) return reject(err);
-          resolve(rows);
-        }
-      );
+      FROM services 
+      JOIN vehicles ON vehicles.id = services.vehicle_id 
+      JOIN customers ON customers.id = vehicles.customer_id 
+      JOIN service_bill ON service_bill.service_id = services.id
+      ${whereClause}
+      ORDER BY services.id DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    // ADD LIMIT + OFFSET
+    params.push(limit, offset);
+
+    // COUNT QUERY for pagination
+    const countQuery = `
+      SELECT COUNT(*) AS total 
+      FROM services 
+      JOIN vehicles ON vehicles.id = services.vehicle_id 
+      JOIN customers ON customers.id = vehicles.customer_id 
+      JOIN service_bill ON service_bill.service_id = services.id
+      ${whereClause}
+    `;
+
+    // First get total count
+    db.get(countQuery, params.slice(0, -2), (countErr: any, countRow: any) => {
+      if (countErr) return reject(countErr);
+
+      const total = countRow?.total ?? 0;
+
+      // Then get paginated rows
+      db.all(query, params, (err: any, rows: any[]) => {
+        if (err) return reject(err);
+
+        resolve({ rows, total });
+      });
     });
-    return rows;
-  } catch (error) {
-    throw error;
-  }
+  });
 }
+
 
 export async function getServicesById(customerId: number) {
   try {
@@ -176,9 +249,131 @@ export async function getServiceDetails(id: number) {
   }
 }
 
+// export function generateInvoice(
+//   vehicleDetails: any,
+//   items: any[],
+//   discountPercent: number,
+//   vatAmount: number,
+//   amountPaid: number,
+//   billStatus: number
+// ) {
+//   return new Promise((resolve, reject) => {
+//     db.serialize(() => {
+//       db.run("BEGIN TRANSACTION");
+
+//       // 1️⃣ Insert Service
+//       const insertServiceQuery = `
+//         INSERT INTO services (vehicle_id, note, labor_cost, created_by, updated_by)
+//         VALUES (?, ?, ?, ?, ?)
+//       `;
+//       db.run(
+//         insertServiceQuery,
+//         [
+//           vehicleDetails.vehicle_id,
+//           vehicleDetails.note,
+//           vehicleDetails.laborCost,
+//           vehicleDetails.createdBy,
+//           vehicleDetails.updatedBy,
+//         ],
+//         function (err: any) {
+//           if (err) {
+//             db.run("ROLLBACK");
+//             return reject(err);
+//           }
+
+//           const service_id = this.lastID;
+
+//           // 2️⃣ Insert Service Items and calculate items subtotal
+//           let itemsSubtotal = 0;
+//           const insertItemQuery = `
+//             INSERT INTO service_items (product_id, service_id, quantity, subtotal)
+//             VALUES (?, ?, ?, ?)
+//           `;
+//           const stmt = db.prepare(insertItemQuery);
+
+//           for (const item of items) {
+//             const itemSubtotal = item.quantity * item.product.retail_price;
+//             itemsSubtotal += itemSubtotal;
+//             stmt.run([item.product.id, service_id, item.quantity, itemSubtotal]);
+//           }
+
+//           stmt.finalize((err2: any) => {
+//             if (err2) {
+//               db.run("ROLLBACK");
+//               return reject(err2);
+//             }
+//             console.log(vatAmount);
+//             // 3️⃣ Calculate bill totals with VAT before discount
+//             const billSubtotal = itemsSubtotal + vehicleDetails.laborCost;
+//             const totalBeforeDiscount = Number(billSubtotal) + Number(vatAmount);
+//             console.log("totalBeforeDiscount");
+//             console.log(totalBeforeDiscount);
+
+//             const discountAmount = discountPercent
+//               ? (totalBeforeDiscount * discountPercent) / 100
+//               : 0;
+//             const total = totalBeforeDiscount - discountAmount;
+//             console.log("discountAmount");
+//             console.log(discountAmount);
+//             console.log("total");
+//             console.log(total);
+//             // 4️⃣ Insert Service Bill
+//             const insertBillQuery = `
+//               INSERT INTO service_bill
+//               (service_id, subtotal, discount, vat_amount, total, amount_paid, bill_status)
+//               VALUES (?, ?, ?, ?, ?, ?, ?)
+//             `;
+//             db.run(
+//               insertBillQuery,
+//               [service_id, billSubtotal, discountPercent, vatAmount, total, amountPaid, billStatus],
+//               function (err3: any) {
+//                 if (err3) {
+//                   db.run("ROLLBACK");
+//                   return reject(err3);
+//                 }
+
+//                 db.run("COMMIT", (commitErr: any) => {
+//                   if (commitErr) return reject(commitErr);
+//                   resolve(service_id);
+//                 });
+//               }
+//             );
+//           });
+//         }
+//       );
+//     });
+//   });
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function generateInvoice(
   vehicleDetails: any,
   items: any[],
+  laborItems: any[],
   discountPercent: number,
   vatAmount: number,
   amountPaid: number,
@@ -187,6 +382,7 @@ export function generateInvoice(
   return new Promise((resolve, reject) => {
     db.serialize(() => {
       db.run("BEGIN TRANSACTION");
+      console.log(laborItems)
 
       // 1️⃣ Insert Service
       const insertServiceQuery = `
@@ -229,42 +425,85 @@ export function generateInvoice(
               db.run("ROLLBACK");
               return reject(err2);
             }
-            console.log(vatAmount);
-            // 3️⃣ Calculate bill totals with VAT before discount
-            const billSubtotal = itemsSubtotal + vehicleDetails.laborCost;
-            const totalBeforeDiscount = Number(billSubtotal) + Number(vatAmount);
-            console.log("totalBeforeDiscount");
-            console.log(totalBeforeDiscount);
 
-            const discountAmount = discountPercent
-              ? (totalBeforeDiscount * discountPercent) / 100
-              : 0;
-            const total = totalBeforeDiscount - discountAmount;
-            console.log("discountAmount");
-            console.log(discountAmount);
-            console.log("total");
-            console.log(total);
-            // 4️⃣ Insert Service Bill
-            const insertBillQuery = `
-              INSERT INTO service_bill
-              (service_id, subtotal, discount, vat_amount, total, amount_paid, bill_status)
-              VALUES (?, ?, ?, ?, ?, ?, ?)
-            `;
-            db.run(
-              insertBillQuery,
-              [service_id, billSubtotal, discountPercent, vatAmount, total, amountPaid, billStatus],
-              function (err3: any) {
-                if (err3) {
+            // 3️⃣ Insert Labour Charges and calculate total labor amount
+            let labourCostTotal = 0;
+            if (laborItems && laborItems.length) {
+              const insertLabourQuery = `
+                INSERT INTO labour_charges (service_id, labour_type, description, amount)
+                VALUES (?, ?, ?, ?)
+              `;
+              const labourStmt = db.prepare(insertLabourQuery);
+
+              for (const labour of laborItems) {
+                const amount = Number(labour.amount) || 0;
+                labourCostTotal += amount;
+                console.log(labourCostTotal)
+                labourStmt.run([service_id, labour.labour_type, labour.description, amount]);
+              }
+
+              labourStmt.finalize((errLabour: any) => {
+                if (errLabour) {
                   db.run("ROLLBACK");
-                  return reject(err3);
+                  return reject(errLabour);
                 }
 
-                db.run("COMMIT", (commitErr: any) => {
-                  if (commitErr) return reject(commitErr);
-                  resolve(service_id);
-                });
-              }
-            );
+                // 4️⃣ Calculate bill totals with VAT before discount
+                const billSubtotal = itemsSubtotal + labourCostTotal;
+                const totalBeforeDiscount = Number(billSubtotal) + Number(vatAmount);
+                const discountAmount = discountPercent ? discountPercent : 0;
+                const total = totalBeforeDiscount - discountAmount;
+
+                // 5️⃣ Insert Service Bill
+                const insertBillQuery = `
+                  INSERT INTO service_bill
+                  (service_id, subtotal, discount, vat_amount, total, amount_paid, bill_status)
+                  VALUES (?, ?, ?, ?, ?, ?, ?)
+                `;
+                db.run(
+                  insertBillQuery,
+                  [service_id, billSubtotal, discountPercent, vatAmount, total, amountPaid, billStatus],
+                  function (err3: any) {
+                    if (err3) {
+                      db.run("ROLLBACK");
+                      return reject(err3);
+                    }
+
+                    db.run("COMMIT", (commitErr: any) => {
+                      if (commitErr) return reject(commitErr);
+                      resolve(service_id);
+                    });
+                  }
+                );
+              });
+            } else {
+              // If no labour items, proceed normally
+              const billSubtotal = itemsSubtotal + vehicleDetails.laborCost;
+              const totalBeforeDiscount = Number(billSubtotal) + Number(vatAmount);
+              const discountAmount = discountPercent ? discountPercent : 0;
+              const total = totalBeforeDiscount - discountAmount;
+
+              const insertBillQuery = `
+                INSERT INTO service_bill
+                (service_id, subtotal, discount, vat_amount, total, amount_paid, bill_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+              `;
+              db.run(
+                insertBillQuery,
+                [service_id, billSubtotal, discountPercent, vatAmount, total, amountPaid, billStatus],
+                function (err3: any) {
+                  if (err3) {
+                    db.run("ROLLBACK");
+                    return reject(err3);
+                  }
+
+                  db.run("COMMIT", (commitErr: any) => {
+                    if (commitErr) return reject(commitErr);
+                    resolve(service_id);
+                  });
+                }
+              );
+            }
           });
         }
       );

@@ -311,7 +311,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { 
   TrendingUp, 
-  Receipt, 
   AlertCircle, 
   Calendar,
   Loader2,
@@ -645,9 +644,9 @@ const Dashboard = () => {
               <StatCard
                 title="Services"
                 value={stats.custom.servicesCount.toString()}
-                icon={<Receipt className="w-6 h-6" />}
-                iconBg="bg-blue-100"
-                iconColor="text-blue-600"
+                icon={<Wrench className="w-6 h-6" />}
+                iconBg="bg-gray-100"
+                iconColor="text-gray-600"
               />
               <StatCard
                 title="Due Amount"

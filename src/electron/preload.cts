@@ -1,4 +1,4 @@
-import { timelineSummary } from './../assets/db/tables/dashboard';
+import { timelineSummary } from "./../assets/db/tables/dashboard";
 const electron = require("electron");
 
 electron.contextBridge.exposeInMainWorld("electron", {
@@ -53,8 +53,9 @@ electron.contextBridge.exposeInMainWorld("electron", {
   updateProductStock: async (data: any) => {
     return await electron.ipcRenderer.invoke("db:update-stock", data);
   },
-  getProducts: async () => {
-    const result = await electron.ipcRenderer.invoke("db:getAllProducts");
+  getProducts: async (paginationArgs: any) => {
+    // paginationArgs = { limit: number, offset: number }
+    const result = await electron.ipcRenderer.invoke("db:getAllProducts", paginationArgs);
     return result;
   },
 
@@ -63,10 +64,13 @@ electron.contextBridge.exposeInMainWorld("electron", {
 
     return result;
   },
-  searchProducts: async (search: string) => {
-    const result = await electron.ipcRenderer.invoke("db:searchProduct", search);
+  searchProducts: async (search: string, pagination: { limit: number; offset: number }) => {
+    const result = await electron.ipcRenderer.invoke("db:searchProduct", {
+      search,
+      ...pagination,
+    });
 
-    return result;
+    return result; // { data: [], total: number }
   },
 
   // Invoices
@@ -81,9 +85,9 @@ electron.contextBridge.exposeInMainWorld("electron", {
     return result;
   },
   getInvoices: async (data: any) => {
-    const result = await electron.ipcRenderer.invoke("db:get-invoices", data);
-    return result;
+    return await electron.ipcRenderer.invoke("db:get-invoices", data);
   },
+
   updateServiceDuePayment: async (data: any) => {
     const result = await electron.ipcRenderer.invoke("db:update-service-due-payment", data);
     return result;
@@ -113,9 +117,11 @@ electron.contextBridge.exposeInMainWorld("electron", {
     return await electron.ipcRenderer.invoke("db:add-customer", data);
   },
 
-  getAllCustomers: async () => {
-    return await electron.ipcRenderer.invoke("db:get-all-customers");
+  getAllCustomers: async (paginationArgs: any) => {
+    // paginationArgs = { limit, offset }
+    return await electron.ipcRenderer.invoke("db:get-all-customers", paginationArgs);
   },
+
   searchCustomerByPhoneNumber: async (phoneNumber: number) => {
     return await electron.ipcRenderer.invoke("db:search-customers-by-phone-number", phoneNumber);
   },
