@@ -306,7 +306,6 @@ export const timelineSummary = (
           console.error("Error fetching timeline summary:", err);
           return reject(err);
         }
-        console.log(row);
         resolve(row);
       }
     );

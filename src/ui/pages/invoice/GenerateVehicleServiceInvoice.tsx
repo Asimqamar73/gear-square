@@ -179,7 +179,6 @@ export const GenerateVehicleServiceInvoice = () => {
         amountPaid: totals.validPaidAmount,
         vatAmount: (Number(totals.subtotal) * VAT_RATE).toFixed(2),
       });
-      console.log(response);
       if (response.success) {
         toast.success("Invoice generated successfully");
         navigate(`/invoice/${response.invoiceId}`);

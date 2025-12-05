@@ -119,7 +119,6 @@ const InvoiceDetailsPage = () => {
     try {
       //@ts-ignore
       const resp = await window.electron.getInvoiceDetails(id);
-      console.log(resp)
       setDetails(resp);
     } catch (error) {
       toast.error("Failed to load invoice details. Please try again.", {

@@ -1,4 +1,4 @@
-import {  Receipt, WrenchIcon } from "lucide-react";
+import {   WrenchIcon } from "lucide-react";
 
 interface ILaborCostList {
   id?: string | number;

@@ -50,7 +50,6 @@ const Invoices = () => {
         offset: (currentPage - 1) * rowsPerPage,
         search: "",
       });
-      console.log(res)
       if (res.success) {
         setInvoices(res?.response?.rows || []);
         setTotalInvoices(res?.response?.total || 0);

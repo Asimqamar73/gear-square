@@ -15,7 +15,6 @@ interface LabourChargesProps {
 }
 
 const LabourCharges = ({ labourItems, setLabourItems, setTotalLaborCost,deleteLaborItem }: LabourChargesProps) => {
-  console.log(labourItems)
   const addNewLabour = () => {
     setLabourItems([...labourItems, { labour_type: "", description: "", amount: "" }]);
   };

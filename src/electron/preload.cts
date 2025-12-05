@@ -80,10 +80,15 @@ electron.contextBridge.exposeInMainWorld("electron", {
     return result;
   },
 
-  updateInvoice: async (data: any) => {
-    const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
-    return result;
-  },
+  // updateInvoice: async (data: any) => {
+  //   const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
+  //   return result;
+  // },
+updateInvoice : async (data: any) => {
+  const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
+  return result;
+},
+
   getInvoices: async (data: any) => {
     return await electron.ipcRenderer.invoke("db:get-invoices", data);
   },
@@ -208,7 +213,6 @@ electron.contextBridge.exposeInMainWorld("electron", {
   },
 
   getVehicleDetails: async (id: number) => {
-    console.log(id);
     return await electron.ipcRenderer.invoke("db:get-vehicle-details", id);
   },
 

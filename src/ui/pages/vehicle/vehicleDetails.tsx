@@ -46,7 +46,6 @@ const VehicleDetails = () => {
     try {
       //@ts-ignore
       const { response } = await window.electron.getVehicleDetails(vehicleId);
-      console.log(response)
       setVehicleInfo(response);
     } catch (error) {
       toast.error("Failed to load vehicle details. Please try again.", {

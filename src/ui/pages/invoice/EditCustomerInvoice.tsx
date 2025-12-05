@@ -46,9 +46,6 @@ interface ICustomerInfo {
   updated_by: number;
 }
 
-
-
-
 export const EditCustomerInvoice = () => {
   const VAT_RATE = 0.05;
   const params = useParams();
@@ -91,7 +88,6 @@ export const EditCustomerInvoice = () => {
       const { data } = await window.electron.getProducts();
       //@ts-ignore
       setProducts(data);
-      console.log("response: ", data);
       fetchDetails(params.invoiceId, data);
     } catch (error) {
       toast.error("Something went wrong. Please restart the application", {
@@ -196,6 +192,7 @@ export const EditCustomerInvoice = () => {
         service_id: params.invoiceId,
         items,
         total: finalTotal,
+        labor_item: laborItems,
         subtotal: subtotalWithLabor,
         vat_amount: vatAmount,
         discount_percentage: discount,
@@ -221,6 +218,10 @@ export const EditCustomerInvoice = () => {
   const handleAmountPaidChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
     setAmountPaid(value >= 0 ? value : 0);
+  };
+
+  const deleteLaborItem = (idx: number) => {
+    setLaborItems(laborItems.filter((_, i) => i !== idx));
   };
 
   return (
@@ -343,15 +344,17 @@ export const EditCustomerInvoice = () => {
             labourItems={laborItems}
             setLabourItems={setLaborItems}
             setTotalLaborCost={setLaborCost}
+            //@ts-ignore
+            deleteLaborItem={deleteLaborItem}
           />
         </div>
         <div className="flex justify-end mt-6">
           <div className="w-full max-w-md bg-white rounded-lg border border-gray-200 shadow-sm p-6">
             <div className="flex items-center justify-between gap-2 mb-5 pb-4 border-b border-gray-100">
               <h2 className="text-base font-semibold text-gray-900">Invoice Summary</h2>
-                    <span
+              <span
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${paymentStatuses[paymentStatus].color}`}
-                >
+              >
                 {getStatusDot(paymentStatus)}
                 {paymentStatuses[paymentStatus].label}
               </span>
@@ -396,7 +399,6 @@ export const EditCustomerInvoice = () => {
                 <input
                   type="number"
                   id="discount"
-            
                   value={discount}
                   onChange={(e) => setDiscount(Number(e.target.value))}
                   placeholder="0"
@@ -460,7 +462,6 @@ export const EditCustomerInvoice = () => {
                     {remainingBalance.toFixed(2)} AED
                   </span>
                 </div>
-              
               </div>
             </div>
           </div>

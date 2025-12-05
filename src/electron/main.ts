@@ -152,70 +152,7 @@ app.on("ready", () => {
   ipcMain.handle("db:createProductsTable", async (ev, args) => {
     return await create_products_table();
   });
-  // ipcMain.handle(
-  //   "add-product",
-  //   async (
-  //     event,
-  //     {
-  //       name,
-  //       description,
-  //       costPrice,
-  //       retailPrice,
-  //       sku,
-  //       barcode,
-  //       quantity,
-  //       productImage,
-  //       createdBy,
-  //       updatedBy,
-  //     }: {
-  //       name: string;
-  //       description: string;
-  //       costPrice: number;
-  //       retailPrice: number;
-  //       sku: number;
-  //       barcode: number;
-  //       quantity: number;
-  //       productImage: any;
-  //       createdBy: number;
-  //       updatedBy: number;
-  //     }
-  //   ) => {
-  //     try {
-  //       const __filename = fileURLToPath(import.meta.url);
-  //       const __dirname = path.dirname(__filename);
-  //       const parentDir = path.dirname(__dirname);
-  //       const imageDir = path.join(parentDir, "images");
-
-  //       if (!fs.existsSync(imageDir)) {
-  //         fs.mkdirSync(imageDir, { recursive: true });
-  //       }
-
-  //       const filePath = path.join(imageDir, Date.now() + "_" + productImage.imageName);
-  //       fs.writeFileSync(filePath, Buffer.from(productImage.buffer));
-  //       console.log(filePath);
-
-  //       // Save to SQLite
-  //       const response = await insertProductToDatabase({
-  //         name,
-  //         description,
-  //         costPrice,
-  //         retailPrice,
-  //         sku,
-  //         barcode,
-  //         quantity,
-  //         filePath,
-  //         createdBy,
-  //         updatedBy,
-  //       });
-
-  //       return { success: true, path: filePath, response };
-  //     } catch (error) {
-  //       //@ts-ignore
-  //       return { success: false, error: error.message };
-  //     }
-  //   }
-  // );
-
+  
   function getImagesDirectory() {
     if (app.isPackaged) {
       // In packaged app, use userData directory for writable files
@@ -229,70 +166,6 @@ app.on("ready", () => {
       return path.join(parentDir, "images");
     }
   }
-
-  // ipcMain.handle(
-  //   "add-product",
-  //   async (
-  //     event,
-  //     {
-  //       name,
-  //       description,
-  //       costPrice,
-  //       retailPrice,
-  //       sku,
-  //       partNumber,
-  //       quantity,
-  //       productImage,
-  //       createdBy,
-  //       updatedBy,
-  //     }: {
-  //       name: string;
-  //       description: string;
-  //       costPrice: number;
-  //       retailPrice: number;
-  //       sku: number;
-  //       partNumber: string;
-  //       quantity: number;
-  //       productImage: any;
-  //       createdBy: number;
-  //       updatedBy: number;
-  //     }
-  //   ) => {
-  //     try {
-  //       const imageDir = getImagesDirectory();
-
-  //       if (!fs.existsSync(imageDir)) {
-  //         fs.mkdirSync(imageDir, { recursive: true });
-  //       }
-
-  //       const filePath = path.join(imageDir, Date.now() + "_" + productImage.imageName);
-
-  //       try {
-  //         fs.writeFileSync(filePath, Buffer.from(productImage.buffer));
-  //       } catch (fileError: any) {
-  //         throw new Error(`Failed to save image: ${fileError.message}`);
-  //       }
-
-  //       const response = await insertProductToDatabase({
-  //         name,
-  //         description,
-  //         costPrice,
-  //         retailPrice,
-  //         sku,
-  //         partNumber,
-  //         quantity,
-  //         filePath,
-  //         createdBy,
-  //         updatedBy,
-  //       });
-
-  //       return { success: true, path: filePath, response };
-  //     } catch (error: any) {
-  //       console.error("Error in add-product handler:", error);
-  //       return { success: false, error: error };
-  //     }
-  //   }
-  // );
 
   ipcMain.handle(
     "add-product",
@@ -374,81 +247,6 @@ app.on("ready", () => {
     }
   );
 
-  //   ipcMain.handle(
-  //   "update-product-details",
-  //   async (
-  //     event,
-  //     {
-  //       name,
-  //       description,
-  //       cost_price,
-  //       retail_price,
-  //       sku,
-  //       barcode,
-  //       quantity,
-  //       productImage,
-  //       updatedBy,
-  //       image, // this is the old image path
-  //     }: {
-  //       name: string;
-  //       description: string;
-  //       cost_price: number;
-  //       retail_price: number;
-  //       sku: number;
-  //       barcode: number;
-  //       quantity: number;
-  //       productImage: any;
-  //       createdBy: number;
-  //       updatedBy: number;
-  //       image: string;
-  //     }
-  //   ) => {
-  //     try {
-  //       const __filename = fileURLToPath(import.meta.url);
-  //       const __dirname = path.dirname(__filename);
-  //       const parentDir = path.dirname(__dirname);
-  //       const imageDir = path.join(parentDir, "images");
-
-  //       if (!fs.existsSync(imageDir)) {
-  //         fs.mkdirSync(imageDir, { recursive: true });
-  //       }
-
-  //       let filePath = image; // default to existing image path
-
-  //       // If a new product image is provided
-  //       if (productImage) {
-  //         // Remove old image if it exists
-  //         if (fs.existsSync(image)) {
-  //           fs.unlinkSync(image);
-  //         }
-
-  //         // Save new image
-  //         filePath = path.join(imageDir, Date.now() + "_" + productImage.imageName);
-  //         fs.writeFileSync(filePath, Buffer.from(productImage.buffer));
-  //         console.log("New file saved at:", filePath);
-  //       }
-
-  //       // Update product in database
-  //       const response = await updateProductDetails({
-  //         name,
-  //         description,
-  //         cost_price,
-  //         retail_price,
-  //         sku,
-  //         barcode,
-  //         quantity,
-  //         filePath,
-  //         updatedBy,
-  //       });
-
-  //       return { success: true, path: filePath, response };
-  //     } catch (error) {
-  //       //@ts-ignore
-  //       return { success: false, error: error.message };
-  //     }
-  //   }
-  // );
-
   // Helper function to safely delete old image files
   function deleteImageFile(imagePath: string) {
     try {
@@ -462,75 +260,6 @@ app.on("ready", () => {
     }
     return false;
   }
-
-  // ipcMain.handle(
-  //   "add-product",
-  //   async (
-  //     event,
-  //     {
-  //       name,
-  //       description,
-  //       costPrice,
-  //       retailPrice,
-  //       sku,
-  //       barcode,
-  //       quantity,
-  //       productImage,
-  //       createdBy,
-  //       updatedBy,
-  //     }: {
-  //       name: string;
-  //       description: string;
-  //       costPrice: number;
-  //       retailPrice: number;
-  //       sku: number;
-  //       barcode: number;
-  //       quantity: number;
-  //       productImage: any;
-  //       createdBy: number;
-  //       updatedBy: number;
-  //     }
-  //   ) => {
-  //     try {
-  //       const imageDir = getImagesDirectory();
-
-  //       // Ensure the images directory exists
-  //       if (!fs.existsSync(imageDir)) {
-  //         fs.mkdirSync(imageDir, { recursive: true });
-  //       }
-
-  //       const filePath = path.join(imageDir, Date.now() + "_" + productImage.imageName);
-
-  //       // Add error handling for file writing
-  //       try {
-  //         fs.writeFileSync(filePath, Buffer.from(productImage.buffer));
-  //         console.log('Image saved successfully at:', filePath);
-  //       } catch (fileError:any) {
-  //         console.error('Error writing file:', fileError);
-  //         throw new Error(`Failed to save image: ${fileError.message}`);
-  //       }
-
-  //       // Save to SQLite
-  //       const response = await insertProductToDatabase({
-  //         name,
-  //         description,
-  //         costPrice,
-  //         retailPrice,
-  //         sku,
-  //         barcode,
-  //         quantity,
-  //         filePath,
-  //         createdBy,
-  //         updatedBy,
-  //       });
-
-  //       return { success: true, path: filePath, response };
-  //     } catch (error:any) {
-  //       console.error('Error in add-product handler:', error);
-  //       return { success: false, error: error.message };
-  //     }
-  //   }
-  // );
 
   ipcMain.handle(
     "update-product-details",
@@ -614,24 +343,6 @@ app.on("ready", () => {
     return await updateProductStock({ quantity, id });
   });
 
-  // ipcMain.handle("db:generate-invoice", async (event, args) => {
-  //   console.log(args);
-  //   try {
-  //     const service_id: any = await addService(args.vehicleDetails);
-  //     if (service_id) {
-  //       const itemsResponse = await addServiceItems(args.items, service_id);
-  //       const serviceBillResponse = await addServiceBill(args.bill, service_id);
-
-  //       return { success: true, service_id, itemsResponse, serviceBillResponse };
-  //     }
-
-  //     return { success: true };
-  //   } catch (error) {
-  //     //@ts-ignore
-  //     return { success: false, error: error.message };
-  //   }
-  // });
-
   ipcMain.handle("db:generate-invoice", async (event, args) => {
     try {
       const invoiceId = await generateInvoice(
@@ -650,30 +361,18 @@ app.on("ready", () => {
     }
   });
 
-  // ipcMain.handle("db:update-invoice", async (event, args) => {
-  //   try {
-  //     // Pass the entire args object which now includes service_id and updated_by
-  //     const response: any = await updateServiceByServiceId(args);
+ 
 
-  //     return { success: true, message: response };
-  //   } catch (error) {
-  //     //@ts-ignore
-  //     return { success: false, error: error.message || error };
-  //   }
-  // });
-
-
-  ipcMain.handle("db:update-invoice", async (event, args) => {
+ipcMain.handle("db:update-invoice", async (event, args) => {
   try {
-    // Pass the entire args object which now includes added/updated/deleted arrays
     const response: any = await updateServiceByServiceId(args);
-
     return { success: true, message: response };
   } catch (error) {
     //@ts-ignore
     return { success: false, error: error.message || error };
   }
 });
+
 
 
   ipcMain.handle("db:update-service-due-payment", async (ev, { amountPaid, billStatus, id }) => {
@@ -733,19 +432,7 @@ app.on("ready", () => {
   });
 });
 
-// ipcMain.handle("db:invoice-details", async (event, id) => {
-//   try {
-//     const service = await getServiceDetails(id);
-//     if (service) {
-//       const serviceItems = await getServiceItems(id);
-//       const serviceBill = await getServiceBill(id);
-//       return { success: true, service, serviceItems, serviceBill };
-//     }
-//   } catch (error) {
-//     //@ts-ignore
-//     return { success: false, error: error.message };
-//   }
-// });
+
 
 ipcMain.handle("db:searchInvoice", async (ev, searchInput) => {
   return await searchInvoice(searchInput);

@@ -97,7 +97,6 @@ export function updateProductDetails({
   updatedBy: number;
   id: number;
 }) {
-  console.log("id: ", sku);
   return new Promise((resolve, reject) => {
     const query = `
       UPDATE products
