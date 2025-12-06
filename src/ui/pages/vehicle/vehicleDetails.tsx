@@ -197,12 +197,16 @@ const VehicleDetails = () => {
                         <Hash className="w-6 h-6 text-white" />
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                    {
+                      vehicleInfo.chassis_number && <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
                       <span className="text-xs font-medium text-gray-300">Chassis:</span>
                       <span className="text-sm font-semibold font-mono text-white">
                         {vehicleInfo.chassis_number}
                       </span>
                     </div>
+
+                    }
+                   
                   </div>
                 </div>
 

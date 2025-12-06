@@ -84,6 +84,12 @@ electron.contextBridge.exposeInMainWorld("electron", {
   //   const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
   //   return result;
   // },
+// updateInvoice : async (data: any) => {
+//   const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
+//   return result;
+// },
+
+
 updateInvoice : async (data: any) => {
   const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
   return result;

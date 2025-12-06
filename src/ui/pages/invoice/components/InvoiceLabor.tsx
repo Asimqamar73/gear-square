@@ -54,6 +54,7 @@ const LabourCharges = ({ labourItems, setLabourItems, setTotalLaborCost,deleteLa
                 onChange={(e) => handleChange(idx, "labour_type", e.target.value)}
                 className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 placeholder:text-gray-400"
                 placeholder="Enter labour type"
+                required
               />
             </div>
             {/* Amount */}
@@ -66,6 +67,7 @@ const LabourCharges = ({ labourItems, setLabourItems, setTotalLaborCost,deleteLa
                 onChange={(e) => handleChange(idx, "amount", e.target.value)}
                 className="border rounded-sm p-2 bg-teal-50/30 border-gray-400 placeholder:text-gray-400"
                 placeholder="0.00"
+                required
               />
             </div>
           </div>

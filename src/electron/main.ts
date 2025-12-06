@@ -363,6 +363,17 @@ app.on("ready", () => {
 
  
 
+// ipcMain.handle("db:update-invoice", async (event, args) => {
+//   try {
+//     const response: any = await updateServiceByServiceId(args);
+//     return { success: true, message: response };
+//   } catch (error) {
+//     //@ts-ignore
+//     return { success: false, error: error.message || error };
+//   }
+// });
+
+
 ipcMain.handle("db:update-invoice", async (event, args) => {
   try {
     const response: any = await updateServiceByServiceId(args);
@@ -371,7 +382,7 @@ ipcMain.handle("db:update-invoice", async (event, args) => {
     //@ts-ignore
     return { success: false, error: error.message || error };
   }
-});
+})
 
 
 
