@@ -481,7 +481,7 @@ const InvoiceDetailsPage = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Discount</span>
-                  <span className="font-medium">{details?.serviceBill?.discount}%</span>
+                  <span className="font-medium">{details?.serviceBill?.discount} AED</span>
                 </div>
                 <div className="flex justify-between text-sm font-semibold pt-2 border-t border-blue-300">
                   <span>Total Amount</span>
@@ -504,7 +504,7 @@ const InvoiceDetailsPage = () => {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600"></span>
+                  <span className="text-gray-600">Due amount</span>
                   <span className="font-medium text-red-600">
                     {details?.serviceBill?.amount_due?.toFixed(2)} AED
                   </span>
