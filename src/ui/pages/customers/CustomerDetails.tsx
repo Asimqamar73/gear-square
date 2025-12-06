@@ -101,6 +101,7 @@ const CustomerDetails = () => {
         updatedBy: user.id,
         ...(action === "add" && { createdBy: user.id }),
       };
+      console.log(payload)
       //@ts-ignore
       const response =
         action === "add"
@@ -109,6 +110,7 @@ const CustomerDetails = () => {
           : //@ts-ignore
             await window.electron.updateVehicleDetails(payload);
 
+            console.log(response)
       if (response?.success) {
         toast.success(`Vehicle ${action === "add" ? "added" : "updated"} successfully.`, {
           position: "top-center",

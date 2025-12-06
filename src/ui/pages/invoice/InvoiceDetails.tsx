@@ -8,6 +8,7 @@ import {
   User,
   CreditCard,
   AlertCircle,
+  Edit2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -226,6 +227,16 @@ const InvoiceDetailsPage = () => {
         <div className="mb-8">
           <PageHeader title="Invoice Details">
             <div className="flex gap-2">
+               <button
+                className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-medium transition-colors shadow-sm"
+                onClick={() => {
+                   navigate(`/edit-invoice/${(params.invoiceId)}`);
+                  // setPdfAction({ ...pdfAction, name: "download" });
+                }}
+              >
+                <Edit2 className="w-4 h-4" />
+                Edit
+              </button>
               <button
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-medium transition-colors shadow-sm"
                 onClick={() => {

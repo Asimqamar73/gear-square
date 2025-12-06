@@ -7,7 +7,7 @@ export const create_vehicles_table = () => {
     vehicle_number TEXT NOT NULL UNIQUE,
     make TEXT,
     model TEXT,
-    chassis_number TEXT UNIQUE,
+    chassis_number TEXT,
     year INTEGER,
     customer_id INTEGER NOT NULL,
     created_at TEXT DEFAULT (datetime('now','localtime')),
