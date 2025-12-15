@@ -1,76 +1,4 @@
-// import {
-//   Table as T,
-//   TableBody,
-//   TableCaption,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from "../../../../components/ui/table";
-
-// const ServiceItemTable = ({ data }: any) => {
-//   return (
-//     <div className="bg-white shadow-md rounded-2xl border border-gray-200 overflow-hidden">
-//       <T className="min-w-full">
-//         <TableCaption className="text-gray-500 text-sm p-3">List of </TableCaption>
-
-//         <TableHeader>
-//           <TableRow className="bg-gray-100">
-//             <TableHead className="text-left w-12 font-medium text-gray-700">No.</TableHead>
-//             <TableHead className="text-left w-16 font-medium text-gray-700">Photo</TableHead>
-//             <TableHead className="text-left font-medium text-gray-700">Item Name</TableHead>
-//             <TableHead className="text-right font-medium text-gray-700">Unit Price (AED)</TableHead>
-//             <TableHead className="text-right font-medium text-gray-700">Qty</TableHead>
-//             <TableHead className="text-right font-medium text-gray-700">Subtotal (AED)</TableHead>
-//             <TableHead className="text-right font-medium text-gray-700">
-//               Total (Incl. VAT)
-//             </TableHead>
-//           </TableRow>
-//         </TableHeader>
-
-//         <TableBody>
-//           {data?.map((item: any, idx: number) => {
-//             const totalWithVat = item.subtotal * 1.05;
-//             return (
-//               <TableRow
-//                 key={idx}
-//                 className={`transition hover:bg-gray-50 ${
-//                   idx % 2 === 0 ? "bg-gray-50" : "bg-white"
-//                 }`}
-//               >
-//                 <TableCell className="px-3 py-2">{idx + 1}</TableCell>
-//                 <TableCell className="px-3 py-2">
-//                   <img
-//                     src={`file://${item.image}`}
-//                     className="w-12 h-12 rounded-md object-cover"
-//                     alt={item.name}
-//                   />
-//                 </TableCell>
-//                 <TableCell className="px-3 py-2 font-medium text-gray-700">{item.name}</TableCell>
-//                 <TableCell className="px-3 py-2 text-right">
-//                   {item.retail_price.toFixed(2)}
-//                 </TableCell>
-//                 <TableCell className="px-3 py-2 text-right">{item.quantity}</TableCell>
-//                 <TableCell className="px-3 py-2 text-right">{item.subtotal.toFixed(2)}</TableCell>
-//                 <TableCell className="px-3 py-2 text-right font-semibold text-gray-800">
-//                   {totalWithVat.toFixed(2)}
-//                 </TableCell>
-//               </TableRow>
-//             );
-//           })}
-//         </TableBody>
-//       </T>
-//     </div>
-//   );
-// };
-
-// export default ServiceItemTable;
-
-
-
-
-
-import { Package, Receipt } from "lucide-react";
+import { Box, Package } from "lucide-react";
 
 interface ServiceItem {
   id?: string | number;
@@ -115,9 +43,9 @@ const ServiceItemTable = ({ data, vatRate = 5 }: ServiceItemTableProps) => {
         <table className="w-full min-w-full">
           {!hasData && (
             <caption className="py-8 text-center">
-              <Receipt className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-              <p className="text-gray-500 font-medium">No </p>
-              <p className="text-gray-400 text-sm mt-1">Add items to this invoice</p>
+              <Box className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+              <p className="text-gray-500 font-medium">No service item</p>
+              <p className="text-gray-400 text-sm mt-1">No item added to this invoice</p>
             </caption>
           )}
           

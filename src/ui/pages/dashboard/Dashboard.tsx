@@ -10,8 +10,8 @@ import {
   ArrowDownRight,
   Wrench,
 } from "lucide-react";
-import { DatePicker } from "../../../components/DatePicker";
 import { Button } from "../../../components/ui/button";
+import DatePicker from "../../../components/DatePicker";
 
 interface DashboardStats {
   profit: number;
@@ -125,12 +125,11 @@ const Dashboard = () => {
       toast.error("Please select both start and end dates");
       return;
     }
-
     try {
       //@ts-ignore
       const { response } = await window.electron.timelineSummary({ 
-        startDate: startDate.toISOString(), 
-        endDate: endDate.toISOString() 
+        startDate: startDate.toLocaleDateString(), 
+        endDate: endDate.toLocaleDateString() 
       });
       
       setStats(prev => ({

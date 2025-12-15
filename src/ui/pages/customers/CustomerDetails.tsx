@@ -1,16 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { 
-  Building2, 
-  Mail, 
-  MapPin, 
-  User, 
-  Phone,
-  Car,
-  ArrowLeft,
-  Plus,
-  FileText
-} from "lucide-react";
+import { Building2, Mail, MapPin, User, Phone, Car, ArrowLeft, Plus, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { CustomDialogBox } from "../../../components/CustomDialogBox";
 import AlertBox from "../../../components/AlertBox";
@@ -93,6 +83,18 @@ const CustomerDetails = () => {
 
   const handleAddOrEditVehicle = async (action: "add" | "edit") => {
     try {
+      if (vehicleData.make.trim() === "") {
+        toast.error("Make is required and shouldn't be empty.", {
+          position: "top-center",
+        });
+        return;
+      }
+      if (vehicleData.vehicle_number.trim() === "") {
+        toast.error("Vehicle number is required and shouldn't be empty.", {
+          position: "top-center",
+        });
+        return;
+      }
       //@ts-ignore
       const user = JSON.parse(localStorage.getItem("gear-square-user"));
       const payload = {
@@ -101,7 +103,6 @@ const CustomerDetails = () => {
         updatedBy: user.id,
         ...(action === "add" && { createdBy: user.id }),
       };
-      console.log(payload)
       //@ts-ignore
       const response =
         action === "add"
@@ -110,7 +111,6 @@ const CustomerDetails = () => {
           : //@ts-ignore
             await window.electron.updateVehicleDetails(payload);
 
-            console.log(response)
       if (response?.success) {
         toast.success(`Vehicle ${action === "add" ? "added" : "updated"} successfully.`, {
           position: "top-center",
@@ -145,7 +145,6 @@ const CustomerDetails = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="py-6 px-6 max-w-[1400px] mx-auto">
-        
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between">
@@ -161,7 +160,7 @@ const CustomerDetails = () => {
                 <p className="text-sm text-gray-500 mt-0.5">{customerInfo?.name}</p>
               </div>
             </div>
-            
+
             <button
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-900 hover:bg-gray-800 text-white text-sm font-medium transition-colors"
               onClick={() => setDialogState({ open: true, action: "add" })}
@@ -242,7 +241,7 @@ const CustomerDetails = () => {
               <div>
                 <h2 className="text-base font-semibold text-gray-900">Vehicles</h2>
                 <p className="text-sm text-gray-500">
-                  {vehiclesInfo.length} vehicle{vehiclesInfo.length !== 1 ? 's' : ''} registered
+                  {vehiclesInfo.length} vehicle{vehiclesInfo.length !== 1 ? "s" : ""} registered
                 </p>
               </div>
             </div>

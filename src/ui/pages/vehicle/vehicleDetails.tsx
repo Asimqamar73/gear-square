@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import VehicleServicesTable from "./components/VehicleServicesTable";
 import { dateFormatter } from "../../utils/DateFormatter";
+import AlertBox from "../../../components/AlertBox";
 
 interface VehicleInfo {
   id: number;
@@ -37,6 +38,14 @@ const VehicleDetails = () => {
   const navigate = useNavigate();
   const [vehicleInfo, setVehicleInfo] = useState<VehicleInfo | null>(null);
   const [servicesList, setServicesList] = useState<any[]>([]);
+  // Delete Dialog
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean;
+    invoiceId: number | null;
+  }>({
+    open: false,
+    invoiceId: null,
+  });
 
   useEffect(() => {
     Promise.allSettled([fetchVehicleDetails(), fetchVehicleServices()]);
@@ -59,6 +68,26 @@ const VehicleDetails = () => {
       //@ts-ignore
       const { response } = await window.electron.getServicesByVehicleId(vehicleId);
       setServicesList(response || []);
+    } catch (error) {
+      toast.error("Failed to load service history. Please try again.", {
+        position: "top-center",
+      });
+    }
+  };
+
+  const handleDeleteInvoice = async () => {
+    if (!deleteDialog.invoiceId) return;
+
+    try {
+      //@ts-ignore
+      const response = await window.electron.deleteInvoice(deleteDialog.invoiceId);
+      if (response.success) {
+        toast.success("Service deleted successfully.", {
+        position: "top-center",
+      });
+        fetchVehicleServices();
+      }
+      setDeleteDialog({ open: false, invoiceId: null });
     } catch (error) {
       toast.error("Failed to load service history. Please try again.", {
         position: "top-center",
@@ -197,16 +226,14 @@ const VehicleDetails = () => {
                         <Hash className="w-6 h-6 text-white" />
                       </div>
                     </div>
-                    {
-                      vehicleInfo.chassis_number && <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                      <span className="text-xs font-medium text-gray-300">Chassis:</span>
-                      <span className="text-sm font-semibold font-mono text-white">
-                        {vehicleInfo.chassis_number}
-                      </span>
-                    </div>
-
-                    }
-                   
+                    {vehicleInfo.chassis_number && (
+                      <div className="flex items-center gap-2 px-3 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
+                        <span className="text-xs font-medium text-gray-300">Chassis:</span>
+                        <span className="text-sm font-semibold font-mono text-white">
+                          {vehicleInfo.chassis_number}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -275,9 +302,21 @@ const VehicleDetails = () => {
               data={servicesList}
               onViewInvoice={(id) => navigate(`/invoice/${id}`)}
               onEditInvoice={(id) => navigate(`/edit-invoice/${id}`)}
+              onDeleteInvoice={(id) => setDeleteDialog({ open: true, invoiceId: id as number })}
               dateFormatter={dateFormatter}
             />
           </div>
+          <AlertBox
+            open={deleteDialog.open}
+            setOpen={(value: any) =>
+              setDeleteDialog((prev) =>
+                typeof value === "function" ? value(prev) : { open: value, invoiceId: null }
+              )
+            }
+            continueProcessHandler={handleDeleteInvoice}
+            text="Delete service"
+            subtext="This action cannot be undone. All associated services details will also be permanently deleted."
+          />
         </div>
       </div>
     </div>
@@ -326,4 +365,3 @@ const DetailCard = ({
     </div>
   </div>
 );
-

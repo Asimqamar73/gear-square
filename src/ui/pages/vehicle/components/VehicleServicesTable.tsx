@@ -1,4 +1,4 @@
-import { Edit2, Eye, Hash } from "lucide-react";
+import { Edit2, Eye, Hash, Trash2 } from "lucide-react";
 
 interface VehicleService {
   id: number;
@@ -14,12 +14,14 @@ interface VehicleServicesTableProps {
   onViewInvoice: (invoiceId: number) => void;
   onEditInvoice: (invoiceId: number) => void;
   dateFormatter: (date: string) => string;
+  onDeleteInvoice: (id: number) => void;
 }
 
 const VehicleServicesTable = ({
   data,
   onViewInvoice,
   onEditInvoice,
+  onDeleteInvoice,
   dateFormatter,
 }: VehicleServicesTableProps) => {
   // const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
@@ -196,6 +198,15 @@ const VehicleServicesTable = ({
                               aria-label="View invoice"
                             >
                               <Edit2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                            <div className="relative">
+                            <button
+                              className="w-8 h-8 inline-flex items-center justify-center rounded-lg border border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all text-gray-600"
+                              onClick={() => onDeleteInvoice(service.id)}
+                              aria-label="View invoice"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>

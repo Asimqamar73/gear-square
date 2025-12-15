@@ -41,61 +41,77 @@ export function addService(data: any) {
   });
 }
 
-// export async function getAllInvoices() {
-//   try {
-//     const rows = await new Promise((resolve, reject) => {
-//       db.all(
-//         `SELECT
-//         services.id as invoice_id, 
-//         services.created_at, 
-//         vehicles.vehicle_number, 
-//         vehicles.chassis_number, 
-//         vehicles.id as vehicle_id, 
-//         customers.name, 
-//         customers.phone_number,
-//         customers.company_name,
-//         customers.company_phone_number,
-//         service_bill.amount_paid,
-//         service_bill.amount_due,
-//         service_bill.bill_status
-//         FROM services 
-//         JOIN vehicles ON vehicles.id=services.vehicle_id 
-//         JOIN customers ON customers.id=vehicles.customer_id 
-//         JOIN service_bill ON service_bill.service_id=services.id 
-//         order by services.id DESC`,
-//         [],
-//         (err: any, rows: any) => {
-//           if (err) return reject(err);
-//           resolve(rows);
-//         }
-//       );
-//     });
-//     return rows;
-//   } catch (error) {
-//     throw error;
-//   }
-// }
-
-export function getAllInvoices(limit: number, offset: number, search: string = "") {
+export function deleteService(serviceId: number) {
   return new Promise((resolve, reject) => {
-    let whereClause = "";
-    let params: any[] = [];
+    const query = `DELETE FROM services WHERE id = ?`;
+    
+    db.run(query, [serviceId], function (err: any) {
+      if (err) {
+        console.error("Error deleting service:", err.message);
+        return reject(err);
+      }
+      
+      // this.changes tells us how many rows were affected
+      if (this.changes === 0) {
+        console.warn(`Service with ID ${serviceId} not found`);
+      } else {
+        console.log(`Service ${serviceId} deleted successfully (${this.changes} row(s) affected)`);
+      }
+      
+      resolve(this.changes);
+    });
+  });
+}
 
-    // SEARCH CONDITIONS
+
+
+
+
+export function getAllInvoices(
+  limit: number,
+  offset: number,
+  search: string = "",
+  bill_status: number | null = null
+) {
+  return new Promise((resolve, reject) => {
+    const conditions: string[] = [];
+    const params: any[] = [];
+
+    // 🔍 SEARCH FILTER
     if (search && search.trim() !== "") {
       const like = `%${search}%`;
-      whereClause = `
-        WHERE 
+      conditions.push(`
+        (
           customers.name LIKE ? OR
           customers.phone_number LIKE ? OR
           customers.company_name LIKE ? OR
           vehicles.vehicle_number LIKE ? OR
           vehicles.chassis_number LIKE ? OR
           services.id LIKE ?
-      `;
-      params = [like, like, like, like, like, like];
+        )
+      `);
+      params.push(like, like, like, like, like, like);
     }
 
+    // 🧾 BILL STATUS FILTER (Tabs)
+    if (bill_status !== null && bill_status !== undefined) {
+      conditions.push(`service_bill.bill_status = ?`);
+      params.push(bill_status);
+    }
+
+    // Build WHERE clause safely
+    const whereClause =
+      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+    const baseQuery = `
+      FROM services 
+      JOIN vehicles ON vehicles.id = services.vehicle_id 
+      JOIN customers ON customers.id = vehicles.customer_id 
+      JOIN service_bill ON service_bill.service_id = services.id
+      ${whereClause}
+    `;
+
+    // 📄 DATA QUERY
     const query = `
       SELECT
         services.id AS invoice_id, 
@@ -109,37 +125,30 @@ export function getAllInvoices(limit: number, offset: number, search: string = "
         customers.company_phone_number,
         service_bill.amount_paid,
         service_bill.amount_due,
+        service_bill.total,
         service_bill.bill_status
-      FROM services 
-      JOIN vehicles ON vehicles.id = services.vehicle_id 
-      JOIN customers ON customers.id = vehicles.customer_id 
-      JOIN service_bill ON service_bill.service_id = services.id
-      ${whereClause}
+      ${baseQuery}
       ORDER BY services.id DESC
       LIMIT ? OFFSET ?
     `;
 
-    // ADD LIMIT + OFFSET
-    params.push(limit, offset);
+    // ➕ pagination params
+    const dataParams = [...params, limit, offset];
 
-    // COUNT QUERY for pagination
+    // 🔢 COUNT QUERY
     const countQuery = `
-      SELECT COUNT(*) AS total 
-      FROM services 
-      JOIN vehicles ON vehicles.id = services.vehicle_id 
-      JOIN customers ON customers.id = vehicles.customer_id 
-      JOIN service_bill ON service_bill.service_id = services.id
-      ${whereClause}
+      SELECT COUNT(*) AS total
+      ${baseQuery}
     `;
 
-    // First get total count
-    db.get(countQuery, params.slice(0, -2), (countErr: any, countRow: any) => {
+    // 1️⃣ Get total count
+    db.get(countQuery, params, (countErr: any, countRow: any) => {
       if (countErr) return reject(countErr);
 
       const total = countRow?.total ?? 0;
 
-      // Then get paginated rows
-      db.all(query, params, (err: any, rows: any[]) => {
+      // 2️⃣ Get rows
+      db.all(query, dataParams, (err: any, rows: any[]) => {
         if (err) return reject(err);
 
         resolve({ rows, total });
@@ -147,6 +156,7 @@ export function getAllInvoices(limit: number, offset: number, search: string = "
     });
   });
 }
+
 
 
 export async function getServicesById(customerId: number) {

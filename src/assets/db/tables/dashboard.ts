@@ -245,48 +245,126 @@ export const last365DaysDueAmount = (): Promise<{ total_due_amount: number }> =>
   });
 };
 
+// export const timelineSummary = (
+//   timeline: { startDate: string | Date; endDate: string | Date }
+// ): Promise<{
+//   services_count: number;
+//   total_due_amount: number;
+//   total_profit: number;
+// }> => {
+//   return new Promise((resolve, reject) => {
+//     const start = new Date(timeline.startDate);
+//     const end = new Date(timeline.endDate);
+
+//     const fromDate = start < end ? start : end;
+//     const toDate = start < end ? end : start;
+
+//     // Format as ISO without time zone for SQLite (YYYY-MM-DD HH:MM:SS)
+//     const from = fromDate.toISOString().slice(0, 19).replace("T", " ");
+//     const to = toDate.toISOString().slice(0, 19).replace("T", " ");
+//      console.log("start",start)
+//     console.log("end ",end)
+//     console.log("from",from)
+//     console.log("to ",to)
+//     const query = `
+//       WITH
+//         service_data AS (
+//           SELECT COUNT(id) AS services_count
+//           FROM services
+//           WHERE DATETIME(created_at) >= DATETIME(?)
+//             AND DATETIME(created_at) < DATETIME(?, '+1 day')
+//         ),
+//         due_data AS (
+//           SELECT ROUND(COALESCE(SUM(amount_due), 0), 2) AS total_due_amount
+//           FROM service_bill
+//           WHERE service_id IN (
+//             SELECT id FROM services
+//             WHERE DATETIME(created_at) >= DATETIME(?)
+//               AND DATETIME(created_at) < DATETIME(?, '+1 day')
+//           )
+//         ),
+//         profit_data AS (
+//           SELECT ROUND(COALESCE(SUM((p.retail_price - p.cost_price) * si.quantity), 0), 2) AS total_profit
+//           FROM service_items si
+//           JOIN products p ON p.id = si.product_id
+//           JOIN services s ON s.id = si.service_id
+//           WHERE DATETIME(s.created_at) >= DATETIME(?)
+//             AND DATETIME(s.created_at) < DATETIME(?, '+1 day')
+//         )
+//       SELECT
+//         (SELECT services_count FROM service_data) AS services_count,
+//         (SELECT total_due_amount FROM due_data) AS total_due_amount,
+//         (SELECT total_profit FROM profit_data) AS total_profit;
+//     `;
+
+//     db.get(
+//       query,
+//       [from, to, from, to, from, to],
+//       (err: Error | null, row: {
+//         services_count: number;
+//         total_due_amount: number;
+//         total_profit: number;
+//       }) => {
+//         if (err) {
+//           console.error("Error fetching timeline summary:", err);
+//           return reject(err);
+//         }
+//         resolve(row);
+//       }
+//     );
+//   });
+// };
+
+
+
 export const timelineSummary = (
-  timeline: { startDate: string | Date; endDate: string | Date }
+  timeline: { startDate: string; endDate: string }
 ): Promise<{
   services_count: number;
   total_due_amount: number;
   total_profit: number;
 }> => {
   return new Promise((resolve, reject) => {
-    const start = new Date(timeline.startDate);
-    const end = new Date(timeline.endDate);
 
-    const fromDate = start < end ? start : end;
-    const toDate = start < end ? end : start;
+    const parseDDMMYYYY = (dateStr: string): Date => {
+      const [day, month, year] = dateStr.split("/").map(Number);
+      return new Date(year, month - 1, day);
+    };
 
-    // Format as ISO without time zone for SQLite (YYYY-MM-DD HH:MM:SS)
-    const from = fromDate.toISOString().slice(0, 19).replace("T", " ");
-    const to = toDate.toISOString().slice(0, 19).replace("T", " ");
+    const start = parseDDMMYYYY(timeline.startDate);
+    const end = parseDDMMYYYY(timeline.endDate);
+
+    const fromDate = start <= end ? start : end;
+    const toDate = start <= end ? end : start;
+
+    // Start of day & end of day
+    const from = `${fromDate.getFullYear()}-${String(fromDate.getMonth() + 1).padStart(2, "0")}-${String(fromDate.getDate()).padStart(2, "0")} 00:00:00`;
+    const to = `${toDate.getFullYear()}-${String(toDate.getMonth() + 1).padStart(2, "0")}-${String(toDate.getDate()).padStart(2, "0")} 23:59:59`;
 
     const query = `
       WITH
         service_data AS (
           SELECT COUNT(id) AS services_count
           FROM services
-          WHERE DATETIME(created_at) >= DATETIME(?)
-            AND DATETIME(created_at) < DATETIME(?, '+1 day')
+          WHERE DATETIME(created_at) BETWEEN DATETIME(?) AND DATETIME(?)
         ),
         due_data AS (
           SELECT ROUND(COALESCE(SUM(amount_due), 0), 2) AS total_due_amount
           FROM service_bill
           WHERE service_id IN (
             SELECT id FROM services
-            WHERE DATETIME(created_at) >= DATETIME(?)
-              AND DATETIME(created_at) < DATETIME(?, '+1 day')
+            WHERE DATETIME(created_at) BETWEEN DATETIME(?) AND DATETIME(?)
           )
         ),
         profit_data AS (
-          SELECT ROUND(COALESCE(SUM((p.retail_price - p.cost_price) * si.quantity), 0), 2) AS total_profit
+          SELECT ROUND(
+            COALESCE(SUM((p.retail_price - p.cost_price) * si.quantity), 0),
+            2
+          ) AS total_profit
           FROM service_items si
           JOIN products p ON p.id = si.product_id
           JOIN services s ON s.id = si.service_id
-          WHERE DATETIME(s.created_at) >= DATETIME(?)
-            AND DATETIME(s.created_at) < DATETIME(?, '+1 day')
+          WHERE DATETIME(s.created_at) BETWEEN DATETIME(?) AND DATETIME(?)
         )
       SELECT
         (SELECT services_count FROM service_data) AS services_count,
@@ -297,21 +375,17 @@ export const timelineSummary = (
     db.get(
       query,
       [from, to, from, to, from, to],
-      (err: Error | null, row: {
-        services_count: number;
-        total_due_amount: number;
-        total_profit: number;
-      }) => {
+      (err, row) => {
         if (err) {
           console.error("Error fetching timeline summary:", err);
           return reject(err);
         }
+        //@ts-ignore
         resolve(row);
       }
     );
   });
 };
-
 
 
 export const timelineServicesCount = () => {

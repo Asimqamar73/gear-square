@@ -41,6 +41,7 @@ interface Service {
   vehicle_number: string;
   labor_cost: number;
   created_at: string;
+  trn: string;
   customer_id: number;
 }
 
@@ -120,6 +121,7 @@ const InvoiceDetailsPage = () => {
     try {
       //@ts-ignore
       const resp = await window.electron.getInvoiceDetails(id);
+      console.log("resp", resp);
       setDetails(resp);
     } catch (error) {
       toast.error("Failed to load invoice details. Please try again.", {
@@ -227,10 +229,10 @@ const InvoiceDetailsPage = () => {
         <div className="mb-8">
           <PageHeader title="Invoice Details">
             <div className="flex gap-2">
-               <button
+              <button
                 className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-blue-400 hover:bg-blue-500 text-white font-medium transition-colors shadow-sm"
                 onClick={() => {
-                   navigate(`/edit-invoice/${(params.invoiceId)}`);
+                  navigate(`/edit-invoice/${params.invoiceId}`);
                   // setPdfAction({ ...pdfAction, name: "download" });
                 }}
               >
@@ -322,14 +324,16 @@ const InvoiceDetailsPage = () => {
                 <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
                   <Car className="w-6 h-6 text-gray-600" />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 flex flex-col justify-center">
                   {/* <p className="text-sm text-gray-500 mb-1">Vehicle</p> */}
                   <p className="font-semibold text-gray-900 text-sm">
                     {details?.service?.vehicle_number}
                   </p>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Chassis: {details?.service?.chassis_number}
-                  </p>
+                  {details?.service?.chassis_number && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Chassis: {details?.service?.chassis_number}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -555,6 +559,7 @@ const InvoiceDetailsPage = () => {
           continueProcessHandler={handleInvoicePDF}
           pdfAction={pdfAction}
           setPdfAction={setPdfAction}
+          isTrnAvailable={details?.service?.trn ? true : false}
         />
       </div>
     </div>

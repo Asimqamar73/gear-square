@@ -107,12 +107,12 @@ const CustomerVehiclesTable = ({
                           <>
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-medium text-gray-900">
-                                {vehicle.make || "-"}
+                                {vehicle.make}
                               </span>
                               {vehicle.make && vehicle.model && (
                                 <span className="text-gray-400">•</span>
                               )}
-                              <span className="text-sm text-gray-600">{vehicle.model || "-"}</span>
+                              <span className="text-sm text-gray-600">{vehicle.model}</span>
                             </div>
                             {vehicle.year && (
                               <span className="text-xs text-gray-500">Year: {vehicle.year}</span>

@@ -85,7 +85,7 @@ const LabourCharges = ({ labourItems, setLabourItems, setTotalLaborCost,deleteLa
               />
             </div>
             {/* Delete Button */}
-            {labourItems.length > 1 && (
+            {/* {labourItems.length > 1 && ( */}
               <div className="flex items-center">
                 <Button
                   variant="outline"
@@ -95,7 +95,7 @@ const LabourCharges = ({ labourItems, setLabourItems, setTotalLaborCost,deleteLa
                   <Trash />
                 </Button>
               </div>
-            )}
+            {/* )} */}
           </div>
         </div>
       ))}

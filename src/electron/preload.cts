@@ -90,6 +90,11 @@ electron.contextBridge.exposeInMainWorld("electron", {
 // },
 
 
+deleteInvoice : async (id: number) => {
+  const result = await electron.ipcRenderer.invoke("db:delete-invoice-by-id", id);
+  return result;
+},
+
 updateInvoice : async (data: any) => {
   const result = await electron.ipcRenderer.invoke("db:update-invoice", data);
   return result;

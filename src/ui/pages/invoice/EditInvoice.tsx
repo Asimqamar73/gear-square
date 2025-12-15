@@ -353,22 +353,4 @@ const EditInovice = () => {
 
 export default EditInovice;
 
-// const CustomerDetail = ({
-//   text,
-//   subtext,
-//   children,
-// }: {
-//   text?: string;
-//   subtext?: string;
-//   children: any;
-// }) => {
-//   return (
-//     <div className="flex items-center gap-2">
-//       <div className="p-1.5 border border-gray-400 rounded-xl bg-gray-100">{children}</div>
-//       <div>
-//         <p>{text}</p>
-//         {subtext && <p className="text-gray-500 text-sm">{subtext}</p>}
-//       </div>
-//     </div>
-//   );
-// };
+

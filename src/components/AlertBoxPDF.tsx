@@ -1,97 +1,3 @@
-// import {
-//   AlertDialog,
-//   AlertDialogAction,
-//   AlertDialogCancel,
-//   AlertDialogContent,
-//   AlertDialogDescription,
-//   AlertDialogFooter,
-//   AlertDialogHeader,
-//   AlertDialogTitle,
-// } from "./ui/alert-dialog";
-
-// const AlertBoxPDF = ({
-//   open,
-//   setOpen,
-//   continueProcessHandler,
-//   text,
-//   subtext,
-//   pdfAction,
-//   setPdfAction,
-// }: {
-//   open: any;
-//   setOpen: any;
-//   continueProcessHandler: any;
-//   text: string;
-//   subtext: string;
-//   pdfAction: any;
-//   setPdfAction: any;
-// }) => {
-//   return (
-//     <AlertDialog open={open} onOpenChange={setOpen}>
-//       <AlertDialogContent className="bg-gray-200">
-//         <AlertDialogHeader>
-//           <AlertDialogTitle>{text}</AlertDialogTitle>
-//           <AlertDialogDescription>{subtext}</AlertDialogDescription>
-
-//           <div className="flex items-center gap-2 mt-3">
-//             <p className="text-sm">Add TRN</p>
-//             <input
-//               type="checkbox"
-//               className="size-3 cursor-pointer"
-//               checked={pdfAction.addTRN}
-//               onChange={(e) =>
-//                 setPdfAction((prev: any) => ({
-//                   ...prev,
-//                   addTRN: e.target.checked,
-//                 }))
-//               }
-//             />
-//           </div>
-//             <div className="flex items-center gap-2 mt-3">
-//             <p className="text-sm">Add Payment details (Paid and due amount)</p>
-//             <input
-//               type="checkbox"
-//               className="size-3 cursor-pointer"
-//               checked={pdfAction.addPaymentDetails}
-//               onChange={(e) =>
-//                 setPdfAction((prev: any) => ({
-//                   ...prev,
-//                   addPaymentDetails: e.target.checked,
-//                 }))
-//               }
-//             />
-//           </div>
-//         </AlertDialogHeader>
-
-//         <AlertDialogFooter>
-//           <AlertDialogCancel
-//             onClick={() => {
-//               setPdfAction({ name: "", addTRN: false,addPaymentDetails:false });
-//             }}
-//             className="cursor-pointer"
-//           >
-//             Cancel
-//           </AlertDialogCancel>
-
-//           <AlertDialogAction
-//             onClick={continueProcessHandler}
-//             className="bg-[#173468] text-white cursor-pointer"
-//           >
-//             Continue
-//           </AlertDialogAction>
-//         </AlertDialogFooter>
-//       </AlertDialogContent>
-//     </AlertDialog>
-//   );
-// };
-
-// export default AlertBoxPDF;
-
-
-
-
-
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -111,6 +17,7 @@ const AlertBoxPDF = ({
   subtext,
   pdfAction,
   setPdfAction,
+  isTrnAvailable
 }:any) => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -130,6 +37,7 @@ const AlertBoxPDF = ({
               type="checkbox"
               className="size-4 cursor-pointer"
               checked={pdfAction.addTRN}
+              disabled={!isTrnAvailable}
               onChange={(e) =>
                 setPdfAction((prev:any) => ({
                   ...prev,
@@ -137,9 +45,9 @@ const AlertBoxPDF = ({
                 }))
               }
             />
-            <p className="text-sm font-medium text-gray-700">
+            {isTrnAvailable ? <p className="text-sm font-medium text-gray-700">
               Include TRN on the invoice
-            </p>
+            </p>: <p className="text-xs font-medium text-gray-400 italic">No TRN added against customer, Please add TRN.</p>}
           </div>
 
           {/* Payment Details Option */}

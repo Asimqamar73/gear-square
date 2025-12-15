@@ -15,19 +15,19 @@ interface Invoice {
   company_phone_number?: string;
   created_at: string;
   bill_status: 0 | 1 | 2 | 3;
+  total: number;
+  amount_paid: number;
+  amount_due: number;
 }
 
 interface InvoiceTableProps {
   data: Invoice[];
   onViewInvoice: (invoiceId: string | number) => void;
-  
 }
 
 const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
   const [hoveredTooltip, setHoveredTooltip] = useState<string | null>(null);
   const navigate = useNavigate();
-
-
 
   const hasData = data && data.length > 0;
 
@@ -42,7 +42,7 @@ const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
               <p className="text-gray-400 text-sm mt-1">Invoices will appear here once created</p>
             </caption>
           )}
-          
+
           {hasData && (
             <>
               <thead>
@@ -72,6 +72,9 @@ const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
                     Date
                   </th>
                   <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                    Amount
+                  </th>
+                  <th className="px-4 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                     Status
                   </th>
                   <th className="px-4 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -79,20 +82,19 @@ const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
                   </th>
                 </tr>
               </thead>
-              
+
               <tbody>
                 {data.map((invoice) => (
-                  <tr 
+                  <tr
                     key={invoice.invoice_id}
                     className="border-b border-gray-100 hover:bg-blue-50/30 transition-all duration-150"
                   >
                     <td className="px-4 py-4">
                       <div className="flex items-center gap-2">
-                          {/* <FileText className="w-4 h-4 text-blue-400" /> */}
                         <span className="font-semibold text-gray-600">#{invoice.invoice_id}</span>
                       </div>
                     </td>
-                    
+
                     <td className="px-4 py-4">
                       <div className="flex flex-col gap-1">
                         <button
@@ -101,48 +103,79 @@ const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
                         >
                           {invoice.vehicle_number}
                         </button>
-                        <span className="text-xs text-gray-500">
-                          Chassis: {invoice.chassis_number}
-                        </span>
+                        {invoice.chassis_number && (
+                          <span className="text-xs text-gray-500">
+                            Chassis: {invoice.chassis_number}
+                          </span>
+                        )}
                       </div>
                     </td>
-                    
+
                     <td className="px-4 py-4">
                       <div className="flex flex-col gap-1">
                         <span className="font-medium text-gray-900">{invoice.name}</span>
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <Phone className="w-3 h-3" />
-                          {invoice.phone_number}
-                        </div>
+                        {invoice.phone_number ? (
+                          <div className="flex items-center gap-1 text-xs text-gray-500">
+                            <Phone className="w-3 h-3" />
+                            {invoice.phone_number}
+                          </div>
+                        ) : (
+                          <span className="italic text-sm text-gray-500">
+                            {"No customer details added"}
+                          </span>
+                        )}
                       </div>
                     </td>
-                    
+
                     <td className="px-4 py-4">
                       {invoice.company_name ? (
                         <div className="flex flex-col gap-1">
-                          <span className="text-sm font-medium text-gray-900">{invoice.company_name}</span>
+                          <span className="text-sm font-medium text-gray-900">
+                            {invoice.company_name}
+                          </span>
                           {invoice.company_phone_number && (
-                            <span className="text-xs text-gray-500">{invoice.company_phone_number}</span>
+                            <span className="text-xs text-gray-500">
+                              {invoice.company_phone_number}
+                            </span>
                           )}
                         </div>
                       ) : (
                         <span className="text-gray-400 text-sm italic">No company</span>
                       )}
                     </td>
-                    
+
                     <td className="px-4 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{dateFormatter(invoice.created_at)}</span>
+                      <span className="text-sm text-gray-900">
+                        {dateFormatter(invoice.created_at)}
+                      </span>
+                    </td>
+
+                    {/* Amount Column */}
+                    <td className="px-4 py-4">
+                      <div className="flex flex-col gap-1 text-sm">
+                        <span className="text-green-600 font-medium">
+                          Paid: {invoice.amount_paid.toLocaleString()}
+                        </span>
+                        <span className="text-red-600 font-medium">
+                          Due: {invoice.amount_due.toLocaleString()}
+                        </span>
+                        <span className="text-gray-700 font-semibold">
+                          Total: {invoice.total.toLocaleString()}
+                        </span>
                       </div>
                     </td>
-                    
+
                     <td className="px-4 py-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${paymentStatuses[invoice.bill_status].color}`}>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                          paymentStatuses[invoice.bill_status].color
+                        }`}
+                      >
                         {getStatusDot(invoice.bill_status)}
                         {paymentStatuses[invoice.bill_status].label}
                       </span>
                     </td>
-                    
+
                     <td className="px-4 py-4">
                       <div className="flex justify-center">
                         <div className="relative">
@@ -167,13 +200,18 @@ const InvoiceTable = ({ data, onViewInvoice }: InvoiceTableProps) => {
                   </tr>
                 ))}
               </tbody>
-              
+
               <tfoot>
                 <tr>
-                  <td colSpan={7} className="px-4 py-3 text-center text-sm text-gray-600 bg-gray-50 border-t border-gray-200">
+                  <td
+                    colSpan={8}
+                    className="px-4 py-3 text-center text-sm text-gray-600 bg-gray-50 border-t border-gray-200"
+                  >
                     <div className="flex items-center justify-center gap-2">
                       <FileText className="w-4 h-4" />
-                      <span>Showing {data.length} invoice{data.length !== 1 ? 's' : ''}</span>
+                      <span>
+                        Showing {data.length} invoice{data.length !== 1 ? "s" : ""}
+                      </span>
                     </div>
                   </td>
                 </tr>

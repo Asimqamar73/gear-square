@@ -40,15 +40,6 @@ import {
   getServiceItems,
   updateServiceByServiceId,
 } from "../assets/db/tables/serviceItems.js";
-// import {
-//   // addService,
-//   // create_service_table,
-//   getAllInvoices,
-//   getServiceDetails,
-//   getServicesById,
-//   searchInvoice,
-// } from "../assets/db/tables/services.js";
-
 import {
   create_service_table,
   addService,
@@ -58,6 +49,7 @@ import {
   searchInvoice,
   getServicesByVehicleId,
   generateInvoice,
+  deleteService,
 } from "../assets/db/tables/services.js";
 import { get_all_users, login, create_users_table } from "../assets/db/tables/users.js";
 import {
@@ -94,14 +86,6 @@ app.on("ready", () => {
       webSecurity: false,
     },
   });
-  // create_users_table();
-  // create_customers_table();
-  // create_products_table();
-  // create_vehicles_table();
-  // create_service_table();
-  // create_service_items_table();
-  // create_service_bill_table();
-  // createDeductProductQuantityTrigger();
 
   if (isDev()) {
     mainWindow.loadURL("http://localhost:5123/");
@@ -363,20 +347,21 @@ app.on("ready", () => {
 
  
 
-// ipcMain.handle("db:update-invoice", async (event, args) => {
-//   try {
-//     const response: any = await updateServiceByServiceId(args);
-//     return { success: true, message: response };
-//   } catch (error) {
-//     //@ts-ignore
-//     return { success: false, error: error.message || error };
-//   }
-// });
-
 
 ipcMain.handle("db:update-invoice", async (event, args) => {
   try {
     const response: any = await updateServiceByServiceId(args);
+    return { success: true, message: response };
+  } catch (error) {
+    //@ts-ignore
+    return { success: false, error: error.message || error };
+  }
+})
+
+ipcMain.handle("db:delete-invoice-by-id", async (event, id) => {
+  try {
+    const response: any = await deleteService(id);
+    
     return { success: true, message: response };
   } catch (error) {
     //@ts-ignore
@@ -390,23 +375,31 @@ ipcMain.handle("db:update-invoice", async (event, args) => {
     return await UpdateServiceBillPayment(amountPaid, billStatus, id);
   });
 
-  ipcMain.handle("db:get-invoices", async (event, args) => {
-    try {
-      const { limit, offset, search } = args;
-      const response = await getAllInvoices(limit, offset, search);
 
-      return {
-        success: true,
-        response,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        //@ts-ignore
-        error: error.message,
-      };
-    }
-  });
+  ipcMain.handle("db:get-invoices", async (event, args) => {
+  try {
+    const { limit, offset, search, bill_status } = args;
+
+    const response = await getAllInvoices(
+      limit,
+      offset,
+      search,
+      bill_status
+    );
+
+    return {
+      success: true,
+      response,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      //@ts-ignore
+      error: error.message,
+    };
+  }
+});
+
 
   ipcMain.handle("db:get-services-by-id", async (event, customerId) => {
     try {

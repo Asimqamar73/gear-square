@@ -62,7 +62,7 @@ export const GenerateVehicleServiceInvoice = () => {
   const [discount, setDiscount] = useState<number | string | undefined>("");
   const [amountPaid, setAmountPaid] = useState<number | string | undefined>("");
   const [laborCost, setLaborCost] = useState("0");
-  const [items, setItems] = useState<InvoiceItem[]>([initialItemState]);
+  const [items, setItems] = useState<InvoiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -81,7 +81,9 @@ export const GenerateVehicleServiceInvoice = () => {
       const { data } = await window.electron.getProducts();
       setProducts(data || []);
     } catch (error) {
-      toast.error("Failed to load products. Please try again.");
+      toast.error("Failed to load products. Please try again.",{
+        position: "top-center",
+      });
     }
   };
 
@@ -91,7 +93,9 @@ export const GenerateVehicleServiceInvoice = () => {
       const { response } = await window.electron.getVehicleDetails(params.vehicleId);
       setVehicleInfo(response);
     } catch (error) {
-      toast.error("Failed to load vehicle information. Please try again.");
+      toast.error("Failed to load vehicle information. Please try again.",{
+        position: "top-center",
+      });
       navigate("/vehicles");
     }
   };
@@ -156,6 +160,38 @@ export const GenerateVehicleServiceInvoice = () => {
   };
 
   const handleInvoiceGeneration = async () => {
+    console.log(laborItems);
+    
+    // Check if both items and labor items are empty or not added
+    const hasNoItems = items.length === 0 || items.every(item => item.product === null);
+    const hasNoLaborItems = laborItems.length === 0 || 
+      //@ts-ignore
+      laborItems.every(labor => !labor.labour_type || labor.labour_type.trim() === "");
+    
+    if (hasNoItems && hasNoLaborItems) {
+      toast.error("Please add at least one service item or labor item",{
+        position:"top-center"
+      });
+      return;
+    }
+    
+    // Check if items exist but are empty/invalid
+    if (items.length > 0 && items.every(item => item.product === null)) {
+      toast.error("Please complete the service item details or remove empty items",{
+        position:"top-center"
+      });
+      return;
+    }
+    
+    // Check if labor items exist but are empty/invalid
+    //@ts-ignore
+    if (laborItems.length > 0 && laborItems.every(labor => !labor.labour_type || labor.labour_type.trim() === "" || !labor.amount || labor.amount.trim() === "")) {
+      toast.error("Please complete the labor item details or remove empty labor items",{
+        position: "top-center",
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       //@ts-ignore
@@ -180,17 +216,20 @@ export const GenerateVehicleServiceInvoice = () => {
         vatAmount: (Number(totals.subtotal) * VAT_RATE).toFixed(2),
       });
       if (response.success) {
-        toast.success("Invoice generated successfully");
+        toast.success("Invoice generated successfully",{
+        position: "top-center",
+      });
         navigate(`/invoice/${response.invoiceId}`);
       }
     } catch (error) {
-      toast.error("Failed to generate invoice. Please try again.");
+      toast.error("Failed to generate invoice. Please try again.",{
+        position: "top-center",
+      });
     } finally {
       setIsSubmitting(false);
       setShowConfirmDialog(false);
     }
   };
-
   const handleAmountPaid = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
     // setAmountPaid(value);
@@ -247,16 +286,17 @@ export const GenerateVehicleServiceInvoice = () => {
               </div>
             </div>
 
-            {items.length > 0 && items[0].product && (
-              <button
-                onClick={() => setShowConfirmDialog(true)}
-                disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors shadow-sm hover:shadow-md"
-              >
-                <Save className="w-4 h-4" />
-                Generate Invoice
-              </button>
-            )}
+            {/* {(items.length > 0 && items[0].product) ||
+              (laborItems.length > 0 && ( */}
+            <button
+              onClick={() => setShowConfirmDialog(true)}
+              disabled={isSubmitting}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-900 hover:bg-gray-800 disabled:bg-gray-400 text-white text-sm font-medium rounded-lg transition-colors shadow-sm hover:shadow-md"
+            >
+              <Save className="w-4 h-4" />
+              Generate Invoice
+            </button>
+            {/* ))} */}
           </div>
         </div>
 
@@ -315,7 +355,9 @@ export const GenerateVehicleServiceInvoice = () => {
                 <InfoRow
                   icon={<Hash className="w-4 h-4 text-gray-600" />}
                   value={vehicleInfo.vehicle_number}
-                  subValue={`Chassis: ${vehicleInfo.chassis_number}`}
+                  subValue={`${
+                    vehicleInfo.chassis_number ? "chassis: " + vehicleInfo.chassis_number : ""
+                  } `}
                 />
               )}
               {vehicleInfo?.year && (
